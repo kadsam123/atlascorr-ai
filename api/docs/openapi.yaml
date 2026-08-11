@@ -1,0 +1,743 @@
+openapi: 3.0.3
+info:
+  title: CircleTrade Agent Stack API
+  description: |
+    The Circle Agent Stack API exposes CircleTrade AI's export intelligence pipeline as
+    individually callable micro-agent endpoints. Each endpoint maps to a distinct intelligence
+    module: DDTRS (compliance & HS classification), MeridianFlow (route optimisation),
+    and TradeMatch (market & tariff intelligence).
+
+    **Authentication**: All `/api/*` endpoints require an `X-API-Key` header.
+    Demo key: `ct-demo-key-2026`
+  version: 1.0.0
+  contact:
+    name: CircleTrade AI
+    url: https://circletrade.ai
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: product_description is required
+        timestamp:
+          type: string
+          format: date-time
+
+    HsCodeResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        hs_code:
+          type: string
+          example: "6205.20"
+        confidence:
+          type: number
+          format: float
+          example: 0.84
+        confidence_label:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+        category:
+          type: string
+          example: textiles
+        description:
+          type: string
+          example: "Men's or boys' shirts — cotton"
+        matched_keyword:
+          type: string
+          nullable: true
+        source:
+          type: string
+          example: DDTRS
+        input:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    TariffResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        hs_code:
+          type: string
+        destination:
+          type: string
+        destination_code:
+          type: string
+        category:
+          type: string
+        tariff_rate:
+          type: number
+        currency:
+          type: string
+          example: percent
+        tariff_label:
+          type: string
+          enum: [DUTY_FREE, LOW, MODERATE, HIGH]
+        benchmark:
+          type: object
+          properties:
+            lowest_in_category:
+              type: object
+              properties:
+                destination: { type: string }
+                rate: { type: number }
+            highest_in_category:
+              type: object
+              properties:
+                destination: { type: string }
+                rate: { type: number }
+        source:
+          type: string
+          example: TradeMatch
+        timestamp:
+          type: string
+          format: date-time
+
+    RouteResult:
+      type: object
+      properties:
+        name: { type: string }
+        score: { type: integer }
+        transit_days: { type: integer }
+        cost_index: { type: number }
+        port_efficiency: { type: integer }
+        political_risk: { type: string }
+        regulatory_alignment: { type: string }
+        primary_ports:
+          type: array
+          items: { type: string }
+        recommendation: { type: string }
+
+    RouteResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        query:
+          type: object
+          properties:
+            origin: { type: string }
+            destination: { type: string }
+            product_category: { type: string, nullable: true }
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/RouteResult'
+        best_route:
+          $ref: '#/components/schemas/RouteResult'
+        total_routes_found: { type: integer }
+        source: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    MarketMatch:
+      type: object
+      properties:
+        market: { type: string }
+        market_code: { type: string }
+        region: { type: string }
+        score: { type: integer }
+        tariff: { type: number }
+        import_growth: { type: number }
+        gdp_growth: { type: number }
+        ease_of_trade: { type: integer }
+        category_fit: { type: string, enum: [HIGH, MODERATE] }
+        recommendation: { type: string }
+
+    MarketResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        product_category: { type: string }
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketMatch'
+        best_market:
+          $ref: '#/components/schemas/MarketMatch'
+        total_markets_evaluated: { type: integer }
+        source: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    ComplianceResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        passed: { type: boolean }
+        hs_code: { type: string }
+        category: { type: string }
+        destination: { type: string }
+        sanctioned: { type: boolean }
+        license_required: { type: boolean }
+        license_type: { type: string, nullable: true }
+        dual_use: { type: boolean }
+        check_body: { type: string, nullable: true }
+        cert_required: { type: string, nullable: true }
+        risk_score: { type: integer }
+        risk_level: { type: string, enum: [CRITICAL, HIGH, MODERATE, LOW] }
+        warnings:
+          type: array
+          items: { type: string }
+        issues:
+          type: array
+          items: { type: string }
+        recommendation: { type: string }
+        source: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    OpportunityItem:
+      type: object
+      properties:
+        market: { type: string }
+        market_code: { type: string }
+        region: { type: string }
+        score: { type: integer }
+        tariff: { type: number }
+        import_growth: { type: number }
+        gdp_growth: { type: number }
+        ease_of_trade: { type: integer }
+        entry_cost_tier: { type: string }
+        category_fit: { type: string }
+        opportunity_label: { type: string, enum: [PRIME, STRONG, MODERATE, EMERGING] }
+
+    OpportunityResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        product_category: { type: string }
+        total: { type: integer }
+        opportunities:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpportunityItem'
+        source: { type: string }
+        timestamp: { type: string, format: date-time }
+
+    PipelineStep:
+      type: object
+      properties:
+        module: { type: string }
+        output: { type: object }
+
+    PipelineResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        customer: { type: string }
+        origin_country: { type: string }
+        category: { type: string }
+        best_route:
+          type: object
+          properties:
+            name: { type: string }
+            score: { type: integer }
+            transit_days: { type: integer }
+            cost_index: { type: number }
+        best_market:
+          type: object
+          properties:
+            name: { type: string }
+            code: { type: string }
+            region: { type: string }
+            score: { type: integer }
+        tariff_rate: { type: number, nullable: true }
+        risk_score: { type: integer }
+        opportunity_score: { type: integer }
+        license_required: { type: boolean }
+        license_type: { type: string, nullable: true }
+        sanctioned_destination: { type: boolean }
+        recommendation: { type: string }
+        next_action: { type: string }
+        pipeline_steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelineStep'
+        timestamp: { type: string, format: date-time }
+        source: { type: string }
+
+    ComplianceChecklistItem:
+      type: object
+      properties:
+        item: { type: string }
+        status: { type: string, enum: [REQUIRED, RECOMMENDED] }
+        action: { type: string }
+
+    TimelinePhase:
+      type: object
+      properties:
+        phase: { type: string }
+        weeks: { type: string }
+        actions:
+          type: array
+          items: { type: string }
+
+    ExportPlanResponse:
+      type: object
+      properties:
+        request_id: { type: string }
+        plan_id: { type: string }
+        company_name: { type: string }
+        product: { type: string }
+        origin: { type: string }
+        target_market: { type: string }
+        category: { type: string }
+        hs_code: { type: string }
+        executive_summary: { type: string }
+        recommended_route:
+          type: object
+          properties:
+            name: { type: string }
+            score: { type: integer }
+            transit_days: { type: integer }
+            cost_index: { type: number }
+            primary_ports:
+              type: array
+              items: { type: string }
+        market_analysis:
+          type: object
+          properties:
+            market: { type: string }
+            region: { type: string }
+            ease_of_trade: { type: integer }
+            import_growth_pct: { type: number }
+            gdp_growth_pct: { type: number }
+            category_fit: { type: string }
+            tariff_rate_pct: { type: number, nullable: true }
+        compliance_checklist:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceChecklistItem'
+        tariff_breakdown:
+          type: object
+          properties:
+            category: { type: string }
+            destination_code: { type: string }
+            tariff_rate_pct: { type: number, nullable: true }
+            tariff_label: { type: string }
+            estimated_duty_usd: { type: integer }
+        risk_assessment:
+          type: object
+          properties:
+            risk_score: { type: integer }
+            risk_level: { type: string, enum: [LOW, MODERATE, HIGH, CRITICAL] }
+            license_required: { type: boolean }
+            dual_use: { type: boolean }
+            key_risks:
+              type: array
+              items: { type: string }
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelinePhase'
+        estimated_costs:
+          type: object
+          properties:
+            budget_input_usd: { type: integer }
+            logistics_usd: { type: integer }
+            compliance_usd: { type: integer }
+            tariffs_usd: { type: integer }
+            total_estimated_usd: { type: integer }
+            notes: { type: string }
+        generated_at: { type: string, format: date-time }
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /:
+    get:
+      summary: Health check
+      security: []
+      tags: [System]
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service: { type: string }
+                  version: { type: string }
+                  status: { type: string }
+                  timestamp: { type: string }
+                  endpoints:
+                    type: array
+                    items: { type: string }
+
+  /api/usage:
+    get:
+      summary: Retrieve API usage logs
+      security: []
+      tags: [System]
+      responses:
+        '200':
+          description: Usage log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_calls: { type: integer }
+                  logs:
+                    type: array
+                    items:
+                      type: object
+
+  /api/hs-code:
+    post:
+      summary: Classify product into HS code
+      tags: [DDTRS]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_description]
+              properties:
+                product_description:
+                  type: string
+                  example: "100% merino wool scarves for winter"
+      responses:
+        '200':
+          description: HS code classification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HsCodeResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/tariff:
+    post:
+      summary: Look up import tariff rate
+      tags: [TradeMatch]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hs_code, destination_code]
+              properties:
+                hs_code:
+                  type: string
+                  example: "6205.20"
+                destination_code:
+                  type: string
+                  example: UAE
+                  description: ISO 3-letter country code
+                category:
+                  type: string
+                  example: textiles
+                  description: Optional — inferred from hs_code if not provided
+      responses:
+        '200':
+          description: Tariff lookup result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Destination not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/route:
+    post:
+      summary: Optimise trade corridor / shipping route
+      tags: [MeridianFlow]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [origin, destination]
+              properties:
+                origin:
+                  type: string
+                  example: UK
+                destination:
+                  type: string
+                  example: UAE
+                product_category:
+                  type: string
+                  example: textiles
+      responses:
+        '200':
+          description: Route optimisation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/market:
+    post:
+      summary: Match product to target markets
+      tags: [TradeMatch]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_category]
+              properties:
+                product_category:
+                  type: string
+                  example: textiles
+                target_markets:
+                  type: array
+                  items: { type: string }
+                  example: [UAE, SGP, GBR]
+                  description: Optional filter — evaluates all markets if omitted
+      responses:
+        '200':
+          description: Market match results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/compliance:
+    post:
+      summary: Run compliance check for a product and destination
+      tags: [DDTRS]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_description, destination, category]
+              properties:
+                product_description:
+                  type: string
+                  example: "ultrasound medical imaging device"
+                destination:
+                  type: string
+                  example: India
+                category:
+                  type: string
+                  example: medical
+      responses:
+        '200':
+          description: Compliance check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/opportunity:
+    post:
+      summary: Score export opportunities across markets
+      tags: [TradeMatch]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_category]
+              properties:
+                product_category:
+                  type: string
+                  example: electronics
+                products:
+                  type: array
+                  items: { type: string }
+                  example: ["solar panels", "lithium battery packs"]
+                budget:
+                  type: number
+                  example: 75000
+      responses:
+        '200':
+          description: Ranked opportunity list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/pipeline:
+    post:
+      summary: Run the full CircleTrade intelligence pipeline
+      description: |
+        Executes all intelligence modules sequentially: HS code resolution,
+        route optimisation, market matching, tariff lookup, compliance check,
+        and opportunity scoring. Returns a unified result with a pipeline_steps trace.
+      tags: [Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer_name, origin_country, products]
+              properties:
+                customer_name:
+                  type: string
+                  example: "Acme Exports Ltd"
+                origin_country:
+                  type: string
+                  example: UK
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      category: { type: string }
+                      hs_code: { type: string }
+                  example:
+                    - name: "merino wool scarf"
+                      category: textiles
+                      hs_code: "6117.10"
+                target_markets:
+                  type: array
+                  items: { type: string }
+                  example: [UAE, SGP]
+                budget:
+                  type: number
+                  example: 100000
+                risk_tolerance:
+                  type: string
+                  enum: [low, medium, high]
+                  example: medium
+      responses:
+        '200':
+          description: Full pipeline result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/export-plan:
+    post:
+      summary: Generate a structured export plan
+      tags: [Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [company_name, product, origin, target_market]
+              properties:
+                company_name:
+                  type: string
+                  example: "Meridian Exports Ltd"
+                product:
+                  type: string
+                  example: "merino wool scarves"
+                origin:
+                  type: string
+                  example: UK
+                target_market:
+                  type: string
+                  example: UAE
+                budget:
+                  type: number
+                  example: 50000
+      responses:
+        '200':
+          description: Structured export plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportPlanResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Market not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+tags:
+  - name: System
+    description: Health and monitoring endpoints
+  - name: DDTRS
+    description: "DDTRS module: HS code classification and compliance checking"
+  - name: TradeMatch
+    description: "TradeMatch module: market intelligence, tariff lookups, opportunity scoring"
+  - name: MeridianFlow
+    description: "MeridianFlow module: trade corridor and route optimisation"
+  - name: Pipeline
+    description: Orchestrated multi-module pipelines

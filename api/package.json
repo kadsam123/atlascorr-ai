@@ -1,0 +1,19 @@
+{
+  "name": "circletrade-agent-stack-api",
+  "version": "1.0.0",
+  "description": "Circle Agent Stack API — CircleTrade AI export intelligence pipeline as micro-agent endpoints",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

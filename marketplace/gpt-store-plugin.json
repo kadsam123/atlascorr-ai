@@ -1,0 +1,791 @@
+{
+  "_comment": "CircleTrade AI — OpenAI GPT Store Plugin Manifest + OpenAPI Specification",
+  "_version": "1.0.0",
+  "_last_updated": "2026-08-11",
+
+  "plugin_manifest": {
+    "schema_version": "v1",
+    "name_for_human": "CircleTrade AI — Export Intelligence",
+    "name_for_model": "circletrade_ai",
+    "description_for_human": "Export intelligence for UK businesses. HS code classification, tariff rates, trade route scoring, market opportunity analysis, compliance checks, and full export plan generation — powered by the Circle Agent Stack.",
+    "description_for_model": "CircleTrade AI provides 7 specialist export-intelligence agents: hs_code (classify products into HS codes), tariff (look up duty rates for HS code + destination), route (score and rank trade corridors), market (match products to high-opportunity markets), opportunity (full 15-market opportunity scan), compliance (ECJU dual-use, DTTRS, sanctions, licence checks), and export_plan (generate complete export strategy documents). Always extract: product description, destination country, HS code where known, and budget/context before calling agents. Return structured, actionable answers — not raw JSON. Prices: HS £0.10, Tariff £0.20, Route £0.50, Market £0.50, Opportunity £1.00, Compliance £0.75, ExportPlan £2.50, Full Pipeline £5.00.",
+    "auth": {
+      "type": "service_http",
+      "authorization_type": "bearer",
+      "verification_tokens": {
+        "openai": "REPLACE_WITH_OPENAI_VERIFICATION_TOKEN"
+      }
+    },
+    "api": {
+      "type": "openapi",
+      "url": "https://api.circletrade.ai/openapi.yaml"
+    },
+    "logo_url": "https://kadsam123.github.io/circletrade-ai/assets/logo-512.png",
+    "contact_email": "hello@circletrade.ai",
+    "legal_info_url": "https://kadsam123.github.io/circletrade-ai/legal"
+  },
+
+  "openapi_spec": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "CircleTrade AI — Circle Agent Stack API",
+      "description": "Export intelligence API powering the Circle Agent Stack. Seven specialist agents covering HS code classification, tariff lookup, route scoring, market matching, opportunity scanning, compliance checking, and export plan generation.",
+      "version": "1.0.0",
+      "contact": {
+        "name": "CircleTrade AI Support",
+        "email": "hello@circletrade.ai",
+        "url": "https://kadsam123.github.io/circletrade-ai/"
+      },
+      "license": {
+        "name": "Commercial API License",
+        "url": "https://kadsam123.github.io/circletrade-ai/legal"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://api.circletrade.ai",
+        "description": "CircleTrade AI Production API"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "BearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "API key issued by CircleTrade AI. Pass as: Authorization: Bearer <your_api_key>"
+        }
+      },
+      "schemas": {
+        "ErrorResponse": {
+          "type": "object",
+          "properties": {
+            "error": { "type": "string" },
+            "code": { "type": "string" },
+            "message": { "type": "string" },
+            "request_id": { "type": "string" }
+          }
+        },
+        "HSCodeRequest": {
+          "type": "object",
+          "required": ["product_description"],
+          "properties": {
+            "product_description": {
+              "type": "string",
+              "description": "Free-text description of the product to be classified. Include material, function, intended use, and any relevant technical specs.",
+              "example": "Cold-pressed extra virgin olive oil in 500ml glass bottles"
+            },
+            "country_extension": {
+              "type": "string",
+              "enum": ["UK", "EU", "US", "AU", "CA"],
+              "description": "Request country-specific extended commodity code in addition to the 6-digit HS code.",
+              "example": "UK"
+            },
+            "return_alternatives": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to return alternative HS codes when classification is ambiguous."
+            }
+          }
+        },
+        "HSCodeResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "hs-code" },
+            "product_input": { "type": "string" },
+            "primary_result": {
+              "type": "object",
+              "properties": {
+                "hs_code": { "type": "string", "example": "1509.10" },
+                "description": { "type": "string" },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "chapter": { "type": "string" },
+                "chapter_description": { "type": "string" }
+              }
+            },
+            "country_extensions": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "alternatives": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hs_code": { "type": "string" },
+                  "description": { "type": "string" },
+                  "confidence": { "type": "number" }
+                }
+              }
+            },
+            "rationale": { "type": "string" },
+            "flags": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "TariffRequest": {
+          "type": "object",
+          "required": ["hs_code", "destination_country"],
+          "properties": {
+            "hs_code": {
+              "type": "string",
+              "description": "6–10 digit HS code for the product.",
+              "example": "6403.51"
+            },
+            "destination_country": {
+              "type": "string",
+              "description": "ISO 3166-1 alpha-2 country code of the import destination.",
+              "example": "DE"
+            },
+            "origin_country": {
+              "type": "string",
+              "description": "ISO 3166-1 alpha-2 country code of export origin. Defaults to GB.",
+              "default": "GB",
+              "example": "GB"
+            },
+            "include_indirect_taxes": {
+              "type": "boolean",
+              "default": true,
+              "description": "Include VAT/GST rates in the response."
+            }
+          }
+        },
+        "TariffResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "tariff" },
+            "hs_code": { "type": "string" },
+            "origin_country": { "type": "string" },
+            "destination_country": { "type": "string" },
+            "tariff_rates": {
+              "type": "object",
+              "properties": {
+                "MFN_rate_pct": { "type": "number" },
+                "preferential_rate_pct": { "type": ["number", "null"] },
+                "applicable_agreement": { "type": ["string", "null"] },
+                "preference_conditions": { "type": ["string", "null"] },
+                "GSP_rate_pct": { "type": ["number", "null"] }
+              }
+            },
+            "indirect_taxes": {
+              "type": "object",
+              "properties": {
+                "VAT_rate_pct": { "type": "number" },
+                "VAT_deferment_available": { "type": "boolean" },
+                "notes": { "type": "string" }
+              }
+            },
+            "special_measures": {
+              "type": "object",
+              "properties": {
+                "anti_dumping": { "type": "boolean" },
+                "safeguard": { "type": "boolean" },
+                "TRQ_active": { "type": "boolean" }
+              }
+            },
+            "effective_landed_cost_uplift_pct": { "type": "number" },
+            "data_as_of": { "type": "string", "format": "date" },
+            "disclaimer": { "type": "string" }
+          }
+        },
+        "RouteRequest": {
+          "type": "object",
+          "required": ["product_description"],
+          "properties": {
+            "product_description": {
+              "type": "string",
+              "example": "UK-made premium gin"
+            },
+            "hs_code": {
+              "type": "string",
+              "description": "Known HS code. If omitted, HS Code Agent is called automatically.",
+              "example": "2208.50"
+            },
+            "origin_country": {
+              "type": "string",
+              "default": "GB",
+              "example": "GB"
+            },
+            "destination_countries": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "ISO alpha-2 codes. If omitted, RouteAgent scores default top-25 corridors.",
+              "example": ["SG", "JP", "AU", "CA", "AE"]
+            },
+            "max_corridors": {
+              "type": "integer",
+              "default": 10,
+              "maximum": 25
+            }
+          }
+        },
+        "RouteResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "route" },
+            "product": { "type": "string" },
+            "hs_code": { "type": "string" },
+            "origin": { "type": "string" },
+            "corridors_evaluated": { "type": "integer" },
+            "top_corridors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "destination": { "type": "string" },
+                  "overall_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+                  "tier": { "type": "string", "enum": ["Priority", "Develop", "Monitor", "Avoid"] },
+                  "sub_scores": {
+                    "type": "object",
+                    "properties": {
+                      "duty_cost": { "type": "integer" },
+                      "logistics": { "type": "integer" },
+                      "market_demand": { "type": "integer" },
+                      "regulatory_friction": { "type": "integer" },
+                      "political_risk": { "type": "integer" }
+                    }
+                  },
+                  "MFN_duty_pct": { "type": "number" },
+                  "estimated_landed_cost_uplift_pct": { "type": "number" },
+                  "key_lever": { "type": "string" }
+                }
+              }
+            },
+            "avoid_list": { "type": "array", "items": { "type": "string" } },
+            "generated_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "MarketRequest": {
+          "type": "object",
+          "required": ["product_description"],
+          "properties": {
+            "product_description": { "type": "string", "example": "plant-based food products" },
+            "hs_codes": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Known HS codes. Auto-classified if omitted."
+            },
+            "markets_to_score": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 50,
+              "description": "Number of global markets to score and rank."
+            },
+            "exclude_countries": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "ISO alpha-2 country codes to exclude from scoring."
+            }
+          }
+        },
+        "MarketResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "market" },
+            "product": { "type": "string" },
+            "hs_codes_analysed": { "type": "array", "items": { "type": "string" } },
+            "markets_scored": { "type": "integer" },
+            "top_opportunities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "market": { "type": "string" },
+                  "opportunity_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+                  "import_3yr_CAGR_pct": { "type": "number" },
+                  "uk_market_share_pct": { "type": "number" },
+                  "uk_market_share_gap": { "type": "string" },
+                  "demand_profile": { "type": "string" },
+                  "competitive_whitespace": { "type": "string" },
+                  "key_entry_points": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            "generated_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "OpportunityRequest": {
+          "type": "object",
+          "required": ["product_description"],
+          "properties": {
+            "product_description": { "type": "string", "example": "UK luxury candles and home fragrance" },
+            "hs_code": { "type": "string" },
+            "origin_country": { "type": "string", "default": "GB" },
+            "markets_to_scan": {
+              "type": "integer",
+              "default": 15,
+              "maximum": 30
+            },
+            "include_compliance_flags": {
+              "type": "boolean",
+              "default": true
+            },
+            "business_context": {
+              "type": "string",
+              "description": "Optional: annual turnover, existing export markets, growth target.",
+              "example": "£2M revenue Welsh food producer, first export markets, growth target 20%"
+            }
+          }
+        },
+        "OpportunityResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "opportunity" },
+            "product": { "type": "string" },
+            "hs_code": { "type": "string" },
+            "markets_scanned": { "type": "integer" },
+            "priority_markets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rank": { "type": "integer" },
+                  "market": { "type": "string" },
+                  "opportunity_score": { "type": "integer" },
+                  "corridor_score": { "type": "integer" },
+                  "MFN_duty_pct": { "type": "number" },
+                  "estimated_TAM_gbp": { "type": "string" },
+                  "uk_share_gap_pct": { "type": "number" },
+                  "top_compliance_flag": { "type": "string" },
+                  "narrative": { "type": "string" }
+                }
+              }
+            },
+            "develop_markets": { "type": "array", "items": { "type": "string" } },
+            "watch_list": { "type": "array", "items": { "type": "string" } },
+            "generated_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "ComplianceRequest": {
+          "type": "object",
+          "required": ["hs_code", "destination_country"],
+          "properties": {
+            "hs_code": {
+              "type": "string",
+              "example": "8542.31"
+            },
+            "product_description": {
+              "type": "string",
+              "example": "Integrated circuits — processors and controllers"
+            },
+            "destination_country": {
+              "type": "string",
+              "example": "CN"
+            },
+            "origin_country": { "type": "string", "default": "GB" },
+            "end_use": {
+              "type": "string",
+              "description": "Stated end use of the product. Critical for dual-use assessment.",
+              "example": "Commercial data centre cooling systems"
+            },
+            "include_certification_check": {
+              "type": "boolean",
+              "default": true
+            },
+            "generate_compliance_memo": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "ComplianceResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "compliance" },
+            "hs_code": { "type": "string" },
+            "product_description": { "type": "string" },
+            "destination_country": { "type": "string" },
+            "overall_result": {
+              "type": "string",
+              "enum": ["PASS", "REVIEW", "BLOCK"],
+              "description": "PASS: no restrictions identified. REVIEW: one or more flags requiring human review. BLOCK: sanctions or hard prohibitions apply."
+            },
+            "flags": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "flag_code": { "type": "string" },
+                  "severity": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+                  "detail": { "type": "string" },
+                  "reference": { "type": "string" }
+                }
+              }
+            },
+            "sanctions_check": {
+              "type": "object",
+              "properties": {
+                "UK_sanctions": { "type": "string", "enum": ["CLEAR", "HIT", "REVIEW"] },
+                "EU_sanctions": { "type": "string", "enum": ["CLEAR", "HIT", "REVIEW"] },
+                "OFAC_SDN": { "type": "string", "enum": ["CLEAR", "HIT", "REVIEW"] },
+                "UN_sanctions": { "type": "string", "enum": ["CLEAR", "HIT", "REVIEW"] }
+              }
+            },
+            "certifications_required": { "type": "array", "items": { "type": "string" } },
+            "compliance_memo_available": { "type": "boolean" },
+            "compliance_memo_url": { "type": "string", "format": "uri" },
+            "generated_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "ExportPlanRequest": {
+          "type": "object",
+          "required": ["product_description", "target_markets"],
+          "properties": {
+            "product_description": {
+              "type": "string",
+              "example": "Welsh craft beer — award-winning pale ales and stouts"
+            },
+            "hs_code": { "type": "string" },
+            "target_markets": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "ISO alpha-2 country codes for target export markets. Up to 3.",
+              "example": ["JP"],
+              "maxItems": 3
+            },
+            "origin_country": { "type": "string", "default": "GB" },
+            "business_context": {
+              "type": "string",
+              "description": "Company background: turnover, team size, existing markets, growth target.",
+              "example": "Craft brewery, £800K revenue, 8 staff, sells to UK on-trade only, target Year 1 export revenue £100K"
+            },
+            "output_format": {
+              "type": "string",
+              "enum": ["markdown", "json", "structured"],
+              "default": "markdown"
+            },
+            "include_financial_model": { "type": "boolean", "default": true },
+            "include_action_plan": { "type": "boolean", "default": true }
+          }
+        },
+        "ExportPlanResponse": {
+          "type": "object",
+          "properties": {
+            "agent": { "type": "string", "example": "export-plan" },
+            "plan_id": { "type": "string" },
+            "product": { "type": "string" },
+            "target_market": { "type": "string" },
+            "hs_code": { "type": "string" },
+            "sections": {
+              "type": "object",
+              "properties": {
+                "1_executive_summary": { "type": "string" },
+                "2_market_overview": { "type": "object" },
+                "3_target_customer_profile": { "type": "string" },
+                "4_market_entry_mode": { "type": "object" },
+                "5_logistics_strategy": { "type": "object" },
+                "6_compliance_roadmap": { "type": "array", "items": { "type": "string" } },
+                "7_financial_model": { "type": "object" },
+                "8_action_plan": { "type": "array", "items": { "type": "object" } }
+              }
+            },
+            "format": { "type": "string" },
+            "generated_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "paths": {
+      "/v1/agents/hs-code": {
+        "post": {
+          "operationId": "classifyHSCode",
+          "summary": "HS Code Agent — Classify a product into its HS code",
+          "description": "Classifies a free-text product description into the correct 6-digit (or country-extended) Harmonised System code. Returns the primary HS code, confidence score, country-specific extensions, alternative codes, and classification rationale. Cost: £0.10 per call.",
+          "tags": ["Classification"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HSCodeRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "HS code classification successful",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/HSCodeResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid request — product description too vague or missing", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+            "401": { "description": "Unauthorized — invalid or missing API key" },
+            "429": { "description": "Rate limit exceeded" },
+            "500": { "description": "Internal server error" }
+          }
+        }
+      },
+      "/v1/agents/tariff": {
+        "post": {
+          "operationId": "lookupTariff",
+          "summary": "Tariff Agent — Look up duty rates for an HS code + destination",
+          "description": "Retrieves MFN, preferential (FTA), and GSP import duty rates for any HS code exported to a destination country. Includes VAT/GST rates, anti-dumping duties, and trade agreement details. Cost: £0.20 per call.",
+          "tags": ["Tariffs"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TariffRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Tariff rates retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/TariffResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid HS code or unsupported destination country" },
+            "401": { "description": "Unauthorized" },
+            "404": { "description": "No tariff data found for this HS code / destination combination" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/agents/route": {
+        "post": {
+          "operationId": "scoreTradeCorridor",
+          "summary": "RouteAgent — Score and rank trade corridors",
+          "description": "Evaluates and ranks trade corridors for a product, scoring each on duty cost, logistics, market demand, regulatory friction, and political/payment risk. Returns a composite score (0–100) per corridor and a tiered recommendation. Cost: £0.50 per call.",
+          "tags": ["Routes"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RouteRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Corridor scores returned successfully",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/RouteResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid request parameters" },
+            "401": { "description": "Unauthorized" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/agents/market": {
+        "post": {
+          "operationId": "matchProductToMarkets",
+          "summary": "MarketAgent — Match product to high-opportunity markets",
+          "description": "Analyses a product category and ranks global markets by opportunity score based on import growth, competitive whitespace, and demand signals. Returns import CAGR, UK market share gap, and demand profile per market. Cost: £0.50 per call.",
+          "tags": ["Markets"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MarketRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Market opportunity scores returned",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/MarketResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid request" },
+            "401": { "description": "Unauthorized" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/agents/opportunity": {
+        "post": {
+          "operationId": "runOpportunityScan",
+          "summary": "OpportunityAgent — Full 15-market opportunity scan",
+          "description": "Comprehensive export opportunity scan across 15+ markets in a single call. Combines market scoring, corridor ranking, duty cost estimation, and compliance flagging into a boardroom-ready opportunity brief. Cost: £1.00 per call.",
+          "tags": ["Opportunity"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OpportunityRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Opportunity scan completed",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/OpportunityResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid request" },
+            "401": { "description": "Unauthorized" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/agents/compliance": {
+        "post": {
+          "operationId": "checkExportCompliance",
+          "summary": "ComplianceAgent — Export control, sanctions, and licence check",
+          "description": "Checks HS code and destination against UK dual-use/military control lists, DTTRS, UK/EU/UN/OFAC sanctions registers, and product certification requirements. Returns PASS / REVIEW / BLOCK with specific flag codes and regulatory references. Cost: £0.75 per call.",
+          "tags": ["Compliance"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ComplianceRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Compliance check completed",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/ComplianceResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid HS code or missing required fields" },
+            "401": { "description": "Unauthorized" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/agents/export-plan": {
+        "post": {
+          "operationId": "generateExportPlan",
+          "summary": "ExportPlanAgent — Generate a complete export strategy document",
+          "description": "Synthesises all Circle Agent Stack intelligence into a structured export plan: market overview, entry mode, logistics strategy, compliance roadmap, financial model (duty costs, landed cost, suggested pricing), and 12-month phased action plan. UKEF and trade finance compatible. Cost: £2.50 per call.",
+          "tags": ["Export Planning"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ExportPlanRequest" }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Export plan generated successfully",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/ExportPlanResponse" }
+                }
+              }
+            },
+            "400": { "description": "Invalid request — missing product description or target markets" },
+            "401": { "description": "Unauthorized" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/pipeline/full": {
+        "post": {
+          "operationId": "runFullPipeline",
+          "summary": "Full Pipeline — Run all 7 agents in sequence",
+          "description": "Executes the complete Circle Agent Stack pipeline: HS classification → tariff lookup → route scoring → market matching → opportunity scan → compliance check → export plan generation. Best value at £5.00 per call vs £5.45 if agents called individually.",
+          "tags": ["Pipeline"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["product_description", "target_markets"],
+                  "properties": {
+                    "product_description": { "type": "string" },
+                    "target_markets": { "type": "array", "items": { "type": "string" }, "maxItems": 3 },
+                    "origin_country": { "type": "string", "default": "GB" },
+                    "business_context": { "type": "string" },
+                    "output_format": { "type": "string", "enum": ["markdown", "json"], "default": "markdown" }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Full pipeline completed. Returns consolidated output from all 7 agents.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "pipeline_id": { "type": "string" },
+                      "hs_code_result": { "$ref": "#/components/schemas/HSCodeResponse" },
+                      "tariff_result": { "$ref": "#/components/schemas/TariffResponse" },
+                      "route_result": { "$ref": "#/components/schemas/RouteResponse" },
+                      "market_result": { "$ref": "#/components/schemas/MarketResponse" },
+                      "opportunity_result": { "$ref": "#/components/schemas/OpportunityResponse" },
+                      "compliance_result": { "$ref": "#/components/schemas/ComplianceResponse" },
+                      "export_plan_result": { "$ref": "#/components/schemas/ExportPlanResponse" },
+                      "total_cost_gbp": { "type": "number", "example": 5.00 },
+                      "generated_at": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            },
+            "400": { "description": "Invalid request" },
+            "401": { "description": "Unauthorized" },
+            "429": { "description": "Rate limit exceeded" }
+          }
+        }
+      },
+      "/v1/health": {
+        "get": {
+          "operationId": "healthCheck",
+          "summary": "API health check",
+          "description": "Returns API status and current agent availability.",
+          "tags": ["System"],
+          "security": [],
+          "responses": {
+            "200": {
+              "description": "API is healthy",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": { "type": "string", "example": "healthy" },
+                      "version": { "type": "string", "example": "1.0.0" },
+                      "agents_available": { "type": "array", "items": { "type": "string" } },
+                      "timestamp": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tags": [
+      { "name": "Classification", "description": "Product HS code classification" },
+      { "name": "Tariffs", "description": "Import duty and tariff rate lookup" },
+      { "name": "Routes", "description": "Trade corridor scoring and ranking" },
+      { "name": "Markets", "description": "Market opportunity matching and scoring" },
+      { "name": "Opportunity", "description": "Multi-market opportunity scanning" },
+      { "name": "Compliance", "description": "Export control, sanctions, and licence checking" },
+      { "name": "Export Planning", "description": "Export strategy document generation" },
+      { "name": "Pipeline", "description": "Full agent stack pipeline execution" },
+      { "name": "System", "description": "API health and status" }
+    ]
+  }
+}

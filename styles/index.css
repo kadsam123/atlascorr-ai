@@ -530,3 +530,21 @@ select option{background:var(--bg-secondary);color:var(--text-primary)}
 /* ── Inline link buttons ─────────────────────────────────── */
 .link-btn{background:none;border:none;color:var(--accent-teal);font-size:11px;cursor:pointer;font-weight:500}
 .link-btn:hover{opacity:.75}
+
+/* ── Sidebar powered-by footer ─────────────────────────────── */
+.sidebar-powered{padding:10px 14px 0}
+.powered-link{
+  display:block;padding:11px 13px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(124,58,237,.06));
+  border:1px solid rgba(124,58,237,.18);
+  text-decoration:none;transition:all var(--tr);
+}
+.powered-link:hover{border-color:rgba(124,58,237,.4);background:linear-gradient(135deg,rgba(0,212,255,.10),rgba(124,58,237,.10))}
+.powered-label{font-size:8px;font-weight:700;letter-spacing:2px;color:var(--text-muted);margin-bottom:3px}
+.powered-brand{
+  font-family:var(--font-heading);font-size:13px;font-weight:700;
+  background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.powered-cta{font-size:10px;color:var(--text-muted);margin-top:4px;transition:color var(--tr)}
+.powered-link:hover .powered-cta{color:var(--accent-teal)}
+
