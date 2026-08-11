@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CircleTrade AI pricing — Starter £49/mo, Growth £149/mo, Enterprise £499/mo. Plus pay-per-use Circle Agents from £0.10/call.">
+  <meta name="description" content="CircleTrade AI pricing — Starter $49/mo, Growth $149/mo, Enterprise $499/mo. Plus pay-per-use Circle Agents from $0.10/call.">
   <title>Pricing — CircleTrade AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -145,6 +145,7 @@
       <span class="toggle-label">Annual</span>
       <span class="save-badge">Save 20%</span>
     </div>
+    <p style="font-size:11px;color:var(--t3);margin-top:-30px">Prices in USD · Billed via Stripe · Cancel anytime</p>
   </div>
 </div>
 
@@ -158,11 +159,11 @@
       <div class="plan-name">Starter</div>
       <div class="plan-desc">For individual SMEs starting their export intelligence journey.</div>
       <div class="plan-price">
-        <div class="price-val"><span id="starter-price">£49</span></div>
+        <div class="price-val"><span id="starter-price">$49</span></div>
         <div class="price-period">per month</div>
-        <div class="price-annual" id="starter-annual" style="display:none">Billed annually — save £118/yr</div>
+        <div class="price-annual" id="starter-annual" style="display:none">Billed annually ($468/yr) — save $120</div>
       </div>
-      <a href="index.html" class="plan-cta cta-outline">Start Free Trial</a>
+      <a href="https://buy.stripe.com/7sY3cndG9dvf7I65vj9fW00" id="starter-cta" class="plan-cta cta-outline" target="_blank">Start Free Trial</a>
       <div class="features-label">What's included</div>
       <div class="feature-list">
         <div class="feature-item"><span class="fi-check">✓</span><span class="fi-text bright">1 SME customer profile</span></div>
@@ -186,11 +187,11 @@
       <div class="plan-name">Growth</div>
       <div class="plan-desc">For growing exporters managing multiple products and markets.</div>
       <div class="plan-price">
-        <div class="price-val"><span id="growth-price">£149</span></div>
+        <div class="price-val"><span id="growth-price">$149</span></div>
         <div class="price-period">per month</div>
-        <div class="price-annual" id="growth-annual" style="display:none">Billed annually — save £358/yr</div>
+        <div class="price-annual" id="growth-annual" style="display:none">Billed annually ($1,428/yr) — save $360</div>
       </div>
-      <a href="index.html" class="plan-cta cta-solid">Start Free Trial</a>
+      <a href="https://buy.stripe.com/cNi28jatX62Nd2q4rf9fW01" id="growth-cta" class="plan-cta cta-solid" target="_blank">Start Free Trial</a>
       <div class="features-label">Everything in Starter, plus</div>
       <div class="feature-list">
         <div class="feature-item"><span class="fi-check">✓</span><span class="fi-text bright">5 SME customer profiles</span></div>
@@ -213,11 +214,11 @@
       <div class="plan-name">Enterprise</div>
       <div class="plan-desc">For export agencies, trade bodies, and platforms serving multiple SMEs.</div>
       <div class="plan-price">
-        <div class="price-val"><span id="enterprise-price">£499</span></div>
+        <div class="price-val"><span id="enterprise-price">$499</span></div>
         <div class="price-period">per month</div>
-        <div class="price-annual" id="enterprise-annual" style="display:none">Billed annually — save £1,198/yr</div>
+        <div class="price-annual" id="enterprise-annual" style="display:none">Billed annually ($4,788/yr) — save $1,200</div>
       </div>
-      <a href="mailto:hello@circletrade.ai" class="plan-cta cta-dark">Contact Sales</a>
+      <a href="https://buy.stripe.com/eVqcMXeKdcrbbYm3nb9fW04" id="enterprise-cta" class="plan-cta cta-dark" target="_blank">Contact Sales</a>
       <div class="features-label">Everything in Growth, plus</div>
       <div class="feature-list">
         <div class="feature-item"><span class="fi-check">✓</span><span class="fi-text bright">Unlimited customer profiles</span></div>
@@ -239,14 +240,14 @@
     <h2 class="section-title">Pay only for what you run.</h2>
     <p class="section-sub">Growth and Enterprise plans include a monthly allowance. Additional calls are billed at these rates. Starter customers can top up on demand.</p>
     <div class="agents-grid">
-      <div class="agent-card"><div class="agent-icon ai-teal">🏷️</div><div class="agent-info"><div class="agent-name">HS Code Agent</div><div class="agent-desc">Extract HS codes from plain-language product descriptions</div></div><div class="agent-price">£0.10</div></div>
-      <div class="agent-card"><div class="agent-icon ai-violet">💰</div><div class="agent-info"><div class="agent-name">Tariff Agent</div><div class="agent-desc">Look up applicable tariff rates by HS code and destination</div></div><div class="agent-price">£0.20</div></div>
-      <div class="agent-card"><div class="agent-icon ai-blue">🗺️</div><div class="agent-info"><div class="agent-name">RouteAgent</div><div class="agent-desc">Score and rank trade corridors for any origin–destination pair</div></div><div class="agent-price">£0.50</div></div>
-      <div class="agent-card"><div class="agent-icon ai-teal">🎯</div><div class="agent-info"><div class="agent-name">MarketAgent</div><div class="agent-desc">Match products to markets using multi-factor opportunity scoring</div></div><div class="agent-price">£0.50</div></div>
-      <div class="agent-card"><div class="agent-icon ai-green">🌍</div><div class="agent-info"><div class="agent-name">OpportunityAgent</div><div class="agent-desc">Full opportunity scan across 15+ global markets</div></div><div class="agent-price">£1.00</div></div>
-      <div class="agent-card"><div class="agent-icon ai-warning">🛡️</div><div class="agent-info"><div class="agent-name">ComplianceAgent</div><div class="agent-desc">DDTRS checks: sanctions, HS codes, licenses, risk scoring</div></div><div class="agent-price">£0.75</div></div>
-      <div class="agent-card"><div class="agent-icon ai-violet">📄</div><div class="agent-info"><div class="agent-name">ExportPlanAgent</div><div class="agent-desc">Generate a full, structured export strategy document</div></div><div class="agent-price">£2.50</div></div>
-      <div class="agent-card"><div class="agent-icon ai-teal">⚡</div><div class="agent-info"><div class="agent-name">Full Pipeline</div><div class="agent-desc">Run the complete 5-step export intelligence pipeline</div></div><div class="agent-price">£5.00</div></div>
+      <div class="agent-card"><div class="agent-icon ai-teal">🏷️</div><div class="agent-info"><div class="agent-name">HS Code Agent</div><div class="agent-desc">Extract HS codes from plain-language product descriptions</div></div><div class="agent-price">£0.10.10</div></div>
+      <div class="agent-card"><div class="agent-icon ai-violet">💰</div><div class="agent-info"><div class="agent-name">Tariff Agent</div><div class="agent-desc">Look up applicable tariff rates by HS code and destination</div></div><div class="agent-price">£0.20.20</div></div>
+      <div class="agent-card"><div class="agent-icon ai-blue">🗺️</div><div class="agent-info"><div class="agent-name">RouteAgent</div><div class="agent-desc">Score and rank trade corridors for any origin–destination pair</div></div><div class="agent-price">£0.50.50</div></div>
+      <div class="agent-card"><div class="agent-icon ai-teal">🎯</div><div class="agent-info"><div class="agent-name">MarketAgent</div><div class="agent-desc">Match products to markets using multi-factor opportunity scoring</div></div><div class="agent-price">£0.50.50</div></div>
+      <div class="agent-card"><div class="agent-icon ai-green">🌍</div><div class="agent-info"><div class="agent-name">OpportunityAgent</div><div class="agent-desc">Full opportunity scan across 15+ global markets</div></div><div class="agent-price">�$1.00</div></div>
+      <div class="agent-card"><div class="agent-icon ai-warning">🛡️</div><div class="agent-info"><div class="agent-name">ComplianceAgent</div><div class="agent-desc">DDTRS checks: sanctions, HS codes, licenses, risk scoring</div></div><div class="agent-price">£0.75.75</div></div>
+      <div class="agent-card"><div class="agent-icon ai-violet">📄</div><div class="agent-info"><div class="agent-name">ExportPlanAgent</div><div class="agent-desc">Generate a full, structured export strategy document</div></div><div class="agent-price">�$2.50</div></div>
+      <div class="agent-card"><div class="agent-icon ai-teal">⚡</div><div class="agent-info"><div class="agent-name">Full Pipeline</div><div class="agent-desc">Run the complete 5-step export intelligence pipeline</div></div><div class="agent-price">�$5.00</div></div>
     </div>
   </div>
 
@@ -274,6 +275,7 @@
       <div class="cta-btns">
         <a href="index.html" class="btn-lg solid">▶ Start Free Trial</a>
         <a href="mailto:hello@circletrade.ai" class="btn-lg outline">Talk to Sales</a>
+        <a href='https://buy.stripe.com/cNi28jatX62Nd2q4rf9fW01' class='btn-lg solid' target='_blank' style='margin-top:10px'>? Get Growth Plan � $149/mo</a>
       </div>
     </div>
   </div>
@@ -298,15 +300,19 @@
 
 <script>
 let annual = false;
-const prices = { starter: [49, 39], growth: [149, 119], enterprise: [499, 399] };
+const prices  = { starter: [49, 39], growth: [149, 119], enterprise: [499, 399] };
+const linksmo = { starter: 'https://buy.stripe.com/7sY3cndG9dvf7I65vj9fW00', growth: 'https://buy.stripe.com/cNi28jatX62Nd2q4rf9fW01', enterprise: 'https://buy.stripe.com/eVqcMXeKdcrbbYm3nb9fW04' };
+const linksyr = { starter: 'https://buy.stripe.com/bJe8wH1XrgHr6E20aZ9fW03', growth: 'https://buy.stripe.com/eVqcMXeKdcrbbYm3nb9fW04', enterprise: 'https://buy.stripe.com/dRm8wH31vbn7fay6zn9fW05' };
 function toggleBilling() {
   annual = !annual;
   document.getElementById('billing-toggle').classList.toggle('annual', annual);
   ['starter','growth','enterprise'].forEach(p => {
-    document.getElementById(p+'-price').textContent = '£' + prices[p][annual?1:0];
+    document.getElementById(p+'-price').textContent = '$' + prices[p][annual?1:0];
     document.getElementById(p+'-annual').style.display = annual ? 'block' : 'none';
+    document.getElementById(p+'-cta').href = annual ? linksyr[p] : linksmo[p];
   });
 }
 </script>
 </body>
 </html>
+
