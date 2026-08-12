@@ -1,0 +1,314 @@
+{
+  "marketplace_name": "Circle Agent Stack",
+  "version": "1.0.0",
+  "publisher": "CircleTrade AI",
+  "publisher_url": "https://kadsam123.github.io/circletrade-ai/",
+  "pricing_url": "https://kadsam123.github.io/circletrade-ai/pricing.html",
+  "upsell_global": {
+    "message": "Upgrade to CircleTrade AI for unlimited daily pipeline runs and proactive monitoring.",
+    "upgrade_url": "https://kadsam123.github.io/circletrade-ai/pricing.html"
+  },
+  "agents": [
+    {
+      "id": "hs-code-agent",
+      "name": "HS Code Agent",
+      "tagline": "Turn any product description into a globally-recognised tariff code in seconds.",
+      "description": "Uses large-language-model reasoning combined with a curated Harmonised System (HS) ontology to extract the correct 6-digit (or country-extended 8-10 digit) HS code from free-text product descriptions.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/hs-code",
+      "method": "POST",
+      "price_per_execution_usd": 0.10,
+      "domain_tags": ["export", "compliance", "trade", "hs-code", "classification"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "product_description": {
+            "type": "string",
+            "description": "Plain language description of the product"
+          }
+        },
+        "required": ["product_description"]
+      },
+      "output_example": {
+        "request_id": "f4a65020-ca0a-405e-a5db-bca27728e94b",
+        "hs_code": "0910.30",
+        "confidence": 0.72,
+        "category": "food",
+        "description": "Turmeric (curcuma)",
+        "source": "DDTRS"
+      }
+    },
+    {
+      "id": "tariff-agent",
+      "name": "Tariff Agent",
+      "tagline": "Instant duty rates for any HS code and destination country.",
+      "description": "Retrieves current import duty rates, VAT/GST rates, and applicable trade preference rates for any HS code exported to a specific destination country.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/tariff",
+      "method": "POST",
+      "price_per_execution_usd": 0.20,
+      "domain_tags": ["export", "trade", "tariff", "taxes", "landed-cost"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "hs_code": {
+            "type": "string",
+            "description": "6-digit HS commodity code"
+          },
+          "destination_code": {
+            "type": "string",
+            "description": "3-letter ISO country code (e.g., UAE, SGP, IND)"
+          },
+          "category": {
+            "type": "string",
+            "description": "Product category: textiles, food, machinery, electronics, medical"
+          }
+        },
+        "required": ["hs_code", "destination_code"]
+      },
+      "output_example": {
+        "tariff_rate": 5,
+        "destination": "UAE",
+        "category": "textiles",
+        "hs_code": "6117.10",
+        "currency": "percent",
+        "source": "TradeMatch"
+      }
+    },
+    {
+      "id": "route-agent",
+      "name": "Route Agent",
+      "tagline": "Score and rank trade corridors for any origin-destination pair.",
+      "description": "Scores global trade corridors on cost index, transit time, port efficiency, and political risk, surfacing the best route recommendations.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/route",
+      "method": "POST",
+      "price_per_execution_usd": 0.50,
+      "domain_tags": ["export", "logistics", "trade", "routing", "shipping"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "Origin country code"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination country code"
+          },
+          "product_category": {
+            "type": "string",
+            "description": "Product category context"
+          }
+        },
+        "required": ["origin", "destination"]
+      },
+      "output_example": {
+        "routes": [
+          {
+            "name": "UK -> UAE",
+            "score": 87,
+            "transit_days": 9,
+            "cost_index": 3.2,
+            "port_efficiency": 94,
+            "political_risk": "LOW"
+          }
+        ],
+        "best_route": {
+          "name": "UK -> UAE",
+          "score": 87
+        }
+      }
+    },
+    {
+      "id": "market-agent",
+      "name": "Market Match Agent",
+      "tagline": "Match products to markets using multi-factor opportunity scoring.",
+      "description": "Matches a product category to target markets by evaluating ease of trade, tariff exposure, import growth, and GDP trajectory.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/market",
+      "method": "POST",
+      "price_per_execution_usd": 0.50,
+      "domain_tags": ["export", "trade", "market-match", "opportunities", "sales"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "product_category": {
+            "type": "string",
+            "description": "Product category: textiles, food, machinery, electronics, medical"
+          },
+          "target_markets": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of destination country codes to compare"
+          }
+        },
+        "required": ["product_category"]
+      },
+      "output_example": {
+        "matches": [
+          {
+            "market": "Singapore",
+            "score": 94,
+            "tariff": 0,
+            "import_growth": 6.1
+          }
+        ],
+        "best_market": "Singapore"
+      }
+    },
+    {
+      "id": "opportunity-agent",
+      "name": "Opportunity Scan Agent",
+      "tagline": "Full opportunity scan across 15+ global markets.",
+      "description": "Scans all available destination markets in the database to rank the highest-scoring export opportunities for a product category.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/opportunity",
+      "method": "POST",
+      "price_per_execution_usd": 1.00,
+      "domain_tags": ["export", "trade", "opportunity-scan", "growth", "globalization"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "product_category": {
+            "type": "string",
+            "description": "Product category to scan"
+          },
+          "budget": {
+            "type": "number",
+            "description": "Exporter budget in USD"
+          }
+        },
+        "required": ["product_category"]
+      },
+      "output_example": {
+        "opportunities": [
+          {
+            "market": "Singapore",
+            "score": 94,
+            "tariff": 0,
+            "region": "SE Asia"
+          }
+        ],
+        "total": 15
+      }
+    },
+    {
+      "id": "compliance-agent",
+      "name": "Compliance Agent",
+      "tagline": "Full DDTRS compliance, sanctions, and dual-use checks.",
+      "description": "Validates products and destinations against sanctions lists, active trade dual-use conditions, and license requirements, generating a 0-100 risk score.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/compliance",
+      "method": "POST",
+      "price_per_execution_usd": 0.75,
+      "domain_tags": ["export", "compliance", "trade", "sanctions", "dual-use"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "product_description": {
+            "type": "string",
+            "description": "Plain language description of product"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination country name or code"
+          },
+          "category": {
+            "type": "string",
+            "description": "Product category context"
+          }
+        },
+        "required": ["product_description", "destination", "category"]
+      },
+      "output_example": {
+        "passed": true,
+        "hs_code": "9018.12",
+        "sanctioned": false,
+        "license_required": true,
+        "license_type": "FDA Export Permit / CE Mark",
+        "risk_score": 40,
+        "risk_level": "MODERATE"
+      }
+    },
+    {
+      "id": "export-plan-agent",
+      "name": "Export Plan Agent",
+      "tagline": "Generate a full export strategy and logistics plan.",
+      "description": "Compiles a complete strategic report covering route analysis, market insights, compliance checklist, estimated costs, and execution timeline.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/export-plan",
+      "method": "POST",
+      "price_per_execution_usd": 2.50,
+      "domain_tags": ["export", "trade", "strategy", "logistics", "compliance"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_name": {
+            "type": "string",
+            "description": "Name of exporting firm"
+          },
+          "product": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "origin": {
+            "type": "string",
+            "description": "Origin country"
+          },
+          "target_market": {
+            "type": "string",
+            "description": "Target country"
+          },
+          "budget": {
+            "type": "number",
+            "description": "Available budget"
+          }
+        },
+        "required": ["company_name", "product", "origin", "target_market"]
+      },
+      "output_example": {
+        "executive_summary": "Summary...",
+        "estimated_costs": {
+          "logistics": 3200,
+          "compliance": 800,
+          "tariffs": 0,
+          "total": 4000
+        }
+      }
+    },
+    {
+      "id": "full-pipeline-agent",
+      "name": "Full Pipeline Agent",
+      "tagline": "Run the complete 5-step export intelligence pipeline.",
+      "description": "Aggregates the processing of Ingestion, Routing, Market Matching, Compliance, and CircleBrain Orchestration into a single comprehensive output.",
+      "endpoint": "https://circletrade-agent-api-production.up.railway.app/api/pipeline",
+      "method": "POST",
+      "price_per_execution_usd": 5.00,
+      "domain_tags": ["export", "compliance", "logistics", "trade", "orchestration"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "customer_name": { "type": "string" },
+          "origin_country": { "type": "string" },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "category": { "type": "string" },
+                "hs_code": { "type": "string" }
+              }
+            }
+          },
+          "target_markets": { "type": "array", "items": { "type": "string" } },
+          "budget": { "type": "number" },
+          "risk_tolerance": { "type": "string" }
+        },
+        "required": ["customer_name", "origin_country", "products", "target_markets"]
+      },
+      "output_example": {
+        "customer": "Hargreaves Textiles Ltd",
+        "best_route": "UK -> UAE",
+        "best_market": "United Arab Emirates",
+        "tariff_rate": 5,
+        "risk_score": 1.8,
+        "opportunity_score": 91
+      }
+    }
+  ]
+}
