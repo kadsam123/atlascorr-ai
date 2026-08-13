@@ -69,11 +69,12 @@ function metering(req, res, next) {
     const apiKey = req.apiKey || req.headers['x-api-key'] || 'anonymous';
     const maskedKey = apiKey.length > 8 ? apiKey.slice(-8) : apiKey;
 
+    const originalUrlPath = req.originalUrl.split('?')[0];
     const logEntry = {
       id: usageLogs.length + 1,
       timestamp: new Date().toISOString(),
       method: req.method,
-      endpoint: req.path,
+      endpoint: originalUrlPath,
       api_key_suffix: maskedKey,
       response_time_ms: responseTimeMs,
       status_code: res.statusCode,
@@ -89,8 +90,8 @@ function metering(req, res, next) {
     );
 
     // Augment body if it is an object and the endpoint matches
-    if (body && typeof body === 'object' && MARKETPLACE_AGENTS[req.path]) {
-      const agentMetadata = MARKETPLACE_AGENTS[req.path];
+    if (body && typeof body === 'object' && MARKETPLACE_AGENTS[originalUrlPath]) {
+      const agentMetadata = MARKETPLACE_AGENTS[originalUrlPath];
       body.marketplace_metadata = {
         agent_name: agentMetadata.name,
         price_per_execution_usd: agentMetadata.price_per_execution_usd,
