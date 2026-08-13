@@ -65,6 +65,17 @@ app.get('/api/usage', (req, res) => {
 
 // ── Protected API routes ───────────────────────────────────────────────────────
 app.use('/api', auth);
+
+const syncStripeUsage = require('./scripts/stripe-sync');
+app.post('/api/admin/sync-stripe', async (req, res, next) => {
+  try {
+    const result = await syncStripeUsage();
+    return res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use('/api/hs-code', hsCodeRouter);
 app.use('/api/tariff', tariffRouter);
 app.use('/api/route', routeRouter);

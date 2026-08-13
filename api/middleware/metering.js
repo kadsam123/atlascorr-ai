@@ -1,5 +1,21 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
+// ── Persistent logs configurations ─────────────────────────────────────────────
+const LOGS_DIR = path.join(__dirname, '..', 'logs');
+const LOGS_FILE = path.join(LOGS_DIR, 'usage.log');
+
+// Ensure log directory exists
+try {
+  if (!fs.existsSync(LOGS_DIR)) {
+    fs.mkdirSync(LOGS_DIR, { recursive: true });
+  }
+} catch (err) {
+  console.error('[Metering Middleware] Failed to create logs directory:', err.message);
+}
+
 // ── In-memory usage log ────────────────────────────────────────────────────────
 const usageLogs = [];
 
@@ -76,12 +92,20 @@ function metering(req, res, next) {
       method: req.method,
       endpoint: originalUrlPath,
       api_key_suffix: maskedKey,
+      api_key_full: apiKey,
       response_time_ms: responseTimeMs,
       status_code: res.statusCode,
       ip: req.ip || req.connection.remoteAddress || 'unknown'
     };
 
     usageLogs.push(logEntry);
+
+    // Write persistently to log file
+    try {
+      fs.appendFileSync(LOGS_FILE, JSON.stringify(logEntry) + '\n', 'utf8');
+    } catch (err) {
+      console.error('[Metering Middleware] Failed to write usage log to file:', err.message);
+    }
 
     // Also print to stdout for easy monitoring
     console.log(

@@ -1,0 +1,18 @@
+{
+  "ct-demo-key-2026": {
+    "customer_name": "Demo Exporter Inc (Test)",
+    "customer_email": "demo@circletrade.ai",
+    "stripe_customer_id": "cus_test_demo123",
+    "stripe_subscription_id": "sub_test_demo123",
+    "subscription_items": {
+      "/api/hs-code": "si_test_hscode",
+      "/api/tariff": "si_test_tariff",
+      "/api/route": "si_test_route",
+      "/api/market": "si_test_market",
+      "/api/compliance": "si_test_compliance",
+      "/api/opportunity": "si_test_opportunity",
+      "/api/export-plan": "si_test_exportplan",
+      "/api/pipeline": "si_test_pipeline"
+    }
+  }
+}
