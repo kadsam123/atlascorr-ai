@@ -53,6 +53,10 @@ CT.store = (() => {
       opportunitiesFound: 24,
       complianceChecks: 18,
     },
+    // ── API Configuration State ──────────────────────────────
+    apiMode: localStorage.getItem('CT_apiMode') || 'mock',
+    apiUrl:  localStorage.getItem('CT_apiUrl')  || 'https://circletrade-agent-api-production.up.railway.app',
+    apiKey:  localStorage.getItem('CT_apiKey')  || 'ct-demo-key-2026',
   };
 
   // Seed initial log history
@@ -91,8 +95,27 @@ CT.store = (() => {
     getUnreadCount:   () => state.notifications.filter(n => n.unread).length,
     getStats:         () => state.stats,
     getOpportunities: () => state.opportunities,
+    getApiConfig:     () => ({ mode: state.apiMode, url: state.apiUrl, key: state.apiKey }),
 
     // ── Mutations ────────────────────────────────────────────
+    setApiConfig(config) {
+      if (config.mode) {
+        state.apiMode = config.mode;
+        localStorage.setItem('CT_apiMode', config.mode);
+      }
+      if (config.url) {
+        state.apiUrl = config.url;
+        localStorage.setItem('CT_apiUrl', config.url);
+      }
+      if (config.key) {
+        state.apiKey = config.key;
+        localStorage.setItem('CT_apiKey', config.key);
+      }
+      
+      // Dispatch custom event so UI components can react
+      window.dispatchEvent(new CustomEvent('CT_apiConfigChanged', { detail: this.getApiConfig() }));
+    },
+
     addLog(entry) {
       const log = {
         id: `LOG-${String(state.logs.length + 1).padStart(4, '0')}`,

@@ -113,6 +113,15 @@
           <div class="breadcrumb" id="page-breadcrumb">CircleTrade AI → Dashboard</div>
         </div>
         <div class="topbar-right">
+          <div class="api-mode-selector">
+            <button class="api-mode-badge mock" id="api-mode-toggle-btn" onclick="CT.app.toggleApiMode()" title="Click to toggle between Mock and Live API mode">
+              <span class="mode-dot"></span>
+              <span class="mode-text">MOCK MODE</span>
+            </button>
+            <button class="api-settings-btn" onclick="CT.app.openApiSettings()" title="Configure API Server & Key">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+          </div>
           <div class="datetime-display" id="datetime-display"></div>
           <button class="run-btn" id="run-pipeline-btn" onclick="CT.app.quickRun()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -136,6 +145,31 @@
         <button class="modal-close" onclick="CT.app.closePipelineModal()">✕</button>
       </div>
       <div class="modal-body" id="modal-pipeline-body"></div>
+    </div>
+  </div>
+
+  <!-- API Settings Modal -->
+  <div id="api-settings-modal" class="modal hidden">
+    <div class="modal-backdrop" onclick="CT.app.closeApiSettings()"></div>
+    <div class="modal-content settings-modal">
+      <div class="modal-header">
+        <h2>Circle API Configuration</h2>
+        <button class="modal-close" onclick="CT.app.closeApiSettings()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" style="display: block; margin-bottom: 6px; font-size: 12px; color: var(--text-muted);">PRODUCTION API BASE URL</label>
+          <input type="text" id="api-settings-url" class="compliance-input" style="width: 100%; font-family: var(--font-mono); font-size: 13px;" placeholder="https://api.circletrade.ai">
+        </div>
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label class="form-label" style="display: block; margin-bottom: 6px; font-size: 12px; color: var(--text-muted);">STRIPE METERED API KEY (X-API-Key)</label>
+          <input type="password" id="api-settings-key" class="compliance-input" style="width: 100%; font-family: var(--font-mono); font-size: 13px;" placeholder="ct-demo-key-2026">
+        </div>
+        <div class="settings-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button class="filter-btn" onclick="CT.app.closeApiSettings()">Cancel</button>
+          <button class="run-btn" onclick="CT.app.saveApiSettings()">Save Configurations</button>
+        </div>
+      </div>
     </div>
   </div>
 

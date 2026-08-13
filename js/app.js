@@ -121,6 +121,63 @@ CT.app = (() => {
     draw();
   }
 
+  // ── API Mode Settings handlers ────────────────────────────
+  function toggleApiMode() {
+    const config = CT.store.getApiConfig();
+    const newMode = config.mode === 'mock' ? 'live' : 'mock';
+    CT.store.setApiConfig({ mode: newMode });
+    _updateApiUI();
+    
+    CT.store.addLog({
+      module: 'CB',
+      message: `Connection mode toggled to: ${newMode.toUpperCase()}`,
+      customerId: null,
+      customer: 'System'
+    });
+  }
+
+  function openApiSettings() {
+    const config = CT.store.getApiConfig();
+    const urlInput = document.getElementById('api-settings-url');
+    const keyInput = document.getElementById('api-settings-key');
+    if (urlInput) urlInput.value = config.url;
+    if (keyInput) keyInput.value = config.key;
+    document.getElementById('api-settings-modal')?.classList.remove('hidden');
+  }
+
+  function closeApiSettings() {
+    document.getElementById('api-settings-modal')?.classList.add('hidden');
+  }
+
+  function saveApiSettings() {
+    const url = document.getElementById('api-settings-url')?.value.trim();
+    const key = document.getElementById('api-settings-key')?.value.trim();
+    
+    CT.store.setApiConfig({ url, key });
+    closeApiSettings();
+
+    CT.store.addLog({
+      module: 'CB',
+      message: `API Configurations updated: URL=${url}`,
+      customerId: null,
+      customer: 'System'
+    });
+  }
+
+  function _updateApiUI() {
+    const config = CT.store.getApiConfig();
+    const btn = document.getElementById('api-mode-toggle-btn');
+    if (!btn) return;
+    
+    if (config.mode === 'mock') {
+      btn.className = 'api-mode-badge mock';
+      btn.querySelector('.mode-text').textContent = 'MOCK MODE';
+    } else {
+      btn.className = 'api-mode-badge live';
+      btn.querySelector('.mode-text').textContent = 'LIVE API';
+    }
+  }
+
   // ── Navigation Event Binding ──────────────────────────────
   function _bindNav() {
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -139,6 +196,7 @@ CT.app = (() => {
     // Visual init
     _initParticles();
     _bindNav();
+    _updateApiUI();
 
     // Update badge
     const badge = document.getElementById('nav-badge');
@@ -160,7 +218,7 @@ CT.app = (() => {
     console.log('%cMeridian Flow · TradeMatch · DDTRS · CircleBrain — all modules active', 'color:#7c3aed');
   }
 
-  return { navigate, quickRun, closePipelineModal, init };
+  return { navigate, quickRun, closePipelineModal, init, toggleApiMode, openApiSettings, closeApiSettings, saveApiSettings };
 })();
 
 // Boot on DOMContentLoaded

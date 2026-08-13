@@ -548,3 +548,78 @@ select option{background:var(--bg-secondary);color:var(--text-primary)}
 .powered-cta{font-size:10px;color:var(--text-muted);margin-top:4px;transition:color var(--tr)}
 .powered-link:hover .powered-cta{color:var(--accent-teal)}
 
+/* ── API Mode & Settings topbar styles ──────────────────────── */
+.api-mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 14px;
+}
+.api-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all var(--tr);
+}
+.api-mode-badge:hover {
+  background: rgba(255,255,255,0.06);
+}
+.api-mode-badge.mock {
+  color: var(--accent-teal);
+  border-color: rgba(0,212,255,0.2);
+  background: rgba(0,212,255,0.03);
+}
+.api-mode-badge.mock .mode-dot {
+  background: var(--accent-teal);
+  box-shadow: 0 0 8px var(--accent-teal);
+}
+.api-mode-badge.live {
+  color: #a78bfa;
+  border-color: rgba(124,58,237,0.3);
+  background: rgba(124,58,237,0.05);
+}
+.api-mode-badge.live .mode-dot {
+  background: #a78bfa;
+  box-shadow: 0 0 8px #a78bfa;
+}
+.mode-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transition: all var(--tr);
+}
+.api-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--tr);
+}
+.api-settings-btn:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: rgba(255,255,255,0.06);
+}
+.api-settings-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.settings-modal {
+  max-width: 440px;
+}
+
+

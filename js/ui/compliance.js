@@ -107,29 +107,129 @@ CT.ui.compliance = {
     if (c)  c.value  = cat;
   },
 
-  run() {
+  async run() {
     const desc     = (document.getElementById('ct-product-desc')?.value  || 'unknown product').trim();
     const destCode = document.getElementById('ct-dest')?.value            || 'UAE';
     const category = document.getElementById('ct-category')?.value        || 'general';
     const destName = CT.data.markets.find(m => m.code === destCode)?.name || destCode;
 
-    const hsCode     = CT.ddtrs.extractHSCode(desc);
-    const product    = { name: desc, hsCode, category };
-    const compliance = CT.ddtrs.checkCompliance(product, destName);
-    const riskScore  = CT.ddtrs.getRiskScore(product, destName);
-    const tariff     = CT.tradeMatch.lookupTariff(hsCode, destCode, category);
+    const btn = document.querySelector('.hs-lookup-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+    }
 
-    this._last = { desc, hsCode, destName, category, compliance, riskScore, tariff };
+    const apiConfig = CT.store.getApiConfig();
 
-    CT.store.addLog({
-      module: 'DD',
-      message: `Manual check — "${desc}" → ${destName} | HS: ${hsCode} | Risk: ${riskScore}/10 | Tariff: ${tariff}%`,
-      customerId: null,
-      customer: 'Manual Check',
-    });
+    if (apiConfig.mode === 'live') {
+      try {
+        // 1. Fetch compliance
+        const compRes = await fetch(`${apiConfig.url}/api/compliance`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiConfig.key
+          },
+          body: JSON.stringify({
+            product_description: desc,
+            destination: destName,
+            category: category
+          })
+        });
+
+        if (!compRes.ok) {
+          throw new Error(`Compliance check failed: ${compRes.status}`);
+        }
+
+        const compData = await compRes.json();
+
+        // 2. Fetch tariff
+        const tariffRes = await fetch(`${apiConfig.url}/api/tariff`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiConfig.key
+          },
+          body: JSON.stringify({
+            hs_code: compData.hs_code,
+            destination_code: destCode,
+            category: category
+          })
+        });
+
+        const tariffData = tariffRes.ok ? await tariffRes.json() : { tariff_rate: 0 };
+
+        // Normalize 0-100 risk score back to 0-10 decimal format
+        const riskVal = compData.risk_score / 10;
+
+        this._last = {
+          desc: compData.input || desc,
+          hsCode: compData.hs_code,
+          destName,
+          category,
+          compliance: {
+            passed: compData.passed,
+            licenseRequired: compData.license_required,
+            warnings: (compData.warnings || []).map(w => ({ message: w })),
+            issues: (compData.issues || []).map(i => ({ message: i }))
+          },
+          riskScore: parseFloat(riskVal.toFixed(1)),
+          tariff: tariffData.tariff_rate,
+          marketplace_metadata: compData.marketplace_metadata || null
+        };
+
+        let logMsg = `Manual check (LIVE API) — "${desc}" → ${destName} | HS: ${this._last.hsCode} | Risk: ${this._last.riskScore}/10 | Tariff: ${this._last.tariff}%`;
+        if (this._last.marketplace_metadata) {
+          logMsg += ` [Cost: $${this._last.marketplace_metadata.price_per_execution_usd}]`;
+        }
+
+        CT.store.addLog({
+          module: 'DD',
+          message: logMsg,
+          customerId: null,
+          customer: 'Manual Check',
+        });
+
+      } catch (err) {
+        console.error('[Manual DDTRS Live Error]', err);
+        const body = document.getElementById('ct-result-body');
+        if (body) {
+          body.innerHTML = `
+            <div style="padding:15px;background:var(--danger-dim);border:1px solid rgba(239,68,68,.2);border-radius:10px;color:var(--danger);font-size:13px;text-align:center">
+              ⚠️ Live Connection Error:<br><span style="font-family:var(--font-mono);font-size:11px">${err.message}</span>
+            </div>`;
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Run DDTRS Check';
+        }
+        return;
+      }
+    } else {
+      // ─ FALLBACK TO LOCAL SIMULATION ───────────────────────
+      const hsCode     = CT.ddtrs.extractHSCode(desc);
+      const product    = { name: desc, hsCode, category };
+      const compliance = CT.ddtrs.checkCompliance(product, destName);
+      const riskScore  = CT.ddtrs.getRiskScore(product, destName);
+      const tariff     = CT.tradeMatch.lookupTariff(hsCode, destCode, category);
+
+      this._last = { desc, hsCode, destName, category, compliance, riskScore, tariff };
+
+      CT.store.addLog({
+        module: 'DD',
+        message: `Manual check (MOCK) — "${desc}" → ${destName} | HS: ${hsCode} | Risk: ${riskScore}/10 | Tariff: ${tariff}%`,
+        customerId: null,
+        customer: 'Manual Check',
+      });
+    }
 
     const body = document.getElementById('ct-result-body');
     if (body) body.innerHTML = this._renderResult(this._last);
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Run DDTRS Check';
+    }
   },
 
   _renderResult(r) {
@@ -183,6 +283,29 @@ ${r.compliance.issues.length ? `
       <div style="padding:9px 12px;background:var(--danger-dim);border:1px solid rgba(239,68,68,.2);border-radius:7px;font-size:12px;color:var(--danger);margin-bottom:6px">
         ❌ ${issue.message}
       </div>`).join('')}
+  </div>` : ''}
+
+${r.marketplace_metadata ? `
+  <div style="margin-top:14px;padding:12px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.2);border-radius:8px;">
+    <div style="font-size:9px;font-weight:700;letter-spacing:1.2px;color:#a78bfa;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span>CIRCLE MARKETPLACE METER</span>
+      <span>PAY-PER-USE</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:5px">
+      <span>Agent Called:</span>
+      <span style="color:var(--text-primary);font-weight:600">${r.marketplace_metadata.agent_name}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:5px">
+      <span>Cost Incurred:</span>
+      <span style="color:#a78bfa;font-weight:700">$${r.marketplace_metadata.price_per_execution_usd.toFixed(2)} USD</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:5px">
+      <span>Meter ID:</span>
+      <span style="font-family:var(--font-mono);font-size:10px">${r.marketplace_metadata.usage_metering.meter_id}</span>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;line-height:1.4">
+      💡 ${r.marketplace_metadata.upsell.message}
+    </div>
   </div>` : ''}`;
   },
 };
