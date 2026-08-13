@@ -1,5 +1,5 @@
 /* ============================================================
-   AtlasTrade AI — App Router, Particles, Clocks & Boot
+   CircleTrade AI — App Router, Particles, Clocks & Boot
    ============================================================ */
 window.CT = window.CT || {};
 
@@ -9,14 +9,14 @@ CT.app = (() => {
   const DAY = 86400;
 
   const VIEWS = {
-    dashboard:     { title:'Dashboard',    crumb:'AtlasTrade AI → Dashboard',    render:() => CT.ui.dashboard.render()      },
-    pipeline:      { title:'Pipeline',     crumb:'AtlasTrade AI → Pipeline',     render:() => CT.ui.pipeline.render()       },
-    customers:     { title:'Customers',    crumb:'AtlasTrade AI → Customers',    render:() => CT.ui.customers.render()      },
-    opportunities: { title:'Opportunities',crumb:'AtlasTrade AI → Opportunities',render:() => CT.ui.opportunities.render() },
-    compliance:    { title:'Compliance',   crumb:'AtlasTrade AI → Compliance',   render:() => CT.ui.compliance.render()     },
-    marketplace:   { title:'Marketplace',  crumb:'AtlasTrade AI → Developer Marketplace', render:() => CT.ui.marketplace.render() },
-    notifications: { title:'Alerts',       crumb:'AtlasTrade AI → Alerts',       render:() => CT.ui.notifications.render()  },
-    logs:          { title:'Logs',          crumb:'AtlasTrade AI → Logs',         render:() => CT.ui.logs.render()           },
+    dashboard:     { title:'Dashboard',    crumb:'CircleTrade AI → Dashboard',    render:() => CT.ui.dashboard.render()      },
+    pipeline:      { title:'Pipeline',     crumb:'CircleTrade AI → Pipeline',     render:() => CT.ui.pipeline.render()       },
+    customers:     { title:'Customers',    crumb:'CircleTrade AI → Customers',    render:() => CT.ui.customers.render()      },
+    opportunities: { title:'Opportunities',crumb:'CircleTrade AI → Opportunities',render:() => CT.ui.opportunities.render() },
+    compliance:    { title:'Compliance',   crumb:'CircleTrade AI → Compliance',   render:() => CT.ui.compliance.render()     },
+    marketplace:   { title:'Marketplace',  crumb:'CircleTrade AI → Developer Marketplace', render:() => CT.ui.marketplace.render() },
+    notifications: { title:'Alerts',       crumb:'CircleTrade AI → Alerts',       render:() => CT.ui.notifications.render()  },
+    logs:          { title:'Logs',          crumb:'CircleTrade AI → Logs',         render:() => CT.ui.logs.render()           },
   };
 
   // ── Navigation ────────────────────────────────────────────
@@ -215,7 +215,7 @@ CT.app = (() => {
     // Default view
     navigate('dashboard');
 
-    console.log('%c🚀 AtlasTrade AI Online', 'color:#00d4ff;font-size:14px;font-weight:bold');
+    console.log('%c🚀 CircleTrade AI Online', 'color:#00d4ff;font-size:14px;font-weight:bold');
     console.log('%cMeridian Flow · TradeMatch · DDTRS · CircleBrain — all modules active', 'color:#7c3aed');
   }
 

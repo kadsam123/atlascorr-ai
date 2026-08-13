@@ -21,8 +21,8 @@ const FILES_TO_RENAME = [
   path.join('C:', 'Users', 'kissa', '.gemini', 'antigravity', 'brain', '2db186bc-9c7f-4504-a34c-d84b511d544c', 'stripe_autonomous_invoice.md')
 ];
 
-function renameBrand() {
-  console.log('🌀 Running Codebase Renaming Script (CircleTrade AI -> AtlasTrade AI)...');
+function revertBrand() {
+  console.log('🌀 Reverting Codebase Brand (AtlasTrade AI -> CircleTrade AI)...');
 
   FILES_TO_RENAME.forEach(filePath => {
     if (!fs.existsSync(filePath)) {
@@ -33,20 +33,20 @@ function renameBrand() {
     try {
       let content = fs.readFileSync(filePath, 'utf8');
 
-      // Perform string replacements
-      content = content.replace(/CircleTrade AI/g, 'AtlasTrade AI');
-      content = content.replace(/circletrade-ai/g, 'atlastrade-ai');
-      content = content.replace(/CircleTrade/g, 'AtlasTrade');
-      content = content.replace(/circletrade/g, 'atlastrade');
+      // Revert replacements back to CircleTrade
+      content = content.replace(/AtlasTrade AI/g, 'CircleTrade AI');
+      content = content.replace(/atlastrade-ai/g, 'circletrade-ai');
+      content = content.replace(/AtlasTrade/g, 'CircleTrade');
+      content = content.replace(/atlastrade/g, 'circletrade');
 
       fs.writeFileSync(filePath, content, 'utf8');
-      console.log(`✅ Renamed references in: ${path.basename(filePath)}`);
+      console.log(`✅ Reverted references in: ${path.basename(filePath)}`);
     } catch (err) {
       console.error(`❌ Failed to edit: ${filePath}. Error: ${err.message}`);
     }
   });
 
-  console.log('\n🎉 Global Renaming Complete.');
+  console.log('\n🎉 Brand Reversion Complete.');
 }
 
-renameBrand();
+revertBrand();
