@@ -1,6 +1,6 @@
 # Circle Agent Stack — Developer API
 
-**Base URL:** `http://localhost:3000` (local) | `https://api.circletrade.ai` (production)  
+**Base URL:** `http://localhost:3000` (local) | `https://api.atlastrade.ai` (production)  
 **Auth:** `X-API-Key: ct-demo-key-2026`  
 **Content-Type:** `application/json`  
 **Version:** 1.0.0
@@ -23,7 +23,7 @@ curl http://localhost:3000/
 **Expected response:**
 ```json
 {
-  "service": "CircleTrade Agent Stack API",
+  "service": "AtlasTrade Agent Stack API",
   "version": "1.0.0",
   "status": "healthy"
 }
@@ -226,7 +226,7 @@ Full opportunity scan across 15+ global markets for a product category.
 
 ### 7. Full Pipeline
 **`POST /api/pipeline`**  
-Run the complete 5-step CircleTrade AI pipeline for an SME customer profile.
+Run the complete 5-step AtlasTrade AI pipeline for an SME customer profile.
 
 **Request:**
 ```json
@@ -339,7 +339,7 @@ railway init && railway up
 # Render — add render.yaml:
 # services:
 #   - type: web
-#     name: circletrade-api
+#     name: atlastrade-api
 #     env: node
 #     buildCommand: npm install
 #     startCommand: npm start
@@ -351,5 +351,5 @@ railway init && railway up
 
 ---
 
-*Circle Agent Stack API — Part of CircleTrade AI*  
-*https://kadsam123.github.io/circletrade-ai/*
+*Circle Agent Stack API — Part of AtlasTrade AI*  
+*https://kadsam123.github.io/atlastrade-ai/*
