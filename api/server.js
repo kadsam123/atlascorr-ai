@@ -114,4 +114,16 @@ app.listen(PORT, () => {
   console.log(`╚════════════════════════════════════════╝\n`);
 });
 
+// ── Automatic Stripe Sync Scheduler (Every 30 minutes) ─────────────────────────
+const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
+setInterval(async () => {
+  console.log('[Scheduler] Running scheduled Stripe Metered Usage Sync...');
+  try {
+    const result = await syncStripeUsage();
+    console.log('[Scheduler] Stripe Usage Sync completed:', JSON.stringify(result));
+  } catch (err) {
+    console.error('[Scheduler] Scheduled Stripe Sync failed:', err.message);
+  }
+}, SYNC_INTERVAL_MS);
+
 module.exports = app;
