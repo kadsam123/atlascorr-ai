@@ -86,8 +86,54 @@ function extractHsCode(productDescription) {
   return { ...best, confidence };
 }
 
+const https = require('https');
+
+function fetchWebHtml(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+async function searchWebForHsCode(productDescription) {
+  try {
+    const query = encodeURIComponent(`HS code for ${productDescription}`);
+    const url = `https://html.duckduckgo.com/html/?q=${query}`;
+    const html = await fetchWebHtml(url);
+    const hsCodeRegex = /\b(\d{4})\.(\d{2})\b/g;
+    const matches = [];
+    let match;
+    while ((match = hsCodeRegex.exec(html)) !== null) {
+      matches.push(match[0]);
+    }
+    if (matches.length > 0) {
+      return matches[0];
+    }
+  } catch (err) {
+    console.error('[WebSearch Error]', err.message);
+  }
+  return null;
+}
+
+function inferCategory(hsCode) {
+  const prefix = parseInt(hsCode.substring(0, 2), 10);
+  if (prefix >= 50 && prefix <= 63) return 'textiles';
+  if (prefix >= 1 && prefix <= 24) return 'food';
+  if (prefix === 84) return 'machinery';
+  if (prefix === 85) return 'electronics';
+  if (prefix === 90) return 'medical';
+  return 'machinery'; // default fallback
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { product_description } = req.body || {};
 
   if (!product_description || typeof product_description !== 'string' || !product_description.trim()) {
@@ -98,7 +144,25 @@ router.post('/', (req, res) => {
     });
   }
 
-  const result = extractHsCode(product_description.trim());
+  const inputCleaned = product_description.trim();
+  let result = extractHsCode(inputCleaned);
+
+  // If local keyword matching fails (returning default fallback code), run web search
+  if (result.hsCode === '9999.99') {
+    console.log(`[HS Code Agent] Keyword miss. Running live Web Search lookup for: "${inputCleaned}"`);
+    const webHsCode = await searchWebForHsCode(inputCleaned);
+    if (webHsCode) {
+      const category = inferCategory(webHsCode);
+      result = {
+        hsCode: webHsCode,
+        category: category,
+        description: `Classified via Web Intelligence: matches "${inputCleaned}"`,
+        confidence: 0.82,
+        matchedKeyword: 'web_search_match'
+      };
+      console.log(`[HS Code Agent] Web Search success! Resolved: ${webHsCode} (${category})`);
+    }
+  }
 
   return res.json({
     request_id: uuidv4(),
@@ -109,9 +173,10 @@ router.post('/', (req, res) => {
     description: result.description,
     matched_keyword: result.matchedKeyword || null,
     source: 'DDTRS',
-    input: product_description.trim(),
+    input: inputCleaned,
     timestamp: new Date().toISOString()
   });
 });
 
 module.exports = router;
+

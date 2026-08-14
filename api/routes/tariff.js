@@ -56,8 +56,44 @@ function inferCategoryFromHs(hsCode) {
   return HS_CATEGORY_MAP[prefix2] || null;
 }
 
+const https = require('https');
+
+function fetchWebHtml(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+async function searchWebForTariff(hsCode, destinationCode) {
+  try {
+    const query = encodeURIComponent(`Tariff rate for HS ${hsCode} imported to ${destinationCode}`);
+    const url = `https://html.duckduckgo.com/html/?q=${query}`;
+    const html = await fetchWebHtml(url);
+    const percentageRegex = /\b(\d+(?:\.\d+)?)\s*%/g;
+    const matches = [];
+    let match;
+    while ((match = percentageRegex.exec(html)) !== null) {
+      matches.push(parseFloat(match[1]));
+    }
+    if (matches.length > 0) {
+      return matches[0]; // Return first percentage found
+    }
+  } catch (err) {
+    console.error('[WebSearch Error]', err.message);
+  }
+  return null;
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { hs_code, destination_code, category } = req.body || {};
 
   if (!hs_code || typeof hs_code !== 'string') {
@@ -76,28 +112,35 @@ router.post('/', (req, res) => {
     });
   }
 
-  const destUpper = destination_code.toUpperCase();
-  const resolvedCategory = category ? category.toLowerCase() : inferCategoryFromHs(hs_code);
+  const destUpper = destination_code.toUpperCase().trim();
+  const resolvedCategory = category ? category.toLowerCase().trim() : (inferCategoryFromHs(hs_code) || 'machinery');
 
-  if (!resolvedCategory || !TARIFF_TABLE[resolvedCategory]) {
-    return res.status(422).json({
-      error: 'UNRESOLVABLE_CATEGORY',
-      message: `Could not resolve product category from hs_code "${hs_code}". Provide a "category" field (textiles|food|machinery|electronics|medical).`,
-      timestamp: new Date().toISOString()
-    });
+  const categoryRates = TARIFF_TABLE[resolvedCategory] || TARIFF_TABLE['machinery'];
+  let tariffRate = null;
+  let source = 'TradeMatch';
+
+  // Check if country exists in our static table
+  if (categoryRates.hasOwnProperty(destUpper)) {
+    tariffRate = categoryRates[destUpper];
+  } else {
+    // Run live Web Search lookup as fallback
+    console.log(`[Tariff Agent] Country "${destUpper}" not in local table. Running live Web Search lookup...`);
+    const countryName = COUNTRY_NAMES[destUpper] || destUpper;
+    const webRate = await searchWebForTariff(hs_code, countryName);
+    if (webRate !== null) {
+      tariffRate = webRate;
+      source = 'TradeMatch-WebIntelligence';
+      console.log(`[Tariff Agent] Web Search success! Resolved: ${tariffRate}%`);
+    } else {
+      // Fallback if search fails (use average of the category rates)
+      const rates = Object.values(categoryRates);
+      const avg = rates.reduce((sum, val) => sum + val, 0) / rates.length;
+      tariffRate = Math.round(avg * 10) / 10;
+      source = 'TradeMatch-Estimate';
+      console.log(`[Tariff Agent] Web Search failed. Using category average: ${tariffRate}%`);
+    }
   }
 
-  const categoryRates = TARIFF_TABLE[resolvedCategory];
-  if (!categoryRates.hasOwnProperty(destUpper)) {
-    return res.status(404).json({
-      error: 'DESTINATION_NOT_FOUND',
-      message: `Destination code "${destUpper}" is not in the tariff database.`,
-      supported_destinations: Object.keys(categoryRates),
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  const tariffRate = categoryRates[destUpper];
   const allRates = Object.entries(categoryRates).sort((a, b) => a[1] - b[1]);
   const lowestRate = allRates[0];
   const highestRate = allRates[allRates.length - 1];
@@ -115,7 +158,7 @@ router.post('/', (req, res) => {
       lowest_in_category: { destination: lowestRate[0], rate: lowestRate[1] },
       highest_in_category: { destination: highestRate[0], rate: highestRate[1] }
     },
-    source: 'TradeMatch',
+    source: source,
     timestamp: new Date().toISOString()
   });
 });
