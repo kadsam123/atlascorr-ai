@@ -46,9 +46,15 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/openapi.yaml', (req, res) => {
+  const path = require('path');
+  res.setHeader('Content-Type', 'text/yaml');
+  res.sendFile(path.join(__dirname, 'docs', 'openapi.yaml'));
+});
+
 app.get('/api/docs', (req, res) => {
   res.json({
-    message: 'OpenAPI spec is available at api/docs/openapi.yaml',
+    message: 'OpenAPI spec is available at /openapi.yaml',
     authentication: 'Pass X-API-Key: ct-demo-key-2026 header with every request',
     base_url: `http://localhost:${PORT}`
   });
