@@ -1,0 +1,481 @@
+openapi: 3.1.0
+info:
+  title: CircleTrade AI API
+  version: 1.0.0
+  description: >
+    CircleTrade AI provides HS classification, tariff lookup, compliance checks,
+    route scoring, and export plan generation for SMEs. The /api/pipeline endpoint
+    orchestrates multi-step workflows and may delegate specialized tasks to
+    verified partner agents, returning a unified result and billing ledger.
+  contact:
+    name: CircleTrade AI Support
+    url: https://circletrade.ai
+    email: support@circletrade.ai
+  license:
+    name: MIT
+  x-guidance: |
+    ### CircleTrade AI Agent Guidance
+    - Set the `X-API-Key: ct-demo-key-2026` header to authenticate.
+    - Query `/api/hs-code` to identify the HS code and category of the product.
+    - Query `/api/tariff` to lookup import duties for the corridor.
+    - Query `/api/compliance` to determine sanctions and permit requirements.
+    - Query `/api/route-score` to evaluate transit times and shipping scores.
+    - Or run the comprehensive `/api/pipeline` for full orchestrated routing.
+
+servers:
+  - url: https://circletrade-agent-api-production.up.railway.app
+    description: Production
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    ProductDescription:
+      type: object
+      required: [name, description, origin_country, destination_country]
+      properties:
+        name:
+          type: string
+          example: Steel bolts
+        description:
+          type: string
+          example: Galvanized steel bolts for industrial machinery
+        origin_country:
+          type: string
+          example: US
+        destination_country:
+          type: string
+          example: DE
+        hs_code_hint:
+          type: [string, "null"]
+          example: "7318.15"
+
+    HSClassificationResult:
+      type: object
+      properties:
+        hs_code:
+          type: string
+          example: "7318.15"
+        confidence:
+          type: number
+          format: float
+          example: 0.94
+        reasoning:
+          type: string
+          example: Matches fasteners / steel bolts classification.
+
+    TariffBreakdown:
+      type: object
+      properties:
+        hs_code:
+          type: string
+          example: "7318.15"
+        origin_country:
+          type: string
+          example: US
+        destination_country:
+          type: string
+          example: DE
+        duty_rate_pct:
+          type: number
+          format: float
+          example: 4.7
+        additional_duties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Custom processing fee
+              rate_pct:
+                type: number
+                format: float
+                example: 0.2
+        notes:
+          type: string
+          example: Standard industrial fasteners duty.
+
+    ComplianceCheckResult:
+      type: object
+      properties:
+        compliant:
+          type: boolean
+          example: true
+        issues:
+          type: array
+          items:
+            type: string
+          example: []
+        required_documents:
+          type: array
+          items:
+            type: string
+          example: ["Commercial Invoice", "Certificate of Origin"]
+
+    RouteScoreResult:
+      type: object
+      properties:
+        routes:
+          type: array
+          items:
+            type: object
+            properties:
+              corridor:
+                type: string
+                example: "US → DE"
+              score:
+                type: number
+                format: float
+                example: 0.87
+              transit_time_days:
+                type: integer
+                example: 12
+              risk_level:
+                type: string
+                example: "medium"
+
+    ExportPlan:
+      type: object
+      properties:
+        summary:
+          type: string
+          example: Export plan for Steel bolts from US to DE.
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              step:
+                type: string
+                example: Step 1: Compliance Filing
+              description:
+                type: string
+                example: File the export manifest with local customs.
+        compliance_notes:
+          type: string
+          example: Ensure ECCN classification is finalized.
+
+    OrchestrationLedger:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "DELEGATED_MARKETPLACE"
+        explanation:
+          type: string
+        billing_transparency:
+          type: object
+          properties:
+            core_orchestrator_cost_usd:
+              type: number
+              format: float
+              example: 5.00
+            external_agents_cost_usd:
+              type: number
+              format: float
+              example: 0.25
+            total_aggregate_cost_usd:
+              type: number
+              format: float
+              example: 5.25
+            payment_method:
+              type: string
+              example: "Stripe Metered Usage Ledger"
+
+    PipelineResponse:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        customer:
+          type: string
+          example: Acme Trade Group
+        dispatched_gaps:
+          type: array
+          items:
+            type: object
+            properties:
+              service_name:
+                type: string
+                example: DocParserAgent
+              gap_type:
+                type: string
+                example: document_extraction
+              cost_usd:
+                type: number
+                format: float
+                example: 0.25
+              partner_endpoint:
+                type: string
+                example: https://stableenrich.dev/apis/v1/doc-extractor
+              description:
+                type: string
+                example: Parses shipping documents.
+              status:
+                type: string
+                example: success
+              result:
+                type: object
+        orchestration_ledger:
+          $ref: '#/components/schemas/OrchestrationLedger'
+
+paths:
+  /api/hs-code:
+    post:
+      summary: HS code classification
+      description: Classify a product into an HS code based on description and trade corridor.
+      tags: [Classification]
+      x-price: "0.10"
+      x-meter-id: "meter_hs_code_agent"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDescription'
+      responses:
+        '200':
+          description: HS classification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HSClassificationResult'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/tariff:
+    post:
+      summary: Tariff lookup
+      description: Calculate tariff and duty breakdown for a given HS code and corridor.
+      tags: [Tariff]
+      x-price: "0.20"
+      x-meter-id: "meter_tariff_agent"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hs_code, origin_country, destination_country]
+              properties:
+                hs_code:
+                  type: string
+                  example: "7318.15"
+                origin_country:
+                  type: string
+                  example: US
+                destination_country:
+                  type: string
+                  example: DE
+      responses:
+        '200':
+          description: Tariff breakdown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffBreakdown'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/compliance:
+    post:
+      summary: Trade compliance check
+      description: Run compliance checks for a shipment, including sanctions, documents, and corridor rules.
+      tags: [Compliance]
+      x-price: "0.75"
+      x-meter-id: "meter_compliance_agent"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product, origin_country, destination_country]
+              properties:
+                product:
+                  $ref: '#/components/schemas/ProductDescription'
+                origin_country:
+                  type: string
+                  example: US
+                destination_country:
+                  type: string
+                  example: DE
+                value_usd:
+                  type: number
+                  format: float
+                  example: 50000
+      responses:
+        '200':
+          description: Compliance check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceCheckResult'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/route-score:
+    post:
+      summary: Route scoring
+      description: Score possible trade routes for a corridor based on risk, cost, and transit time.
+      tags: [Routing]
+      x-price: "0.50"
+      x-meter-id: "meter_route_agent"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [origin_country, destination_country]
+              properties:
+                origin_country:
+                  type: string
+                  example: US
+                destination_country:
+                  type: string
+                  example: DE
+                mode:
+                  type: string
+                  example: "sea"
+      responses:
+        '200':
+          description: Route scoring result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteScoreResult'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/export-plan:
+    post:
+      summary: Export plan generation
+      description: Generate an export plan for a given product and corridor, including compliance notes.
+      tags: [ExportPlan]
+      x-price: "2.50"
+      x-meter-id: "meter_export_plan"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product, origin_country, destination_country]
+              properties:
+                product:
+                  $ref: '#/components/schemas/ProductDescription'
+                origin_country:
+                  type: string
+                  example: US
+                destination_country:
+                  type: string
+                  example: DE
+                incoterm:
+                  type: string
+                  example: "FOB"
+      responses:
+        '200':
+          description: Export plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportPlan'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/pipeline:
+    post:
+      summary: Orchestrated trade intelligence pipeline
+      description: >
+        Run a multi-step pipeline that may include HS classification, tariff lookup,
+        compliance checks, route scoring, export plan generation, and marketplace
+        delegation to partner agents when gaps are detected.
+      tags: [Pipeline]
+      x-price: "5.00"
+      x-meter-id: "meter_pipeline"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+                  example: "Acme Trade Group"
+                product:
+                  $ref: '#/components/schemas/ProductDescription'
+                additional_requirements:
+                  type: array
+                  items:
+                    type: string
+                  example: ["document_extraction", "financial_analysis"]
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      filename:
+                        type: string
+                      file_type:
+                        type: string
+                        example: "pdf"
+      responses:
+        '200':
+          description: Orchestrated pipeline response with marketplace delegation and billing ledger
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal error during orchestration
