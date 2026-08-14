@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: CircleTrade Agent Stack API
   description: |
@@ -13,12 +13,27 @@ info:
   contact:
     name: CircleTrade AI
     url: https://circletrade.ai
+    email: support@circletrade.ai
   license:
     name: MIT
+  x-guidance: |
+    ### CircleTrade API Guidance for Agents
+    This API provides global trade compliance, HS code matching, tariff queries, shipping route scoring, and structured export blueprints.
+
+    #### Authentication & Access
+    1. Pass `X-API-Key: ct-demo-key-2026` header for standard access.
+    2. Alternatively, perform pay-per-use payments over x402 / MPP when receiving a `402 Payment Required` response.
+
+    #### Endpoint Workflow
+    - First classifty your cargo: `POST /api/hs-code` -> get `hs_code` and `category`.
+    - Query duty rates: `POST /api/tariff` with the code and destination country.
+    - Check compliance/license requirements: `POST /api/compliance`.
+    - Plan routes: `POST /api/route` with origin and destination.
+    - Orchestrate everything at once: `POST /api/pipeline`.
 
 servers:
-  - url: http://localhost:3000
-    description: Local development server
+  - url: https://circletrade-agent-api-production.up.railway.app
+    description: Production server
 
 components:
   securitySchemes:
@@ -40,6 +55,28 @@ components:
         timestamp:
           type: string
           format: date-time
+
+    PaymentRequiredError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: PAYMENT_REQUIRED
+        message:
+          type: string
+          example: Payment required to access this endpoint.
+        x_payment_info:
+          type: object
+        accepts:
+          type: array
+          items:
+            type: object
+            properties:
+              scheme: { type: string }
+              network: { type: string }
+              asset: { type: string }
+              payTo: { type: string }
+              amount: { type: string }
 
     HsCodeResponse:
       type: object
@@ -64,8 +101,7 @@ components:
           type: string
           example: "Men's or boys' shirts — cotton"
         matched_keyword:
-          type: string
-          nullable: true
+          type: [string, "null"]
         source:
           type: string
           example: DDTRS
@@ -141,7 +177,7 @@ components:
           properties:
             origin: { type: string }
             destination: { type: string }
-            product_category: { type: string, nullable: true }
+            product_category: { type: [string, "null"] }
         routes:
           type: array
           items:
@@ -191,10 +227,10 @@ components:
         destination: { type: string }
         sanctioned: { type: boolean }
         license_required: { type: boolean }
-        license_type: { type: string, nullable: true }
+        license_type: { type: [string, "null"] }
         dual_use: { type: boolean }
-        check_body: { type: string, nullable: true }
-        cert_required: { type: string, nullable: true }
+        check_body: { type: [string, "null"] }
+        cert_required: { type: [string, "null"] }
         risk_score: { type: integer }
         risk_level: { type: string, enum: [CRITICAL, HIGH, MODERATE, LOW] }
         warnings:
@@ -262,11 +298,11 @@ components:
             code: { type: string }
             region: { type: string }
             score: { type: integer }
-        tariff_rate: { type: number, nullable: true }
+        tariff_rate: { type: [number, "null"] }
         risk_score: { type: integer }
         opportunity_score: { type: integer }
         license_required: { type: boolean }
-        license_type: { type: string, nullable: true }
+        license_type: { type: [string, "null"] }
         sanctioned_destination: { type: boolean }
         recommendation: { type: string }
         next_action: { type: string }
@@ -324,7 +360,7 @@ components:
             import_growth_pct: { type: number }
             gdp_growth_pct: { type: number }
             category_fit: { type: string }
-            tariff_rate_pct: { type: number, nullable: true }
+            tariff_rate_pct: { type: [number, "null"] }
         compliance_checklist:
           type: array
           items:
@@ -334,7 +370,7 @@ components:
           properties:
             category: { type: string }
             destination_code: { type: string }
-            tariff_rate_pct: { type: number, nullable: true }
+            tariff_rate_pct: { type: [number, "null"] }
             tariff_label: { type: string }
             estimated_duty_usd: { type: integer }
         risk_assessment:
@@ -410,6 +446,14 @@ paths:
     post:
       summary: Classify product into HS code
       tags: [DDTRS]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '0.10'
       requestBody:
         required: true
         content:
@@ -434,17 +478,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '401':
-          description: Authentication failed
+        '402':
+          description: Payment Required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/tariff:
     post:
       summary: Look up import tariff rate
       tags: [TradeMatch]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '0.20'
       requestBody:
         required: true
         content:
@@ -477,17 +529,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '404':
-          description: Destination not found
+        '402':
+          description: Payment Required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/route:
     post:
       summary: Optimise trade corridor / shipping route
       tags: [MeridianFlow]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '0.50'
       requestBody:
         required: true
         content:
@@ -518,11 +578,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/market:
     post:
       summary: Match product to target markets
       tags: [TradeMatch]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '0.50'
       requestBody:
         required: true
         content:
@@ -552,11 +626,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/compliance:
     post:
       summary: Run compliance check for a product and destination
       tags: [DDTRS]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '0.75'
       requestBody:
         required: true
         content:
@@ -587,11 +675,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/opportunity:
     post:
       summary: Score export opportunities across markets
       tags: [TradeMatch]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '1.00'
       requestBody:
         required: true
         content:
@@ -623,6 +725,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/pipeline:
     post:
@@ -632,6 +740,14 @@ paths:
         route optimisation, market matching, tariff lookup, compliance check,
         and opportunity scoring. Returns a unified result with a pipeline_steps trace.
       tags: [Pipeline]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '5.00'
       requestBody:
         required: true
         content:
@@ -682,11 +798,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequiredError'
 
   /api/export-plan:
     post:
       summary: Generate a structured export plan
       tags: [Pipeline]
+      x-payment-info:
+        protocols:
+          - x402: {}
+          - mpp: { method: 'exact', intent: 'direct', currency: 'USDC' }
+        price:
+          mode: 'fixed'
+          currency: 'USDC'
+          amount: '2.50'
       requestBody:
         required: true
         content:
@@ -723,12 +853,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '404':
-          description: Market not found
+        '402':
+          description: Payment Required
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/PaymentRequiredError'
 
 tags:
   - name: System
