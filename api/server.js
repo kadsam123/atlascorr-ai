@@ -2,6 +2,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const auth = require('./middleware/auth');
@@ -47,9 +48,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/openapi.yaml', (req, res) => {
-  const path = require('path');
-  res.setHeader('Content-Type', 'text/yaml');
-  res.sendFile(path.join(__dirname, 'docs', 'openapi.yaml'));
+  res.sendFile(path.join(__dirname, 'docs/openapi.yaml'));
 });
 
 app.get('/api/docs', (req, res) => {
