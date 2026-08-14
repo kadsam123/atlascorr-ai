@@ -9,10 +9,15 @@
     "sync-stripe": "node scripts/stripe-sync.js"
   },
   "dependencies": {
+    "@circle-fin/x402-batching": "^3.3.0",
+    "@x402/core": "^2.22.0",
+    "@x402/evm": "^2.22.0",
+    "@x402/express": "^2.22.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
+    "express": "^4.22.2",
     "stripe": "^14.25.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "viem": "^2.55.16"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -260,6 +260,10 @@ router.post('/', (req, res) => {
     `Overall compliance risk: ${riskLevel}. Budget estimate: USD ${totalCost.toLocaleString()}.`
   ].join(' ');
 
+  // Autonomously detect orchestration gaps (Mode B)
+  const { detectAndRouteGaps } = require('../middleware/gapDetector');
+  const gapAnalysis = detectAndRouteGaps(req.body);
+
   return res.json({
     request_id: uuidv4(),
     plan_id: `EP-${Date.now()}`,
@@ -320,6 +324,8 @@ router.post('/', (req, res) => {
       total_estimated_usd: totalCost,
       notes: 'Estimates are indicative. Engage freight forwarder and customs broker for precise quotations.'
     },
+    dispatched_gaps: gapAnalysis.dispatched_gaps,
+    orchestration_ledger: gapAnalysis.orchestration_ledger,
     source: 'CircleTrade Export Plan Engine v1',
     generated_at: new Date().toISOString()
   });

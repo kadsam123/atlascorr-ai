@@ -143,6 +143,8 @@ function buildRecommendation({ bestRoute, bestMarket, compliance, tariffRate, ri
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
+const { detectAndRouteGaps } = require('../middleware/gapDetector');
+
 router.post('/', (req, res) => {
   const {
     customer_name,
@@ -239,6 +241,9 @@ router.post('/', (req, res) => {
       ? `Apply for ${compliance.license_type} through ${compliance.check_body}.`
       : `Book freight via ${bestRoute.name} corridor and prepare ${category} shipment documentation.`;
 
+  // Autonomously detect orchestration gaps (Mode B)
+  const gapAnalysis = detectAndRouteGaps(req.body);
+
   return res.json({
     request_id: uuidv4(),
     customer: customer_name,
@@ -266,6 +271,8 @@ router.post('/', (req, res) => {
     sanctioned_destination: compliance.sanctioned,
     recommendation,
     next_action: nextAction,
+    dispatched_gaps: gapAnalysis.dispatched_gaps,
+    orchestration_ledger: gapAnalysis.orchestration_ledger,
     pipeline_steps: pipelineSteps,
     timestamp: new Date().toISOString(),
     source: 'CircleTrade Pipeline v1'
