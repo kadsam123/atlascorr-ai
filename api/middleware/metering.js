@@ -32,22 +32,10 @@ const MARKETPLACE_AGENTS = {
     domain_tags: ['export', 'trade', 'tariff', 'taxes', 'landed-cost'],
     upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
-  '/api/route': {
+  '/api/route-score': {
     name: 'Route Agent',
     price_per_execution_usd: 0.50,
     domain_tags: ['export', 'logistics', 'trade', 'routing', 'shipping'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
-  },
-  '/api/market': {
-    name: 'Market Match Agent',
-    price_per_execution_usd: 0.50,
-    domain_tags: ['export', 'trade', 'market-match', 'opportunities', 'sales'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
-  },
-  '/api/opportunity': {
-    name: 'Opportunity Scan Agent',
-    price_per_execution_usd: 1.00,
-    domain_tags: ['export', 'trade', 'opportunity-scan', 'growth', 'globalization'],
     upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
   '/api/compliance': {
@@ -72,8 +60,7 @@ const MARKETPLACE_AGENTS = {
 
 /**
  * Metering middleware.
- * Intercepts every response and appends a structured log entry containing:
- *   timestamp, endpoint, api_key (last 8 chars), response_time_ms, status_code
+ * Intercepts every response and appends a structured log entry.
  */
 function metering(req, res, next) {
   const startTime = Date.now();
@@ -107,7 +94,7 @@ function metering(req, res, next) {
       console.error('[Metering Middleware] Failed to write usage log to file:', err.message);
     }
 
-    // Also print to stdout for easy monitoring
+    // Print to stdout
     console.log(
       `[${logEntry.timestamp}] ${logEntry.method} ${logEntry.endpoint} ` +
       `key=***${logEntry.api_key_suffix} ${logEntry.status_code} ${logEntry.response_time_ms}ms`

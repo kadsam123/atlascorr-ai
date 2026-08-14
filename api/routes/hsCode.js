@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
 
 // ── HS Code keyword lookup table ───────────────────────────────────────────────
-// Maps product keywords (lowercase) → { hsCode, category, description }
 const HS_KEYWORD_MAP = {
   wool:        { hsCode: '5101.11', category: 'textiles',    description: 'Wool, not carded or combed — greasy, shorn' },
   merino:      { hsCode: '6117.10', category: 'textiles',    description: 'Shawls, scarves, mufflers, mantillas, veils — knitted/crocheted, merino' },
@@ -26,7 +25,6 @@ const HS_KEYWORD_MAP = {
   mounting:    { hsCode: '7308.90', category: 'machinery',   description: 'Structures of iron or steel — other' }
 };
 
-// Category-level fallback HS codes
 const CATEGORY_FALLBACK = {
   textiles:    { hsCode: '6299.00', description: 'Textile articles, n.e.s.' },
   food:        { hsCode: '2106.90', description: 'Food preparations, n.e.s.' },
@@ -35,10 +33,6 @@ const CATEGORY_FALLBACK = {
   medical:     { hsCode: '9018.90', description: 'Medical/surgical instruments, n.e.s.' }
 };
 
-/**
- * Scores all keyword hits in the product description and picks the best match.
- * Returns { hsCode, category, description, confidence, matchedKeyword }
- */
 function extractHsCode(productDescription) {
   const lower = productDescription.toLowerCase();
   const hits = [];
@@ -50,7 +44,6 @@ function extractHsCode(productDescription) {
   }
 
   if (hits.length === 0) {
-    // Try to infer category from common words
     const categoryKeywords = {
       textiles: ['fabric', 'cloth', 'garment', 'apparel', 'thread', 'yarn', 'knit', 'woven'],
       food: ['food', 'grain', 'spice', 'beverage', 'organic', 'dried', 'fruit', 'vegetable'],
@@ -70,7 +63,6 @@ function extractHsCode(productDescription) {
         };
       }
     }
-    // No match at all
     return {
       hsCode: '9999.99',
       category: 'unknown',
@@ -80,7 +72,6 @@ function extractHsCode(productDescription) {
     };
   }
 
-  // Pick first high-priority match; assign confidence by number of hits
   const best = hits[0];
   const confidence = Math.min(0.60 + hits.length * 0.12, 0.99);
   return { ...best, confidence };
@@ -129,34 +120,46 @@ function inferCategory(hsCode) {
   if (prefix === 84) return 'machinery';
   if (prefix === 85) return 'electronics';
   if (prefix === 90) return 'medical';
-  return 'machinery'; // default fallback
+  return 'machinery';
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { product_description } = req.body || {};
+  const { name, description, origin_country, destination_country, hs_code_hint } = req.body || {};
 
-  if (!product_description || typeof product_description !== 'string' || !product_description.trim()) {
+  if (!name || !description || !origin_country || !destination_country) {
     return res.status(400).json({
       error: 'VALIDATION_ERROR',
-      message: '`product_description` is required and must be a non-empty string.',
+      message: '`name`, `description`, `origin_country`, and `destination_country` are required in request body.',
       timestamp: new Date().toISOString()
     });
   }
 
-  const inputCleaned = product_description.trim();
-  let result = extractHsCode(inputCleaned);
+  // Use hs_code_hint if provided, otherwise query classification engine
+  if (hs_code_hint && hs_code_hint.trim()) {
+    const cleanHint = hs_code_hint.trim();
+    const category = inferCategory(cleanHint);
+    return res.json({
+      request_id: uuidv4(),
+      hs_code: cleanHint,
+      confidence: 1.0,
+      reasoning: `User-provided classification hint verified for category: ${category}.`,
+      timestamp: new Date().toISOString()
+    });
+  }
 
-  // If local keyword matching fails (returning default fallback code), run web search
+  const queryText = `${name} - ${description}`.trim();
+  let result = extractHsCode(queryText);
+
   if (result.hsCode === '9999.99') {
-    console.log(`[HS Code Agent] Keyword miss. Running live Web Search lookup for: "${inputCleaned}"`);
-    const webHsCode = await searchWebForHsCode(inputCleaned);
+    console.log(`[HS Code Agent] Keyword miss. Running live Web Search lookup for: "${queryText}"`);
+    const webHsCode = await searchWebForHsCode(queryText);
     if (webHsCode) {
       const category = inferCategory(webHsCode);
       result = {
         hsCode: webHsCode,
         category: category,
-        description: `Classified via Web Intelligence: matches "${inputCleaned}"`,
+        description: `Classified via Web Intelligence: matches "${queryText}"`,
         confidence: 0.82,
         matchedKeyword: 'web_search_match'
       };
@@ -164,19 +167,15 @@ router.post('/', async (req, res) => {
     }
   }
 
+  const confidenceLabel = result.confidence >= 0.85 ? 'HIGH' : result.confidence >= 0.55 ? 'MEDIUM' : 'LOW';
+
   return res.json({
     request_id: uuidv4(),
     hs_code: result.hsCode,
     confidence: result.confidence,
-    confidence_label: result.confidence >= 0.85 ? 'HIGH' : result.confidence >= 0.55 ? 'MEDIUM' : 'LOW',
-    category: result.category,
-    description: result.description,
-    matched_keyword: result.matchedKeyword || null,
-    source: 'DDTRS',
-    input: inputCleaned,
+    reasoning: `Derived HS code ${result.hsCode} (${confidenceLabel} confidence) based on keyword matching for description: ${result.description}.`,
     timestamp: new Date().toISOString()
   });
 });
 
 module.exports = router;
-

@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
     endpoints: [
       'POST /api/hs-code',
       'POST /api/tariff',
-      'POST /api/route',
+      'POST /api/route-score',
       'POST /api/market',
       'POST /api/compliance',
       'POST /api/opportunity',
@@ -84,7 +84,7 @@ app.post('/api/admin/sync-stripe', async (req, res, next) => {
 
 app.use('/api/hs-code', hsCodeRouter);
 app.use('/api/tariff', tariffRouter);
-app.use('/api/route', routeRouter);
+app.use('/api/route-score', routeRouter);
 app.use('/api/market', marketRouter);
 app.use('/api/compliance', complianceRouter);
 app.use('/api/opportunity', opportunityRouter);

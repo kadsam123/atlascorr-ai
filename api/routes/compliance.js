@@ -22,185 +22,105 @@ const COMPLIANCE_RULES = {
     requiresLicense: true,
     licenseType: 'FDA Export Permit / CE Mark',
     dualUse: false,
-    checkBody: 'FDA / EMA / MHRA',
-    certRequired: 'ISO 13485 / CE Mark / FDA 510(k)',
-    standardWarnings: [
-      'Medical devices require pre-market approval in most jurisdictions.',
-      'Verify CE Mark validity for EU/GBR destinations.',
-      'FDA Export Permit mandatory for US-origin medical exports.'
-    ]
+    docs: ['Commercial Invoice', 'Certificate of Origin', 'FDA Export Permit', 'ISO 13485 Certificate']
   },
   electronics: {
     requiresLicense: false,
     licenseType: null,
     dualUse: true,
-    checkBody: 'BIS / ECCN',
-    certRequired: null,
-    standardWarnings: [
-      'Electronics may be classified under EAR (Export Administration Regulations).',
-      'Check ECCN classification for dual-use items (e.g. encryption, sensors).',
-      'BIS licence exception or authorisation required if ECCN is controlled.'
-    ]
+    docs: ['Commercial Invoice', 'Certificate of Origin', 'End-User Statement', 'ECCN Declaration']
   },
   machinery: {
     requiresLicense: false,
     licenseType: null,
     dualUse: true,
-    checkBody: 'BIS / ECCN / Wassenaar',
-    certRequired: null,
-    standardWarnings: [
-      'Heavy machinery may fall under Wassenaar Arrangement controls.',
-      'Verify end-user and end-use certificates for dual-use machinery.',
-      'CE marking required for machinery exported to EU/EEA markets.'
-    ]
+    docs: ['Commercial Invoice', 'Certificate of Origin', 'CE Declaration of Conformity']
   },
   food: {
     requiresLicense: false,
     licenseType: null,
     dualUse: false,
-    checkBody: 'CODEX / FSANZ / FDA',
-    certRequired: 'Phytosanitary / Food Safety Certificate',
-    standardWarnings: [
-      'Phytosanitary certificate required for plant-based food products.',
-      'Food safety certification (HACCP / ISO 22000) strongly recommended.',
-      'Country-specific labelling rules must be followed (e.g. Halal, Kosher, allergens).'
-    ]
+    docs: ['Commercial Invoice', 'Certificate of Origin', 'Phytosanitary Certificate', 'Food Safety Certificate']
   },
   textiles: {
     requiresLicense: false,
     licenseType: null,
     dualUse: false,
-    checkBody: null,
-    certRequired: null,
-    standardWarnings: [
-      'Verify fibre composition and country-of-origin labelling requirements.',
-      'REACH compliance required for chemical treatments on textiles exported to EU.',
-      'Anti-dumping duties may apply on certain textile products.'
-    ]
+    docs: ['Commercial Invoice', 'Certificate of Origin', 'Packing List']
   }
 };
 
-// ── HS code keyword map (reused from hsCode route logic) ──────────────────────
-const HS_KEYWORD_MAP = {
-  wool: '5101.11', merino: '6117.10', cotton: '6205.20', shirt: '6205.20',
-  scarf: '6117.10', solar: '8541.40', battery: '8507.60', oil: '1509.10',
-  olive: '1509.10', cheese: '0406.20', ultrasound: '9018.12', medical: '9018.90',
-  surgical: '9018.90', turmeric: '0910.30', pepper: '0904.11', mounting: '7308.90'
+const HS_CATEGORY_MAP = {
+  '51': 'textiles',  '52': 'textiles',  '61': 'textiles',  '62': 'textiles',
+  '09': 'food',      '10': 'food',      '15': 'food',      '04': 'food',      '21': 'food',
+  '73': 'machinery', '84': 'machinery', '85': 'electronics',
+  '90': 'medical'
 };
+
+function inferCategoryFromHs(hsCode) {
+  const clean = (hsCode || '').replace(/\D/g, '').substring(0, 4);
+  const prefix2 = clean.substring(0, 2);
+  return HS_CATEGORY_MAP[prefix2] || 'textiles';
+}
 
 function extractHsCode(desc) {
   const lower = (desc || '').toLowerCase();
-  for (const [kw, hs] of Object.entries(HS_KEYWORD_MAP)) {
+  const keywords = {
+    wool: '5101.11', merino: '6117.10', cotton: '6205.20', shirt: '6205.20',
+    scarf: '6117.10', solar: '8541.40', battery: '8507.60', oil: '1509.10',
+    olive: '1509.10', cheese: '0406.20', ultrasound: '9018.12', medical: '9018.90',
+    surgical: '9018.90', turmeric: '0910.30', pepper: '0904.11', mounting: '7308.90'
+  };
+  for (const [kw, hs] of Object.entries(keywords)) {
     if (lower.includes(kw)) return hs;
   }
-  return null;
-}
-
-/**
- * Computes a composite risk score 0-100. Higher = more risk.
- */
-function computeRiskScore({ sanctioned, licenseRequired, dualUse, category }) {
-  let score = 0;
-  if (sanctioned)       score += 100;
-  if (licenseRequired)  score += 25;
-  if (dualUse)          score += 20;
-  if (category === 'medical')     score += 15;
-  if (category === 'electronics') score += 10;
-  if (category === 'machinery')   score += 10;
-  return Math.min(score, 100);
+  return '6299.00'; // Default textiles fallback
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 router.post('/', (req, res) => {
-  const { product_description, destination, category } = req.body || {};
+  const { product, origin_country, destination_country, value_usd } = req.body || {};
 
-  const validCategories = ['textiles', 'food', 'machinery', 'electronics', 'medical'];
-
-  if (!product_description || typeof product_description !== 'string') {
+  if (!product || !origin_country || !destination_country) {
     return res.status(400).json({
       error: 'VALIDATION_ERROR',
-      message: '`product_description` is required.',
-      timestamp: new Date().toISOString()
-    });
-  }
-  if (!destination || typeof destination !== 'string') {
-    return res.status(400).json({
-      error: 'VALIDATION_ERROR',
-      message: '`destination` is required (country name or ISO code).',
-      timestamp: new Date().toISOString()
-    });
-  }
-  if (!category || !validCategories.includes(category.toLowerCase())) {
-    return res.status(400).json({
-      error: 'VALIDATION_ERROR',
-      message: `\`category\` is required. Valid values: ${validCategories.join(', ')}.`,
+      message: '`product` description object, `origin_country`, and `destination_country` are required in request body.',
       timestamp: new Date().toISOString()
     });
   }
 
-  const cat = category.toLowerCase();
-  const destUpper = destination.toUpperCase().trim();
-  const rules = COMPLIANCE_RULES[cat];
-
-  // Sanction check
+  const destUpper = destination_country.toUpperCase().trim();
   const isSanctioned = SANCTIONED_COUNTRIES.has(destUpper);
+  
+  const hsCode = product.hs_code_hint || extractHsCode(`${product.name} ${product.description}`);
+  const category = inferCategoryFromHs(hsCode);
+  const rules = COMPLIANCE_RULES[category] || COMPLIANCE_RULES.textiles;
 
-  // HS code extraction
-  const detectedHs = extractHsCode(product_description) || '9999.99';
-
-  // Warnings & issues
-  const warnings = [...rules.standardWarnings];
   const issues = [];
+  const requiredDocs = [...rules.docs];
 
   if (isSanctioned) {
-    issues.push(`CRITICAL: "${destination}" is a sanctioned country. This shipment is PROHIBITED under international trade law.`);
-    issues.push('Proceeding with this export may result in severe legal penalties including criminal prosecution.');
+    issues.push(`Sanctions Alert: Export to "${destination_country}" is restricted. Trade is prohibited under international embargo regulations.`);
   }
 
   if (rules.requiresLicense) {
-    warnings.push(`A ${rules.licenseType} must be obtained before export.`);
+    issues.push(`Licence Required: An export license (${rules.licenseType}) is required for exporting ${category} items to ${destination_country}.`);
   }
 
   if (rules.dualUse) {
-    warnings.push(`Product category "${cat}" has dual-use potential. An ECCN classification review is required.`);
+    issues.push(`Dual-Use Check: Product category (${category}) contains potential dual-use goods. Final end-user certification required.`);
   }
 
-  if (rules.certRequired) {
-    warnings.push(`Required certification: ${rules.certRequired}.`);
+  if (value_usd && value_usd > 100000) {
+    requiredDocs.push('High-Value Customs Declaration');
   }
 
-  const riskScore = computeRiskScore({
-    sanctioned: isSanctioned,
-    licenseRequired: rules.requiresLicense,
-    dualUse: rules.dualUse,
-    category: cat
-  });
-
-  const passed = !isSanctioned && issues.length === 0;
+  const compliant = !isSanctioned && !rules.requiresLicense;
 
   return res.json({
-    request_id: uuidv4(),
-    passed,
-    hs_code: detectedHs,
-    category: cat,
-    destination,
-    sanctioned: isSanctioned,
-    license_required: rules.requiresLicense,
-    license_type: rules.licenseType || null,
-    dual_use: rules.dualUse,
-    check_body: rules.checkBody || null,
-    cert_required: rules.certRequired || null,
-    risk_score: riskScore,
-    risk_level: riskScore >= 80 ? 'CRITICAL' : riskScore >= 50 ? 'HIGH' : riskScore >= 25 ? 'MODERATE' : 'LOW',
-    warnings,
+    compliant,
     issues,
-    recommendation: isSanctioned
-      ? 'DO NOT PROCEED. Shipment to this destination is prohibited by international sanctions.'
-      : riskScore >= 50
-        ? 'Engage a licensed trade compliance officer before proceeding.'
-        : 'Obtain required certifications and proceed with standard due diligence.',
-    source: 'DDTRS',
-    timestamp: new Date().toISOString()
+    required_documents: requiredDocs
   });
 });
 

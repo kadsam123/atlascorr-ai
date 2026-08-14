@@ -1,39 +1,33 @@
 openapi: 3.1.0
 info:
-  title: CircleTrade Agent Stack API
-  description: |
-    The Circle Agent Stack API exposes CircleTrade AI's export intelligence pipeline as
-    individually callable micro-agent endpoints. Each endpoint maps to a distinct intelligence
-    module: DDTRS (compliance & HS classification), MeridianFlow (route optimisation),
-    and TradeMatch (market & tariff intelligence).
-
-    **Authentication**: All `/api/*` endpoints require an `X-API-Key` header.
-    Demo key: `ct-demo-key-2026`
+  title: CircleTrade AI API
   version: 1.0.0
+  description: >
+    CircleTrade AI provides HS classification, tariff lookup, compliance checks,
+    route scoring, and export plan generation for SMEs. The /api/pipeline endpoint
+    orchestrates multi-step workflows and may delegate specialized tasks to
+    verified partner agents, returning a unified result and billing ledger.
   contact:
-    name: CircleTrade AI
+    name: CircleTrade AI Support
     url: https://circletrade.ai
     email: support@circletrade.ai
   license:
     name: MIT
   x-guidance: |
-    ### CircleTrade API Guidance for Agents
-    This API provides global trade compliance, HS code matching, tariff queries, shipping route scoring, and structured export blueprints.
-
-    #### Authentication & Access
-    1. Pass `X-API-Key: ct-demo-key-2026` header with every request.
-    2. API usage is reconciled dynamically against Stripe subscription plans using metered counters.
-
-    #### Endpoint Workflow
-    - First classify your cargo: `POST /api/hs-code` -> get `hs_code` and `category`.
-    - Query duty rates: `POST /api/tariff` with the code and destination country.
-    - Check compliance/license requirements: `POST /api/compliance`.
-    - Plan routes: `POST /api/route` with origin and destination.
-    - Orchestrate everything at once: `POST /api/pipeline`.
+    ### CircleTrade AI Agent Guidance
+    - Set the `X-API-Key: ct-demo-key-2026` header to authenticate.
+    - Query `/api/hs-code` to identify the HS code and category of the product.
+    - Query `/api/tariff` to lookup import duties for the corridor.
+    - Query `/api/compliance` to determine sanctions and permit requirements.
+    - Query `/api/route-score` to evaluate transit times and shipping scores.
+    - Or run the comprehensive `/api/pipeline` for full orchestrated routing.
 
 servers:
   - url: https://circletrade-agent-api-production.up.railway.app
-    description: Production server
+    description: Production
+
+security:
+  - ApiKeyAuth: []
 
 components:
   securitySchemes:
@@ -43,769 +37,438 @@ components:
       name: X-API-Key
 
   schemas:
-    Error:
+    ProductDescription:
       type: object
+      required: [name, description, origin_country, destination_country]
       properties:
-        error:
+        name:
           type: string
-          example: VALIDATION_ERROR
-        message:
+          example: Steel bolts
+        description:
           type: string
-          example: product_description is required
-        timestamp:
+          example: Galvanized steel bolts for industrial machinery
+        origin_country:
           type: string
-          format: date-time
+          example: US
+        destination_country:
+          type: string
+          example: DE
+        hs_code_hint:
+          type: [string, "null"]
+          example: "7318.15"
 
-    HsCodeResponse:
+    HSClassificationResult:
       type: object
       properties:
-        request_id:
-          type: string
-          format: uuid
         hs_code:
           type: string
-          example: "6205.20"
+          example: "7318.15"
         confidence:
           type: number
           format: float
-          example: 0.84
-        confidence_label:
+          example: 0.94
+        reasoning:
           type: string
-          enum: [HIGH, MEDIUM, LOW]
-        category:
-          type: string
-          example: textiles
-        description:
-          type: string
-          example: "Men's or boys' shirts — cotton"
-        matched_keyword:
-          type: [string, "null"]
-        source:
-          type: string
-          example: DDTRS
-        input:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
+          example: Matches fasteners / steel bolts classification.
 
-    TariffResponse:
+    TariffBreakdown:
       type: object
       properties:
-        request_id:
-          type: string
-          format: uuid
         hs_code:
           type: string
-        destination:
+          example: "7318.15"
+        origin_country:
           type: string
-        destination_code:
+          example: US
+        destination_country:
           type: string
-        category:
-          type: string
-        tariff_rate:
+          example: DE
+        duty_rate_pct:
           type: number
-        currency:
-          type: string
-          example: percent
-        tariff_label:
-          type: string
-          enum: [DUTY_FREE, LOW, MODERATE, HIGH]
-        benchmark:
-          type: object
-          properties:
-            lowest_in_category:
-              type: object
-              properties:
-                destination: { type: string }
-                rate: { type: number }
-            highest_in_category:
-              type: object
-              properties:
-                destination: { type: string }
-                rate: { type: number }
-        source:
-          type: string
-          example: TradeMatch
-        timestamp:
-          type: string
-          format: date-time
-
-    RouteResult:
-      type: object
-      properties:
-        name: { type: string }
-        score: { type: integer }
-        transit_days: { type: integer }
-        cost_index: { type: number }
-        port_efficiency: { type: integer }
-        political_risk: { type: string }
-        regulatory_alignment: { type: string }
-        primary_ports:
+          format: float
+          example: 4.7
+        additional_duties:
           type: array
-          items: { type: string }
-        recommendation: { type: string }
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Custom processing fee
+              rate_pct:
+                type: number
+                format: float
+                example: 0.2
+        notes:
+          type: string
+          example: Standard industrial fasteners duty.
 
-    RouteResponse:
+    ComplianceCheckResult:
       type: object
       properties:
-        request_id: { type: string }
-        query:
-          type: object
-          properties:
-            origin: { type: string }
-            destination: { type: string }
-            product_category: { type: [string, "null"] }
+        compliant:
+          type: boolean
+          example: true
+        issues:
+          type: array
+          items:
+            type: string
+          example: []
+        required_documents:
+          type: array
+          items:
+            type: string
+          example: ["Commercial Invoice", "Certificate of Origin"]
+
+    RouteScoreResult:
+      type: object
+      properties:
         routes:
           type: array
           items:
-            $ref: '#/components/schemas/RouteResult'
-        best_route:
-          $ref: '#/components/schemas/RouteResult'
-        total_routes_found: { type: integer }
-        source: { type: string }
-        timestamp: { type: string, format: date-time }
+            type: object
+            properties:
+              corridor:
+                type: string
+                example: "US → DE"
+              score:
+                type: number
+                format: float
+                example: 0.87
+              transit_time_days:
+                type: integer
+                example: 12
+              risk_level:
+                type: string
+                example: "medium"
 
-    MarketMatch:
+    ExportPlan:
       type: object
       properties:
-        market: { type: string }
-        market_code: { type: string }
-        region: { type: string }
-        score: { type: integer }
-        tariff: { type: number }
-        import_growth: { type: number }
-        gdp_growth: { type: number }
-        ease_of_trade: { type: integer }
-        category_fit: { type: string, enum: [HIGH, MODERATE] }
-        recommendation: { type: string }
-
-    MarketResponse:
-      type: object
-      properties:
-        request_id: { type: string }
-        product_category: { type: string }
-        matches:
+        summary:
+          type: string
+          example: Export plan for Steel bolts from US to DE.
+        steps:
           type: array
           items:
-            $ref: '#/components/schemas/MarketMatch'
-        best_market:
-          $ref: '#/components/schemas/MarketMatch'
-        total_markets_evaluated: { type: integer }
-        source: { type: string }
-        timestamp: { type: string, format: date-time }
+            type: object
+            properties:
+              step:
+                type: string
+                example: Step 1: Compliance Filing
+              description:
+                type: string
+                example: File the export manifest with local customs.
+        compliance_notes:
+          type: string
+          example: Ensure ECCN classification is finalized.
 
-    ComplianceResponse:
+    OrchestrationLedger:
       type: object
       properties:
-        request_id: { type: string }
-        passed: { type: boolean }
-        hs_code: { type: string }
-        category: { type: string }
-        destination: { type: string }
-        sanctioned: { type: boolean }
-        license_required: { type: boolean }
-        license_type: { type: [string, "null"] }
-        dual_use: { type: boolean }
-        check_body: { type: [string, "null"] }
-        cert_required: { type: [string, "null"] }
-        risk_score: { type: integer }
-        risk_level: { type: string, enum: [CRITICAL, HIGH, MODERATE, LOW] }
-        warnings:
-          type: array
-          items: { type: string }
-        issues:
-          type: array
-          items: { type: string }
-        recommendation: { type: string }
-        source: { type: string }
-        timestamp: { type: string, format: date-time }
-
-    OpportunityItem:
-      type: object
-      properties:
-        market: { type: string }
-        market_code: { type: string }
-        region: { type: string }
-        score: { type: integer }
-        tariff: { type: number }
-        import_growth: { type: number }
-        gdp_growth: { type: number }
-        ease_of_trade: { type: integer }
-        entry_cost_tier: { type: string }
-        category_fit: { type: string }
-        opportunity_label: { type: string, enum: [PRIME, STRONG, MODERATE, EMERGING] }
-
-    OpportunityResponse:
-      type: object
-      properties:
-        request_id: { type: string }
-        product_category: { type: string }
-        total: { type: integer }
-        opportunities:
-          type: array
-          items:
-            $ref: '#/components/schemas/OpportunityItem'
-        source: { type: string }
-        timestamp: { type: string, format: date-time }
-
-    PipelineStep:
-      type: object
-      properties:
-        module: { type: string }
-        output: { type: object }
+        status:
+          type: string
+          example: "DELEGATED_MARKETPLACE"
+        explanation:
+          type: string
+          example: This request requires specialized intelligence.
+        billing_transparency:
+          type: object
+          properties:
+            core_orchestrator_cost_usd:
+              type: number
+              format: float
+              example: 5.00
+            external_agents_cost_usd:
+              type: number
+              format: float
+              example: 0.25
+            total_aggregate_cost_usd:
+              type: number
+              format: float
+              example: 5.25
+            payment_method:
+              type: string
+              example: "Stripe Metered Usage Ledger"
 
     PipelineResponse:
       type: object
       properties:
-        request_id: { type: string }
-        customer: { type: string }
-        origin_country: { type: string }
-        category: { type: string }
-        best_route:
-          type: object
-          properties:
-            name: { type: string }
-            score: { type: integer }
-            transit_days: { type: integer }
-            cost_index: { type: number }
-        best_market:
-          type: object
-          properties:
-            name: { type: string }
-            code: { type: string }
-            region: { type: string }
-            score: { type: integer }
-        tariff_rate: { type: [number, "null"] }
-        risk_score: { type: integer }
-        opportunity_score: { type: integer }
-        license_required: { type: boolean }
-        license_type: { type: [string, "null"] }
-        sanctioned_destination: { type: boolean }
-        recommendation: { type: string }
-        next_action: { type: string }
-        pipeline_steps:
+        request_id:
+          type: string
+          format: uuid
+        customer:
+          type: string
+          example: Acme Trade Group
+        dispatched_gaps:
           type: array
           items:
-            $ref: '#/components/schemas/PipelineStep'
-        timestamp: { type: string, format: date-time }
-        source: { type: string }
-
-    ComplianceChecklistItem:
-      type: object
-      properties:
-        item: { type: string }
-        status: { type: string, enum: [REQUIRED, RECOMMENDED] }
-        action: { type: string }
-
-    TimelinePhase:
-      type: object
-      properties:
-        phase: { type: string }
-        weeks: { type: string }
-        actions:
-          type: array
-          items: { type: string }
-
-    ExportPlanResponse:
-      type: object
-      properties:
-        request_id: { type: string }
-        plan_id: { type: string }
-        company_name: { type: string }
-        product: { type: string }
-        origin: { type: string }
-        target_market: { type: string }
-        category: { type: string }
-        hs_code: { type: string }
-        executive_summary: { type: string }
-        recommended_route:
-          type: object
-          properties:
-            name: { type: string }
-            score: { type: integer }
-            transit_days: { type: integer }
-            cost_index: { type: number }
-            primary_ports:
-              type: array
-              items: { type: string }
-        market_analysis:
-          type: object
-          properties:
-            market: { type: string }
-            region: { type: string }
-            ease_of_trade: { type: integer }
-            import_growth_pct: { type: number }
-            gdp_growth_pct: { type: number }
-            category_fit: { type: string }
-            tariff_rate_pct: { type: [number, "null"] }
-        compliance_checklist:
-          type: array
-          items:
-            $ref: '#/components/schemas/ComplianceChecklistItem'
-        tariff_breakdown:
-          type: object
-          properties:
-            category: { type: string }
-            destination_code: { type: string }
-            tariff_rate_pct: { type: [number, "null"] }
-            tariff_label: { type: string }
-            estimated_duty_usd: { type: integer }
-        risk_assessment:
-          type: object
-          properties:
-            risk_score: { type: integer }
-            risk_level: { type: string, enum: [LOW, MODERATE, HIGH, CRITICAL] }
-            license_required: { type: boolean }
-            dual_use: { type: boolean }
-            key_risks:
-              type: array
-              items: { type: string }
-        timeline:
-          type: array
-          items:
-            $ref: '#/components/schemas/TimelinePhase'
-        estimated_costs:
-          type: object
-          properties:
-            budget_input_usd: { type: integer }
-            logistics_usd: { type: integer }
-            compliance_usd: { type: integer }
-            tariffs_usd: { type: integer }
-            total_estimated_usd: { type: integer }
-            notes: { type: string }
-        generated_at: { type: string, format: date-time }
-
-security:
-  - ApiKeyAuth: []
+            type: object
+            properties:
+              service_name:
+                type: string
+                example: DocParserAgent
+              gap_type:
+                type: string
+                example: document_extraction
+              cost_usd:
+                type: number
+                format: float
+                example: 0.25
+              partner_endpoint:
+                type: string
+                example: https://stableenrich.dev/apis/v1/doc-extractor
+              description:
+                type: string
+                example: Parses shipping documents.
+              status:
+                type: string
+                example: success
+              result:
+                type: object
+        orchestration_ledger:
+          $ref: '#/components/schemas/OrchestrationLedger'
 
 paths:
-  /:
-    get:
-      summary: Health check
-      security: []
-      tags: [System]
-      responses:
-        '200':
-          description: API is healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  service: { type: string }
-                  version: { type: string }
-                  status: { type: string }
-                  timestamp: { type: string }
-                  endpoints:
-                    type: array
-                    items: { type: string }
-
-  /api/usage:
-    get:
-      summary: Retrieve API usage logs
-      security: []
-      tags: [System]
-      responses:
-        '200':
-          description: Usage log entries
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  total_calls: { type: integer }
-                  logs:
-                    type: array
-                    items:
-                      type: object
-
   /api/hs-code:
     post:
-      summary: Classify product into HS code
-      tags: [DDTRS]
+      summary: HS code classification
+      description: Classify a product into an HS code based on description and trade corridor.
+      tags: [Classification]
       x-price: "0.10"
       x-meter-id: "meter_hs_code_agent"
       x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [product_description]
-              properties:
-                product_description:
-                  type: string
-                  example: "100% merino wool scarves for winter"
+              $ref: '#/components/schemas/ProductDescription'
       responses:
         '200':
-          description: HS code classification result
+          description: HS classification result
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HsCodeResponse'
+                $ref: '#/components/schemas/HSClassificationResult'
         '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Invalid request
         '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Unauthorized
 
   /api/tariff:
     post:
-      summary: Look up import tariff rate
-      tags: [TradeMatch]
+      summary: Tariff lookup
+      description: Calculate tariff and duty breakdown for a given HS code and corridor.
+      tags: [Tariff]
       x-price: "0.20"
       x-meter-id: "meter_tariff_agent"
       x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [hs_code, destination_code]
+              required: [hs_code, origin_country, destination_country]
               properties:
                 hs_code:
                   type: string
-                  example: "6205.20"
-                destination_code:
+                  example: "7318.15"
+                origin_country:
                   type: string
-                  example: UAE
-                  description: ISO 3-letter country code
-                category:
+                  example: US
+                destination_country:
                   type: string
-                  example: textiles
-                  description: Optional — inferred from hs_code if not provided
+                  example: DE
       responses:
         '200':
-          description: Tariff lookup result
+          description: Tariff breakdown
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TariffResponse'
+                $ref: '#/components/schemas/TariffBreakdown'
         '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Invalid request
         '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/route:
-    post:
-      summary: Optimise trade corridor / shipping route
-      tags: [MeridianFlow]
-      x-price: "0.50"
-      x-meter-id: "meter_route_agent"
-      x-billing-mode: "metered"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [origin, destination]
-              properties:
-                origin:
-                  type: string
-                  example: UK
-                destination:
-                  type: string
-                  example: UAE
-                product_category:
-                  type: string
-                  example: textiles
-      responses:
-        '200':
-          description: Route optimisation result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RouteResponse'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/market:
-    post:
-      summary: Match product to target markets
-      tags: [TradeMatch]
-      x-price: "0.50"
-      x-meter-id: "meter_market_agent"
-      x-billing-mode: "metered"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [product_category]
-              properties:
-                product_category:
-                  type: string
-                  example: textiles
-                target_markets:
-                  type: array
-                  items: { type: string }
-                  example: [UAE, SGP, GBR]
-                  description: Optional filter — evaluates all markets if omitted
-      responses:
-        '200':
-          description: Market match results
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MarketResponse'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Unauthorized
 
   /api/compliance:
     post:
-      summary: Run compliance check for a product and destination
-      tags: [DDTRS]
+      summary: Trade compliance check
+      description: Run compliance checks for a shipment, including sanctions, documents, and corridor rules.
+      tags: [Compliance]
       x-price: "0.75"
       x-meter-id: "meter_compliance_agent"
       x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [product_description, destination, category]
+              required: [product, origin_country, destination_country]
               properties:
-                product_description:
+                product:
+                  $ref: '#/components/schemas/ProductDescription'
+                origin_country:
                   type: string
-                  example: "ultrasound medical imaging device"
-                destination:
+                  example: US
+                destination_country:
                   type: string
-                  example: India
-                category:
-                  type: string
-                  example: medical
+                  example: DE
+                value_usd:
+                  type: number
+                  format: float
+                  example: 50000
       responses:
         '200':
           description: Compliance check result
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ComplianceResponse'
+                $ref: '#/components/schemas/ComplianceCheckResult'
         '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Invalid request
         '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Unauthorized
 
-  /api/opportunity:
+  /api/route-score:
     post:
-      summary: Score export opportunities across markets
-      tags: [TradeMatch]
-      x-price: "1.00"
-      x-meter-id: "meter_opportunity_agent"
+      summary: Route scoring
+      description: Score possible trade routes for a corridor based on risk, cost, and transit time.
+      tags: [Routing]
+      x-price: "0.50"
+      x-meter-id: "meter_route_agent"
       x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [product_category]
+              required: [origin_country, destination_country]
               properties:
-                product_category:
+                origin_country:
                   type: string
-                  example: electronics
-                products:
-                  type: array
-                  items: { type: string }
-                  example: ["solar panels", "lithium battery packs"]
-                budget:
-                  type: number
-                  example: 75000
+                  example: US
+                destination_country:
+                  type: string
+                  example: DE
+                mode:
+                  type: string
+                  example: "sea"
       responses:
         '200':
-          description: Ranked opportunity list
+          description: Route scoring result
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OpportunityResponse'
+                $ref: '#/components/schemas/RouteScoreResult'
         '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Invalid request
         '401':
-          description: Authentication failed
+          description: Unauthorized
+
+  /api/export-plan:
+    post:
+      summary: Export plan generation
+      description: Generate an export plan for a given product and corridor, including compliance notes.
+      tags: [ExportPlan]
+      x-price: "2.50"
+      x-meter-id: "meter_export_plan"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product, origin_country, destination_country]
+              properties:
+                product:
+                  $ref: '#/components/schemas/ProductDescription'
+                origin_country:
+                  type: string
+                  example: US
+                destination_country:
+                  type: string
+                  example: DE
+                incoterm:
+                  type: string
+                  example: "FOB"
+      responses:
+        '200':
+          description: Export plan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ExportPlan'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
 
   /api/pipeline:
     post:
-      summary: Run the full CircleTrade intelligence pipeline
-      description: |
-        Executes all intelligence modules sequentially: HS code resolution,
-        route optimisation, market matching, tariff lookup, compliance check,
-        and opportunity scoring. Returns a unified result with a pipeline_steps trace.
+      summary: Orchestrated trade intelligence pipeline
+      description: >
+        Run a multi-step pipeline that may include HS classification, tariff lookup,
+        compliance checks, route scoring, export plan generation, and marketplace
+        delegation to partner agents when gaps are detected.
       tags: [Pipeline]
       x-price: "5.00"
       x-meter-id: "meter_pipeline"
       x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [customer_name, origin_country, products]
               properties:
-                customer_name:
+                customer:
                   type: string
-                  example: "Acme Exports Ltd"
-                origin_country:
-                  type: string
-                  example: UK
-                products:
+                  example: "Acme Trade Group"
+                product:
+                  $ref: '#/components/schemas/ProductDescription'
+                additional_requirements:
+                  type: array
+                  items:
+                    type: string
+                  example: ["document_extraction", "financial_analysis"]
+                attachments:
                   type: array
                   items:
                     type: object
                     properties:
-                      name: { type: string }
-                      category: { type: string }
-                      hs_code: { type: string }
-                  example:
-                    - name: "merino wool scarf"
-                      category: textiles
-                      hs_code: "6117.10"
-                target_markets:
-                  type: array
-                  items: { type: string }
-                  example: [UAE, SGP]
-                budget:
-                  type: number
-                  example: 100000
-                risk_tolerance:
-                  type: string
-                  enum: [low, medium, high]
-                  example: medium
+                      filename:
+                        type: string
+                      file_type:
+                        type: string
+                        example: "pdf"
       responses:
         '200':
-          description: Full pipeline result
+          description: Orchestrated pipeline response with marketplace delegation and billing ledger
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PipelineResponse'
         '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: Invalid request
         '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/export-plan:
-    post:
-      summary: Generate a structured export plan
-      tags: [Pipeline]
-      x-price: "2.50"
-      x-meter-id: "meter_export_plan"
-      x-billing-mode: "metered"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [company_name, product, origin, target_market]
-              properties:
-                company_name:
-                  type: string
-                  example: "Meridian Exports Ltd"
-                product:
-                  type: string
-                  example: "merino wool scarves"
-                origin:
-                  type: string
-                  example: UK
-                target_market:
-                  type: string
-                  example: UAE
-                budget:
-                  type: number
-                  example: 50000
-      responses:
-        '200':
-          description: Structured export plan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExportPlanResponse'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-tags:
-  - name: System
-    description: Health and monitoring endpoints
-  - name: DDTRS
-    description: "DDTRS module: HS code classification and compliance checking"
-  - name: TradeMatch
-    description: "TradeMatch module: market intelligence, tariff lookups, opportunity scoring"
-  - name: MeridianFlow
-    description: "MeridianFlow module: trade corridor and route optimisation"
-  - name: Pipeline
-    description: Orchestrated multi-module pipelines
+          description: Unauthorized
+        '500':
+          description: Internal error during orchestration
