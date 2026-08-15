@@ -79,39 +79,59 @@ function extractHsCode(desc) {
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 router.post('/', (req, res) => {
-  const { product, origin_country, destination_country, value_usd } = req.body || {};
+  const body = req.body || {};
 
-  if (!product || !origin_country || !destination_country) {
+  const productObj = body.product;
+  const origin = body.origin_country || 'CA';
+  const destination = body.destination_country || body.destination;
+  const val = body.value_usd || 0;
+
+  let descText = '';
+  let hsCodeHint = null;
+  let cat = body.category || 'textiles';
+
+  if (productObj && typeof productObj === 'object') {
+    descText = `${productObj.name || ''} ${productObj.description || ''}`.trim();
+    hsCodeHint = productObj.hs_code_hint;
+  } else if (typeof body.product_description === 'string') {
+    descText = body.product_description;
+  } else if (typeof productObj === 'string') {
+    descText = productObj;
+  }
+
+  if (!descText || !destination) {
     return res.status(400).json({
       error: 'VALIDATION_ERROR',
-      message: '`product` description object, `origin_country`, and `destination_country` are required in request body.',
+      message: 'Required parameters: product description and destination country are missing.',
       timestamp: new Date().toISOString()
     });
   }
 
-  const destUpper = destination_country.toUpperCase().trim();
+  const destUpper = destination.toUpperCase().trim();
   const isSanctioned = SANCTIONED_COUNTRIES.has(destUpper);
-  
-  const hsCode = product.hs_code_hint || extractHsCode(`${product.name} ${product.description}`);
-  const category = inferCategoryFromHs(hsCode);
-  const rules = COMPLIANCE_RULES[category] || COMPLIANCE_RULES.textiles;
+
+  const hsCode = hsCodeHint || extractHsCode(descText);
+  if (!body.category) {
+    cat = inferCategoryFromHs(hsCode);
+  }
+  const rules = COMPLIANCE_RULES[cat] || COMPLIANCE_RULES.textiles;
 
   const issues = [];
   const requiredDocs = [...rules.docs];
 
   if (isSanctioned) {
-    issues.push(`Sanctions Alert: Export to "${destination_country}" is restricted. Trade is prohibited under international embargo regulations.`);
+    issues.push(`Sanctions Alert: Export to "${destination}" is restricted. Trade is prohibited under international embargo regulations.`);
   }
 
   if (rules.requiresLicense) {
-    issues.push(`Licence Required: An export license (${rules.licenseType}) is required for exporting ${category} items to ${destination_country}.`);
+    issues.push(`Licence Required: An export license (${rules.licenseType}) is required for exporting ${cat} items to ${destination}.`);
   }
 
   if (rules.dualUse) {
-    issues.push(`Dual-Use Check: Product category (${category}) contains potential dual-use goods. Final end-user certification required.`);
+    issues.push(`Dual-Use Check: Product category (${cat}) contains potential dual-use goods. Final end-user certification required.`);
   }
 
-  if (value_usd && value_usd > 100000) {
+  if (val && val > 100000) {
     requiredDocs.push('High-Value Customs Declaration');
   }
 
@@ -119,8 +139,15 @@ router.post('/', (req, res) => {
 
   return res.json({
     compliant,
+    passed: compliant,
+    hs_code: hsCode,
+    sanctioned: isSanctioned,
+    license_required: rules.requiresLicense,
+    risk_score: isSanctioned ? 90 : (rules.requiresLicense ? 55 : (rules.dualUse ? 35 : 10)),
+    warnings: rules.dualUse ? ['Potential dual-use goods classification'] : [],
     issues,
-    required_documents: requiredDocs
+    required_documents: requiredDocs,
+    input: descText
   });
 });
 
