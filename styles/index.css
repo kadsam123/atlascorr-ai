@@ -61,7 +61,7 @@ html,body{height:100%;overflow:hidden}
 body{font-family:var(--font-body);background:var(--bg-primary);color:var(--text-primary);font-size:14px;line-height:1.6}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;border:none;outline:none;font-family:var(--font-body);background:none}
-input,select,textarea{font-family:var(--font-body);outline:none}
+input,select,textarea{font-family:var(--font-body);outline:none;color:var(--text-primary);background:var(--bg-secondary);border:1px solid var(--glass-border);padding:8px 12px;border-radius:6px}
 svg{flex-shrink:0;display:block}
 select option{background:var(--bg-secondary);color:var(--text-primary)}
 
