@@ -148,6 +148,13 @@ CT.circleBrain = (() => {
 
         CT.store.addPipelineRun({ customerId: customer.id, customer: customer.name, timestamp: new Date().toISOString(), report });
         
+        // Update live dashboard stats
+        CT.store.updateStats({
+          routesScored: CT.store.getStats().routesScored + 1,
+          complianceChecks: CT.store.getStats().complianceChecks + 1,
+          opportunitiesFound: CT.store.getStats().opportunitiesFound + 3
+        });
+        
         // Refresh opportunities list
         CT.store.setOpportunities(CT.tradeMatch.getAllOpportunities(CT.store.getCustomers()));
 
@@ -252,6 +259,7 @@ CT.circleBrain = (() => {
     return '🔍 Further analysis recommended — challenging market or compliance conditions';
   }
 
+  // Helper actions
   function _nextAction(customer, results) {
     const actions = [];
     if (results.compliance?.highRisk?.length)    actions.push('Review high-risk shipment destinations');
