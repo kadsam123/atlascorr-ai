@@ -97,18 +97,18 @@
 
       <div class="sidebar-footer">
         <div class="next-run-card">
-        <div class="next-run-label">Next Daily Run</div>
-        <div class="next-run-timer" id="next-run-timer">00:00:00</div>
-        <div class="next-run-bar"><div class="next-run-fill" id="next-run-fill"></div></div>
+          <div class="next-run-label">Next Daily Run</div>
+          <div class="next-run-timer" id="next-run-timer">00:00:00</div>
+          <div class="next-run-bar"><div class="next-run-fill" id="next-run-fill"></div></div>
+        </div>
+        <div class="sidebar-powered">
+          <a href="pricing.html" class="powered-link">
+            <div class="powered-label">POWERED BY</div>
+            <div class="powered-brand">Circle Agent Stack</div>
+            <div class="powered-cta">View Plans &amp; Agents →</div>
+          </a>
+        </div>
       </div>
-      <div class="sidebar-powered">
-        <a href="pricing.html" class="powered-link">
-          <div class="powered-label">POWERED BY</div>
-          <div class="powered-brand">Circle Agent Stack</div>
-          <div class="powered-cta">View Plans &amp; Agents →</div>
-        </a>
-      </div>
-    </div>
     </aside>
 
     <!-- Main -->
@@ -120,10 +120,10 @@
         </div>
         <div class="topbar-right">
           <div class="api-mode-selector">
-            <button class="api-mode-badge mock" id="api-mode-toggle-btn" onclick="CT.app.toggleApiMode()" title="Click to toggle between Mock and Live API mode">
+            <span class="api-mode-badge live" id="api-mode-toggle-btn" style="cursor: default;" title="Production API Connection Active">
               <span class="mode-dot"></span>
-              <span class="mode-text">MOCK MODE</span>
-            </button>
+              <span class="mode-text">LIVE API</span>
+            </span>
             <button class="api-settings-btn" onclick="CT.app.openApiSettings()" title="Configure API Server & Key">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>

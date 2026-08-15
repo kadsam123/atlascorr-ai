@@ -6,7 +6,33 @@ window.CT = window.CT || {};
 
 CT.store = (() => {
   const state = {
-    customers: CT.data.customers,
+    customers: [
+      {
+        id: 'SME-001', name: 'Hargreaves Textiles Ltd', country: 'GB', flag: '🇬🇧',
+        products: [{ id: 'P001', name: 'Merino Wool Scarves', category: 'textiles', hsCode: '6117.10' }],
+        targetMarkets: ['UAE', 'SGP', 'JPN'], budget: 35000, riskTolerance: 'medium'
+      },
+      {
+        id: 'SME-002', name: 'GreenTech Solutions GmbH', country: 'DE', flag: '🇩🇪',
+        products: [{ id: 'P002', name: 'Battery Storage Units', category: 'electronics', hsCode: '8507.60' }],
+        targetMarkets: ['IND', 'AUS', 'ZAF'], budget: 120000, riskTolerance: 'low'
+      },
+      {
+        id: 'SME-003', name: 'Artisan Foods Co.', country: 'IT', flag: '🇮🇹',
+        products: [{ id: 'P003', name: 'Virgin Olive Oil', category: 'food', hsCode: '1509.10' }],
+        targetMarkets: ['SGP', 'CAN', 'USA'], budget: 15000, riskTolerance: 'high'
+      },
+      {
+        id: 'SME-004', name: 'MedDevPro Inc.', country: 'US', flag: '🇺🇸',
+        products: [{ id: 'P004', name: 'Ultrasound Equipment', category: 'medical', hsCode: '9018.12' }],
+        targetMarkets: ['DEU', 'BRA', 'JPN'], budget: 250000, riskTolerance: 'low'
+      },
+      {
+        id: 'SME-005', name: 'Spice Route Trading', country: 'IN', flag: '🇮🇳',
+        products: [{ id: 'P005', name: 'Organic Turmeric Powder', category: 'food', hsCode: '0910.30' }],
+        targetMarkets: ['USA', 'GBR', 'UAE'], budget: 8000, riskTolerance: 'medium'
+      }
+    ],
     logs: [],
     notifications: [
       {
@@ -53,8 +79,8 @@ CT.store = (() => {
       opportunitiesFound: 24,
       complianceChecks: 18,
     },
-    // ── API Configuration State ──────────────────────────────
-    apiMode: localStorage.getItem('CT_apiMode') || 'mock',
+    // ── API Configuration State (Default to live) ─────────────────────
+    apiMode: localStorage.getItem('CT_apiMode') || 'live',
     apiUrl:  localStorage.getItem('CT_apiUrl')  || 'https://circletrade-agent-api-production.up.railway.app',
     apiKey:  localStorage.getItem('CT_apiKey')  || 'ct-demo-key-2026',
   };
@@ -111,8 +137,6 @@ CT.store = (() => {
         state.apiKey = config.key;
         localStorage.setItem('CT_apiKey', config.key);
       }
-      
-      // Dispatch custom event so UI components can react
       window.dispatchEvent(new CustomEvent('CT_apiConfigChanged', { detail: this.getApiConfig() }));
     },
 
@@ -140,18 +164,12 @@ CT.store = (() => {
     },
 
     setOpportunities(opps) { state.opportunities = opps; },
-
-    addPipelineRun(run) {
-      state.pipelineRuns.unshift(run);
-    },
-
-    updateStats(delta) {
-      Object.assign(state.stats, delta);
-    },
+    addPipelineRun(run) { state.pipelineRuns.unshift(run); },
+    updateStats(delta) { Object.assign(state.stats, delta); }
   };
 
   function _updateBadge() {
     const badge = document.getElementById('nav-badge');
-    if (badge) badge.textContent = CT.store.getUnreadCount();
+    if (badge) badge.textContent = state.notifications.filter(n => n.unread).length;
   }
 })();

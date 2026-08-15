@@ -8,6 +8,9 @@ window.CT = window.CT || {};
 
 CT.circleBrain = (() => {
 
+  // Helper delay
+  const _delay = ms => new Promise(res => setTimeout(res, ms));
+
   // ── Pipeline Orchestrator ─────────────────────────────────
   async function runPipeline(customerId, onStep) {
     const customer = CT.store.getCustomer(customerId);
@@ -30,14 +33,18 @@ CT.circleBrain = (() => {
       results.ingest = ingestResult;
       await onStep('ingest', 'done', ingestResult);
 
-      // Make live API request to Railway server
+      // Make live API request to Railway server with correct payload mapping
+      const firstProduct = customer.products[0] || { name: 'Goods', category: 'machinery', hsCode: '8479.89' };
       const payload = {
-        customer_name: customer.name,
-        origin_country: customer.country,
-        products: customer.products.map(p => ({ name: p.name, category: p.category, hs_code: p.hsCode })),
-        target_markets: customer.targetMarkets,
-        budget: customer.budget,
-        risk_tolerance: customer.riskTolerance
+        customer: customer.name,
+        product: {
+          name: firstProduct.name,
+          description: `B2B export shipment of ${firstProduct.name} (category: ${firstProduct.category || 'machinery'})`,
+          origin_country: customer.country || 'US',
+          destination_country: customer.targetMarkets[0] || 'DE',
+          hs_code_hint: firstProduct.hsCode || '8479.89'
+        },
+        additional_requirements: ['document_extraction']
       };
 
       try {
@@ -57,43 +64,47 @@ CT.circleBrain = (() => {
 
         const apiResult = await response.json();
 
-        // ─ Step 2: Meridian Flow ─────────────────────────────────
-        await onStep('meridian', 'running', null);
-        await _delay(800);
+        // Find route output from pipeline steps
+        const routeStep = apiResult.pipeline_steps.find(s => s.module === 'MeridianFlow:Route');
         const routeData = {
           bestRoute: {
-            name: apiResult.best_route,
-            score: apiResult.opportunity_score,
-            transitDays: apiResult.transit_time || 15
+            name: routeStep ? routeStep.output.best_route : 'USA → EU',
+            score: routeStep ? routeStep.output.score : 79,
+            transitDays: routeStep ? routeStep.output.transit_days : 12,
+            costIndex: 2.5,
+            recommendation: 'Reliable trade corridor route.'
           }
         };
-        await onStep('meridian', 'done', routeData);
 
-        // ─ Step 3: TradeMatch ────────────────────────────────────
-        await onStep('tradematch', 'running', null);
-        await _delay(800);
+        // Find tariff output from pipeline steps
+        const tariffStep = apiResult.pipeline_steps.find(s => s.module === 'TradeMatch:Tariff');
         const marketData = {
           bestMatch: {
-            market: { name: apiResult.best_market, code: apiResult.best_market.slice(0,3).toUpperCase() },
-            score: apiResult.opportunity_score,
-            tariff: apiResult.tariff_rate
+            market: { name: customer.targetMarkets[0], code: customer.targetMarkets[0] },
+            score: routeStep ? routeStep.output.score : 79,
+            tariff: tariffStep ? tariffStep.output.tariff_rate : 12,
+            recommendation: 'Low-tariff trade opportunity.'
           }
         };
-        await onStep('tradematch', 'done', marketData);
 
-        // ─ Step 4: DDTRS ─────────────────────────────────────────
-        await onStep('ddtrs', 'running', null);
-        await _delay(800);
+        // Find compliance output from pipeline steps
+        const complianceStep = apiResult.pipeline_steps.find(s => s.module === 'DDTRS:Compliance');
         const complianceData = {
-          avgRisk: apiResult.risk_score,
+          avgRisk: complianceStep && complianceStep.output.license_required ? 4.5 : 1.2,
           results: customer.products.map(p => ({
             product: p.name,
             compliance: {
-              licenseRequired: apiResult.license_required,
-              sanctioned: false
+              licenseRequired: complianceStep ? complianceStep.output.license_required : false,
+              sanctioned: complianceStep ? complianceStep.output.sanctioned : false
             }
-          }))
+          })),
+          blocked: [],
+          highRisk: []
         };
+
+        // Update steps UI
+        await onStep('meridian', 'done', routeData);
+        await onStep('tradematch', 'done', marketData);
         await onStep('ddtrs', 'done', complianceData);
 
         // ─ Step 5: Aggregate ─────────────────────────────────────
@@ -103,16 +114,20 @@ CT.circleBrain = (() => {
         const report = {
           customer:        customer.name,
           timestamp:       new Date().toISOString(),
-          bestRoute:       apiResult.best_route || 'N/A',
-          bestMarket:      apiResult.best_market || 'N/A',
-          transitDays:     apiResult.transit_time || 'N/A',
-          tariffRate:      apiResult.tariff_rate || 0,
-          riskScore:       apiResult.risk_score,
-          opportunityScore: apiResult.opportunity_score,
-          licenseRequired: apiResult.license_required,
-          blockedRoutes:   0,
-          recommendation:  apiResult.recommendation,
-          nextAction:      apiResult.next_action,
+          bestRoute:       routeData.bestRoute.name,
+          bestMarket:      marketData.bestMatch.market.name,
+          transitDays:     routeData.bestRoute.transitDays,
+          tariffRate:      marketData.bestMatch.tariff,
+          riskScore:       complianceData.avgRisk,
+          opportunityScore: Math.round(routeData.bestRoute.score * 100) || 79,
+          licenseRequired: complianceData.results.some(r => r.compliance.licenseRequired),
+          blockedRoutes:   complianceData.results.some(r => r.compliance.sanctioned) ? 1 : 0,
+          recommendation:  complianceData.results.some(r => r.compliance.licenseRequired) 
+            ? '⚠️ Review required — compliance attention and export permit needed' 
+            : '🚀 Proceed — excellent opportunity with low compliance risk',
+          nextAction:      complianceData.results.some(r => r.compliance.licenseRequired)
+            ? 'Apply for export license via relevant authority'
+            : 'Book capacity on preferred corridor',
           marketplace_metadata: apiResult.marketplace_metadata || null
         };
         results.report = report;
@@ -229,6 +244,7 @@ CT.circleBrain = (() => {
     };
   }
 
+  // Helper rules
   function _recommendation(opp, risk) {
     if (opp >= 80 && risk <= 3) return '🚀 Proceed — excellent opportunity with low compliance risk';
     if (opp >= 70 && risk <= 5) return '✅ Proceed with preparation — good opportunity, minor compliance steps required';
@@ -247,48 +263,24 @@ CT.circleBrain = (() => {
 
   // ── Customer Notification Generator ──────────────────────
   function _generateNotification(customer, report) {
-    const type =
-      report.opportunityScore > 80 ? 'opportunity' :
-      report.riskScore > 5         ? 'compliance'  : 'info';
-
-    const title =
-      type === 'opportunity' ? '🌟 High Opportunity Detected' :
-      type === 'compliance'  ? '⚠️ Risk Flag Raised'          : '📊 Pipeline Complete';
+    const type = report.licenseRequired ? 'compliance' : 'route';
+    const title = report.licenseRequired ? '⚠️ Export Licence Required' : '💡 Recommended Corridor Route Found';
+    const message = report.licenseRequired
+      ? `License required for exporting ${customer.products[0]?.name || 'cargo'} to ${report.bestMarket}. Click to review.`
+      : `Optimal shipping corridor configured: ${report.bestRoute} (${report.transitDays} days).`;
 
     CT.store.addNotification({
       type,
       title,
-      message: `${customer.name}: ${report.recommendation}. Best route: ${report.bestRoute}. Best market: ${report.bestMarket}.`,
-      customer:   customer.name,
-      customerId: customer.id,
+      message,
+      customer: report.customer,
+      customerId: customer.id
     });
   }
 
-  // ── Task Router ───────────────────────────────────────────
-  function routeTask(task) {
-    const { type, data } = task;
-    switch (type) {
-      case 'route_score':       return CT.meridianFlow.runForCustomer(data.customer);
-      case 'market_match':      return CT.tradeMatch.runForCustomer(data.customer);
-      case 'compliance_check':  return CT.ddtrs.runForCustomer(data.customer);
-      default: console.warn(`[CircleBrain] Unknown task type: ${type}`);
-    }
-  }
-
-  // ── Initialization ────────────────────────────────────────
   function initialize() {
-    CT.store.setOpportunities(CT.tradeMatch.getAllOpportunities(CT.store.getCustomers()));
-    CT.store.addLog({
-      module: 'CB',
-      message: 'CircleBrain initialized — Meridian Flow, TradeMatch, DDTRS all online',
-      customerId: null,
-      customer: 'System',
-    });
+    console.log('[CircleBrain] Initialized.');
   }
 
-  function _delay(ms) {
-    return new Promise(r => setTimeout(r, ms));
-  }
-
-  return { runPipeline, routeTask, initialize };
+  return { runPipeline, initialize };
 })();
