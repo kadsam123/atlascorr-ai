@@ -1,14 +1,14 @@
 {
-  "_comment": "CircleTrade AI — OpenAI GPT Store Plugin Manifest + OpenAPI Specification",
+  "_comment": "AtlasCorr AI — OpenAI GPT Store Plugin Manifest + OpenAPI Specification",
   "_version": "1.0.0",
   "_last_updated": "2026-08-11",
 
   "plugin_manifest": {
     "schema_version": "v1",
-    "name_for_human": "CircleTrade AI — Export Intelligence",
-    "name_for_model": "circletrade_ai",
+    "name_for_human": "AtlasCorr AI — Export Intelligence",
+    "name_for_model": "atlascorr_ai",
     "description_for_human": "Export intelligence for UK businesses. HS code classification, tariff rates, trade route scoring, market opportunity analysis, compliance checks, and full export plan generation — powered by the Circle Agent Stack.",
-    "description_for_model": "CircleTrade AI provides 7 specialist export-intelligence agents: hs_code (classify products into HS codes), tariff (look up duty rates for HS code + destination), route (score and rank trade corridors), market (match products to high-opportunity markets), opportunity (full 15-market opportunity scan), compliance (ECJU dual-use, DTTRS, sanctions, licence checks), and export_plan (generate complete export strategy documents). Always extract: product description, destination country, HS code where known, and budget/context before calling agents. Return structured, actionable answers — not raw JSON. Prices: HS £0.10, Tariff £0.20, Route £0.50, Market £0.50, Opportunity £1.00, Compliance £0.75, ExportPlan £2.50, Full Pipeline £5.00.",
+    "description_for_model": "AtlasCorr AI provides 7 specialist export-intelligence agents: hs_code (classify products into HS codes), tariff (look up duty rates for HS code + destination), route (score and rank trade corridors), market (match products to high-opportunity markets), opportunity (full 15-market opportunity scan), compliance (ECJU dual-use, DTTRS, sanctions, licence checks), and export_plan (generate complete export strategy documents). Always extract: product description, destination country, HS code where known, and budget/context before calling agents. Return structured, actionable answers — not raw JSON. Prices: HS £0.10, Tariff £0.20, Route £0.50, Market £0.50, Opportunity £1.00, Compliance £0.75, ExportPlan £2.50, Full Pipeline £5.00.",
     "auth": {
       "type": "service_http",
       "authorization_type": "bearer",
@@ -20,31 +20,31 @@
       "type": "openapi",
       "url": "https://api.circletrade.ai/openapi.yaml"
     },
-    "logo_url": "https://kadsam123.github.io/circletrade-ai/assets/logo-512.png",
+    "logo_url": "https://kadsam123.github.io/atlascorr-ai/assets/logo-512.png",
     "contact_email": "hello@circletrade.ai",
-    "legal_info_url": "https://kadsam123.github.io/circletrade-ai/legal"
+    "legal_info_url": "https://kadsam123.github.io/atlascorr-ai/legal"
   },
 
   "openapi_spec": {
     "openapi": "3.1.0",
     "info": {
-      "title": "CircleTrade AI — Circle Agent Stack API",
+      "title": "AtlasCorr AI — Circle Agent Stack API",
       "description": "Export intelligence API powering the Circle Agent Stack. Seven specialist agents covering HS code classification, tariff lookup, route scoring, market matching, opportunity scanning, compliance checking, and export plan generation.",
       "version": "1.0.0",
       "contact": {
-        "name": "CircleTrade AI Support",
+        "name": "AtlasCorr AI Support",
         "email": "hello@circletrade.ai",
-        "url": "https://kadsam123.github.io/circletrade-ai/"
+        "url": "https://kadsam123.github.io/atlascorr-ai/"
       },
       "license": {
         "name": "Commercial API License",
-        "url": "https://kadsam123.github.io/circletrade-ai/legal"
+        "url": "https://kadsam123.github.io/atlascorr-ai/legal"
       }
     },
     "servers": [
       {
         "url": "https://api.circletrade.ai",
-        "description": "CircleTrade AI Production API"
+        "description": "AtlasCorr AI Production API"
       }
     ],
     "security": [
@@ -58,7 +58,7 @@
           "type": "http",
           "scheme": "bearer",
           "bearerFormat": "JWT",
-          "description": "API key issued by CircleTrade AI. Pass as: Authorization: Bearer <your_api_key>"
+          "description": "API key issued by AtlasCorr AI. Pass as: Authorization: Bearer <your_api_key>"
         }
       },
       "schemas": {

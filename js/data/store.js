@@ -1,5 +1,5 @@
 /* ============================================================
-   CircleTrade AI — In-Memory State Store
+   AtlasCorr AI — In-Memory State Store
    Simulates Firestore: logs, notifications, stats, pipeline runs.
    ============================================================ */
 window.CT = window.CT || {};
@@ -45,13 +45,13 @@ CT.store = (() => {
     },
     // ── API Configuration State (Default to live) ─────────────────────
     apiMode: localStorage.getItem('CT_apiMode') || 'live',
-    apiUrl:  localStorage.getItem('CT_apiUrl')  || 'https://circletrade-agent-api-production.up.railway.app',
+    apiUrl:  localStorage.getItem('CT_apiUrl')  || 'https://atlascorr-agent-api-production.up.railway.app',
     apiKey:  localStorage.getItem('CT_apiKey')  || 'ct-demo-key-2026',
   };
 
   // Seed initial log history
   const seedLogs = [
-    { module:'CB', message:'CircleTrade AI production API stack initialized — live connections active', customerId:null, customer:'System' }
+    { module:'CB', message:'AtlasCorr AI production API stack initialized — live connections active', customerId:null, customer:'System' }
   ];
 
   const now = Date.now();

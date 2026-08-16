@@ -22,7 +22,7 @@ const FILES_TO_RENAME = [
 ];
 
 function revertBrand() {
-  console.log('🌀 Reverting Codebase Brand (AtlasTrade AI -> CircleTrade AI)...');
+  console.log('🌀 Reverting Codebase Brand (AtlasTrade AI -> AtlasCorr AI)...');
 
   FILES_TO_RENAME.forEach(filePath => {
     if (!fs.existsSync(filePath)) {
@@ -33,10 +33,10 @@ function revertBrand() {
     try {
       let content = fs.readFileSync(filePath, 'utf8');
 
-      // Revert replacements back to CircleTrade
-      content = content.replace(/AtlasTrade AI/g, 'CircleTrade AI');
-      content = content.replace(/atlastrade-ai/g, 'circletrade-ai');
-      content = content.replace(/AtlasTrade/g, 'CircleTrade');
+      // Revert replacements back to AtlasCorr
+      content = content.replace(/AtlasTrade AI/g, 'AtlasCorr AI');
+      content = content.replace(/atlastrade-ai/g, 'atlascorr-ai');
+      content = content.replace(/AtlasTrade/g, 'AtlasCorr');
       content = content.replace(/atlastrade/g, 'circletrade');
 
       fs.writeFileSync(filePath, content, 'utf8');

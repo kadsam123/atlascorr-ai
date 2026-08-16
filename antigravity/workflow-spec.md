@@ -1,4 +1,4 @@
-# CircleTrade AI × Antigravity — Integration Specification
+# AtlasCorr AI × Antigravity — Integration Specification
 
 **Phase:** 4  
 **Status:** Design-ready  

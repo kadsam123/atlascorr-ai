@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const API_BASE_URL = 'https://circletrade-agent-api-production.up.railway.app';
+const API_BASE_URL = 'https://atlascorr-agent-api-production.up.railway.app';
 const API_KEY = 'ct-demo-key-2026';
 
 const RAW_EXPORTERS_POOL = [
@@ -76,7 +76,7 @@ function generateMailtoLink(lead, apiResult) {
 
 I hope this message finds you well.
 
-As a Canadian exporter, navigating international customs and trade corridors can introduce unexpected shipping delays and tariff costs. We ran a complimentary compliance audit for your product, "${lead.product}", using CircleTrade AI.
+As a Canadian exporter, navigating international customs and trade corridors can introduce unexpected shipping delays and tariff costs. We ran a complimentary compliance audit for your product, "${lead.product}", using AtlasCorr AI.
 
 Here is the structured export intelligence report resolved by our autonomous agents:
 
@@ -86,15 +86,15 @@ Here is the structured export intelligence report resolved by our autonomous age
 *   Export License Required: ${isLicenseReq ? 'YES (ECCN clearance needed)' : 'NO (Standard clearance)'}
 *   Sanctions Flag Status: ${isSanctioned ? 'RESTRICTED (EMBARGO)' : 'CLEARED (PASS)'}
 
-Navigating this corridor manually takes days. CircleTrade AI ran this audit and verified the requirements in less than 2 seconds.
+Navigating this corridor manually takes days. AtlasCorr AI ran this audit and verified the requirements in less than 2 seconds.
 
 You can view your active shipping plan, check other global tariffs, and compile complete export blueprints directly through our portal:
-👉 https://kadsam123.github.io/circletrade-ai/
+👉 https://kadsam123.github.io/atlascorr-ai/
 
 Let us know if you have any questions about this audit.
 
 Best regards,
-CircleTrade AI Team`;
+AtlasCorr AI Team`;
 
   const encodedSubject = encodeURIComponent(subject);
   const encodedBody = encodeURIComponent(body);
@@ -175,7 +175,7 @@ async function startCampaign() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CircleTrade AI — Outbound Marketing CRM</title>
+  <title>AtlasCorr AI — Outbound Marketing CRM</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -312,7 +312,7 @@ async function startCampaign() {
 </head>
 <body>
   <div class="header">
-    <h1>📊 CircleTrade AI — Outbound Marketing CRM</h1>
+    <h1>📊 AtlasCorr AI — Outbound Marketing CRM</h1>
     <p>Filtered and scored autonomously. Verified against production API stack. Ready to transact.</p>
   </div>
   <div class="crm-grid">
@@ -353,7 +353,7 @@ We ran a trade compliance audit for your product "${res.lead.product}" exporting
 HS Classified: ${res.resolvedHs}
 Tariff: ${res.tariffRate}
 License: ${res.licenseRequired ? 'Required' : 'Not Required'}
-Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+Check plan here: https://kadsam123.github.io/atlascorr-ai/</div>
         <a href="${res.mailtoUrl}" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
       </div>
     `).join('')}

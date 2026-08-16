@@ -1,6 +1,6 @@
-# CircleTrade AI — Agent Marketplace Descriptions
+# AtlasCorr AI — Agent Marketplace Descriptions
 
-> **Platform:** CircleTrade AI · **App:** https://kadsam123.github.io/circletrade-ai/ · **API Base:** https://api.circletrade.ai  
+> **Platform:** AtlasCorr AI · **App:** https://kadsam123.github.io/atlascorr-ai/ · **API Base:** https://api.circletrade.ai  
 > **Stack:** Circle Agent Stack v1 · 7 specialist export-intelligence agents
 
 ---
@@ -282,7 +282,7 @@ The MarketAgent analyses a product category or HS code and matches it to the mar
 > *"A full 15-market opportunity scan — your export strategy starting point in one call."*
 
 ### Description
-The OpportunityAgent is CircleTrade AI's most comprehensive single-call intelligence product, conducting a full export opportunity scan across 15+ markets simultaneously. It combines the capabilities of MarketAgent and RouteAgent into a unified analysis: classifying the product, scoring each market for opportunity, ranking trade corridors, estimating duty costs, and flagging top compliance risks — all returned as a structured, boardroom-ready opportunity brief. Built for export directors, trade finance teams, and DIT/DBT-funded export advisers who need a credible starting point for strategy workshops or funding applications, OpportunityAgent eliminates weeks of manual research and delivers a consistent, repeatable analysis framework that can be run monthly to track how the global opportunity landscape shifts.
+The OpportunityAgent is AtlasCorr AI's most comprehensive single-call intelligence product, conducting a full export opportunity scan across 15+ markets simultaneously. It combines the capabilities of MarketAgent and RouteAgent into a unified analysis: classifying the product, scoring each market for opportunity, ranking trade corridors, estimating duty costs, and flagging top compliance risks — all returned as a structured, boardroom-ready opportunity brief. Built for export directors, trade finance teams, and DIT/DBT-funded export advisers who need a credible starting point for strategy workshops or funding applications, OpportunityAgent eliminates weeks of manual research and delivers a consistent, repeatable analysis framework that can be run monthly to track how the global opportunity landscape shifts.
 
 ### Capabilities
 - Scans 15+ global markets in a single call, covering demand, corridor score, duty cost, and compliance risk
@@ -353,7 +353,7 @@ The OpportunityAgent is CircleTrade AI's most comprehensive single-call intellig
 > *"Export compliantly. Sanctions, licences, and DTTRS checks before the shipment leaves the door."*
 
 ### Description
-The ComplianceAgent is CircleTrade AI's export control and regulatory compliance gateway. Before any shipment moves, it checks the product (by HS code), the destination country, and the end-user against the UK's Export Control Joint Unit (ECJU) dual-use and military control lists, the DTTRS (Department for Transport Trade Restrictions and Sanctions) database, the UK Consolidated List of Financial Sanctions Targets, and OFAC/EU sanctions registers. It flags whether an Export Licence is required, identifies prohibited destinations, and surfaces product-specific labelling, certification, and registration requirements for the destination market. Designed for compliance officers, freight forwarders, and export managers, it transforms a historically manual, error-prone process into an auditable, API-driven compliance checkpoint that can be embedded directly into ERP and order management systems.
+The ComplianceAgent is AtlasCorr AI's export control and regulatory compliance gateway. Before any shipment moves, it checks the product (by HS code), the destination country, and the end-user against the UK's Export Control Joint Unit (ECJU) dual-use and military control lists, the DTTRS (Department for Transport Trade Restrictions and Sanctions) database, the UK Consolidated List of Financial Sanctions Targets, and OFAC/EU sanctions registers. It flags whether an Export Licence is required, identifies prohibited destinations, and surfaces product-specific labelling, certification, and registration requirements for the destination market. Designed for compliance officers, freight forwarders, and export managers, it transforms a historically manual, error-prone process into an auditable, API-driven compliance checkpoint that can be embedded directly into ERP and order management systems.
 
 ### Capabilities
 - Checks HS code against UK dual-use (UK Dual-Use List) and military control lists for licence requirements
@@ -493,5 +493,5 @@ The ExportPlanAgent is the flagship output agent of the Circle Agent Stack, synt
 | ExportPlanAgent | **£2.50** | Full strategy document |
 | **Full Pipeline** | **£5.00** | All 7 agents, best value |
 
-> **Start free:** Explore the CircleTrade AI app at https://kadsam123.github.io/circletrade-ai/  
+> **Start free:** Explore the AtlasCorr AI app at https://kadsam123.github.io/atlascorr-ai/  
 > **API access:** https://api.circletrade.ai · **Contact:** hello@circletrade.ai

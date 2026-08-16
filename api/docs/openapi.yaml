@@ -1,20 +1,20 @@
 openapi: 3.1.0
 info:
-  title: CircleTrade AI API
+  title: AtlasCorr AI API
   version: 1.0.0
   description: >
-    CircleTrade AI provides HS classification, tariff lookup, compliance checks,
+    AtlasCorr AI provides HS classification, tariff lookup, compliance checks,
     route scoring, and export plan generation for SMEs. The /api/pipeline endpoint
     orchestrates multi-step workflows and may delegate specialized tasks to
     verified partner agents, returning a unified result and billing ledger.
   contact:
-    name: CircleTrade AI Support
+    name: AtlasCorr AI Support
     url: https://circletrade.ai
     email: support@circletrade.ai
   license:
     name: MIT
   x-guidance: |
-    ### CircleTrade AI Agent Guidance
+    ### AtlasCorr AI Agent Guidance
     - Set the `X-API-Key: ct-demo-key-2026` header to authenticate.
     - Query `/api/hs-code` to identify the HS code and category of the product.
     - Query `/api/tariff` to lookup import duties for the corridor.
@@ -23,7 +23,7 @@ info:
     - Or run the comprehensive `/api/pipeline` for full orchestrated routing.
 
 servers:
-  - url: https://circletrade-agent-api-production.up.railway.app
+  - url: https://atlascorr-agent-api-production.up.railway.app
     description: Production
 
 security:

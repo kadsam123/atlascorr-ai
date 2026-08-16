@@ -169,7 +169,7 @@ function detectAndRouteGaps(reqBody) {
     dispatched_gaps: gaps,
     orchestration_ledger: gaps.length > 0 ? {
       status: 'DELEGATED_MARKETPLACE',
-      explanation: 'This request requires specialized intelligence. CircleTrade AI has autonomously dispatched your gap requests to certified Circle Marketplace partner agents.',
+      explanation: 'This request requires specialized intelligence. AtlasCorr AI has autonomously dispatched your gap requests to certified Circle Marketplace partner agents.',
       billing_transparency: {
         core_orchestrator_cost_usd: coreCost,
         external_agents_cost_usd: externalCost,

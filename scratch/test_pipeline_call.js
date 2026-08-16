@@ -10,7 +10,7 @@ async function test() {
     }
   };
 
-  const response = await fetch('https://circletrade-agent-api-production.up.railway.app/api/pipeline', {
+  const response = await fetch('https://atlascorr-agent-api-production.up.railway.app/api/pipeline', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

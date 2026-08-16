@@ -1,5 +1,5 @@
 /* ============================================================
-   CircleTrade AI — Mock Data Layer
+   AtlasCorr AI — Mock Data Layer
    Provides realistic static data for all four AI modules.
    ============================================================ */
 window.CT = window.CT || {};

@@ -44,8 +44,8 @@ async function createLiveCheckout() {
         }
       ],
       mode: 'subscription',
-      success_url: 'https://kadsam123.github.io/circletrade-ai/',
-      cancel_url: 'https://kadsam123.github.io/circletrade-ai/'
+      success_url: 'https://kadsam123.github.io/atlascorr-ai/',
+      cancel_url: 'https://kadsam123.github.io/atlascorr-ai/'
     });
 
     console.log('\n🚀 LIVE CHECKOUT SESSION URL CREATED SUCCESSFULLY:');

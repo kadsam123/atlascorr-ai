@@ -1,4 +1,4 @@
-# CircleTrade AI — Circle Agent Stack
+# AtlasCorr AI — Circle Agent Stack
 ### Replit Agent Marketplace Listing Card
 
 ---
@@ -7,13 +7,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Title** | CircleTrade AI — Circle Agent Stack |
+| **Title** | AtlasCorr AI — Circle Agent Stack |
 | **Subtitle** | 7 export-intelligence AI agents for UK businesses going global |
-| **Author** | CircleTrade AI |
+| **Author** | AtlasCorr AI |
 | **Version** | 1.0.0 |
 | **Category** | Business Intelligence / Trade & Logistics |
 | **License** | Commercial API |
-| **App URL** | https://kadsam123.github.io/circletrade-ai/ |
+| **App URL** | https://kadsam123.github.io/atlascorr-ai/ |
 | **API Base** | https://api.circletrade.ai |
 | **Contact** | hello@circletrade.ai |
 
@@ -27,7 +27,7 @@
 
 ## 📝 Description
 
-**CircleTrade AI** is an export intelligence platform built for UK businesses going global. The **Circle Agent Stack** is a suite of 7 specialist AI agents, each designed to solve a specific export problem — from classifying products into HS codes to generating boardroom-ready export strategy documents.
+**AtlasCorr AI** is an export intelligence platform built for UK businesses going global. The **Circle Agent Stack** is a suite of 7 specialist AI agents, each designed to solve a specific export problem — from classifying products into HS codes to generating boardroom-ready export strategy documents.
 
 Whether you're a first-time exporter trying to understand customs duties, a freight forwarder checking dual-use licensing, or an export director mapping a 15-market growth strategy, the Circle Agent Stack gives you instant, data-backed intelligence at the point of decision.
 
@@ -70,7 +70,7 @@ All agents are accessible via a clean REST API (OpenAPI 3.1 spec) and a hosted w
 
 ## 💬 Example Prompts
 
-These prompts work with the CircleTrade AI web app or via the API:
+These prompts work with the AtlasCorr AI web app or via the API:
 
 1. **HS Classification**
    > *"Classify: brushless DC electric motors, 24V, 500W, used in industrial conveyor systems."*
@@ -101,14 +101,14 @@ These prompts work with the CircleTrade AI web app or via the API:
 ## 🚀 Setup Instructions
 
 ### Option A: Use the Hosted Web App (No Setup Required)
-1. Visit **https://kadsam123.github.io/circletrade-ai/**
+1. Visit **https://kadsam123.github.io/atlascorr-ai/**
 2. Create a free account
 3. Start querying agents immediately via the chat interface
 
 ### Option B: API Integration
 
 #### Prerequisites
-- CircleTrade AI API key (obtain at https://kadsam123.github.io/circletrade-ai/api-keys)
+- AtlasCorr AI API key (obtain at https://kadsam123.github.io/atlascorr-ai/api-keys)
 - HTTP client (curl, fetch, axios, requests, etc.)
 
 #### Quick Start — HS Code Classification
@@ -148,10 +148,10 @@ curl -X POST https://api.circletrade.ai/v1/pipeline/full \
 
 #### Python SDK (Coming Soon)
 ```python
-# pip install circletrade-ai
-from circletrade import CircleTradeClient
+# pip install atlascorr-ai
+from circletrade import AtlasCorrClient
 
-client = CircleTradeClient(api_key="YOUR_API_KEY")
+client = AtlasCorrClient(api_key="YOUR_API_KEY")
 
 # Classify a product
 result = client.hs_code.classify(
@@ -185,7 +185,7 @@ CIRCLETRADE_DEFAULT_ORIGIN=GB
 
 #### Replit File Structure (Template)
 ```
-circletrade-demo/
+atlascorr-demo/
 ├── main.py              # Interactive CLI demo — all 7 agents
 ├── server.py            # FastAPI proxy server
 ├── agents/
@@ -258,10 +258,10 @@ circletrade-demo/
 
 | Resource | Link |
 |----------|------|
-| 🌐 App | https://kadsam123.github.io/circletrade-ai/ |
+| 🌐 App | https://kadsam123.github.io/atlascorr-ai/ |
 | 📖 API Docs | https://api.circletrade.ai/docs |
-| 🔑 API Keys | https://kadsam123.github.io/circletrade-ai/api-keys |
-| ⚖️ Legal | https://kadsam123.github.io/circletrade-ai/legal |
+| 🔑 API Keys | https://kadsam123.github.io/atlascorr-ai/api-keys |
+| ⚖️ Legal | https://kadsam123.github.io/atlascorr-ai/legal |
 | 📧 Support | hello@circletrade.ai |
 
 ---
@@ -276,4 +276,4 @@ circletrade-demo/
 
 ---
 
-*Built with ❤️ by CircleTrade AI · Helping UK businesses export smarter · [circletrade-ai](https://kadsam123.github.io/circletrade-ai/)*
+*Built with ❤️ by AtlasCorr AI · Helping UK businesses export smarter · [atlascorr-ai](https://kadsam123.github.io/atlascorr-ai/)*

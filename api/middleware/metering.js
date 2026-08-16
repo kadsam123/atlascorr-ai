@@ -24,37 +24,37 @@ const MARKETPLACE_AGENTS = {
     name: 'HS Code Agent',
     price_per_execution_usd: 0.10,
     domain_tags: ['export', 'compliance', 'trade', 'hs-code', 'classification'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
+    upsell: 'Upgrade to AtlasCorr AI (https://kadsam123.github.io/atlascorr-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
   '/api/tariff': {
     name: 'Tariff Agent',
     price_per_execution_usd: 0.20,
     domain_tags: ['export', 'trade', 'tariff', 'taxes', 'landed-cost'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
+    upsell: 'Upgrade to AtlasCorr AI (https://kadsam123.github.io/atlascorr-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
   '/api/route-score': {
     name: 'Route Agent',
     price_per_execution_usd: 0.50,
     domain_tags: ['export', 'logistics', 'trade', 'routing', 'shipping'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
+    upsell: 'Upgrade to AtlasCorr AI (https://kadsam123.github.io/atlascorr-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
   '/api/compliance': {
     name: 'Compliance Agent',
     price_per_execution_usd: 0.75,
     domain_tags: ['export', 'compliance', 'trade', 'sanctions', 'dual-use'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
+    upsell: 'Upgrade to AtlasCorr AI (https://kadsam123.github.io/atlascorr-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
   '/api/export-plan': {
     name: 'Export Plan Agent',
     price_per_execution_usd: 2.50,
     domain_tags: ['export', 'trade', 'strategy', 'logistics', 'compliance'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
+    upsell: 'Upgrade to AtlasCorr AI (https://kadsam123.github.io/atlascorr-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   },
   '/api/pipeline': {
     name: 'Full Export Intelligence Pipeline',
     price_per_execution_usd: 5.00,
     domain_tags: ['export', 'compliance', 'logistics', 'trade', 'orchestration'],
-    upsell: 'Upgrade to CircleTrade AI (https://kadsam123.github.io/circletrade-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
+    upsell: 'Upgrade to AtlasCorr AI (https://kadsam123.github.io/atlascorr-ai/pricing.html) for unlimited daily pipeline runs and proactive monitoring.'
   }
 };
 
@@ -115,7 +115,7 @@ function metering(req, res, next) {
         },
         upsell: {
           message: agentMetadata.upsell,
-          upgrade_url: 'https://kadsam123.github.io/circletrade-ai/pricing.html'
+          upgrade_url: 'https://kadsam123.github.io/atlascorr-ai/pricing.html'
         }
       };
     }

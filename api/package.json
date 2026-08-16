@@ -1,5 +1,5 @@
 {
-  "name": "atlascorr-agent-stack-api",
+  "name": "atlascorr-ai",
   "version": "1.0.0",
   "description": "Circle Agent Stack API — AtlasCorr AI export intelligence pipeline as micro-agent endpoints",
   "main": "server.js",
