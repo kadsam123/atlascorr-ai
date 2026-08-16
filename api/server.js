@@ -17,6 +17,7 @@ const opportunityRouter = require('./routes/opportunity');
 const pipelineRouter = require('./routes/pipeline');
 const exportPlanRouter = require('./routes/exportPlan');
 const dossierRouter = require('./routes/dossier');
+const analyticsRouter = require('./routes/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -91,6 +92,7 @@ app.use('/api/opportunity', opportunityRouter);
 app.use('/api/pipeline', pipelineRouter);
 app.use('/api/export-plan', exportPlanRouter);
 app.use('/api/dossier-batch', dossierRouter);
+app.use('/api/portfolio-analytics', analyticsRouter);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((req, res) => {

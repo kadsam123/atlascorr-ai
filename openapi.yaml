@@ -727,3 +727,84 @@ paths:
           description: Invalid request
         '401':
           description: Unauthorized
+
+  /api/portfolio-analytics:
+    post:
+      summary: Compile portfolio strategy metrics
+      description: Aggregate and rank shipment dossiers across suitability, risk, and cost indexes.
+      tags: [Analytics]
+      x-price: "15.00"
+      x-meter-id: "meter_portfolio_analytics"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [origin_country, corridors, hs_codes]
+              properties:
+                origin_country:
+                  type: string
+                  example: CA
+                corridors:
+                  type: array
+                  items:
+                    type: string
+                  example: ["DE", "AE", "SN"]
+                hs_codes:
+                  type: array
+                  items:
+                    type: string
+                  example: ["2009.12", "6203.42"]
+                mode:
+                  type: string
+                  example: sea
+                min_cargo_value:
+                  type: number
+                  example: 25000
+      responses:
+        '200':
+          description: Evaluated portfolio rankings and aggregated metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run_id:
+                    type: string
+                  origin_country:
+                    type: string
+                  mode:
+                    type: string
+                  metrics:
+                    type: object
+                  rankings:
+                    type: object
+                  timestamp:
+                    type: string
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+
+  /api/portfolio-analytics/{id}:
+    get:
+      summary: Retrieve saved analytics run
+      description: Fetch calculated strategy rankings by execution run UUID.
+      tags: [Analytics]
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Saved portfolio analytics record
+        '404':
+          description: Saved report not found
