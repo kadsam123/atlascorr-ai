@@ -40,6 +40,9 @@ const HS_CATEGORY_MAP = {
 function inferCategoryFromHs(hsCode) {
   const clean = (hsCode || '').replace(/\D/g, '').substring(0, 4);
   const prefix2 = clean.substring(0, 2);
+  const prefixInt = parseInt(prefix2, 10);
+  if (prefixInt >= 1 && prefixInt <= 24) return 'food';
+  if (prefixInt >= 50 && prefixInt <= 63) return 'textiles';
   if (prefix2 === '85') return 'electronics';
   if (prefix2 === '84') return 'machinery';
   if (prefix2 === '90') return 'medical';
