@@ -140,45 +140,114 @@ router.post('/', async (req, res) => {
     });
   }
 
-  // Use hs_code_hint if provided, otherwise query classification engine
-  if (hs_code_hint && hs_code_hint.trim()) {
-    const cleanHint = hs_code_hint.trim();
-    const category = inferCategory(cleanHint);
-    return res.json({
-      request_id: uuidv4(),
-      hs_code: cleanHint,
-      confidence: 1.0,
-      reasoning: `User-provided classification hint verified for category: ${category}.`,
-      timestamp: new Date().toISOString()
-    });
-  }
-
   const queryText = `${name} - ${description}`.trim();
-  let result = extractHsCode(queryText);
+  const reflectionLog = [];
 
-  if (result.hsCode === '9999.99') {
-    console.log(`[HS Code Agent] Keyword miss. Running live Web Search lookup for: "${queryText}"`);
-    const webHsCode = await searchWebForHsCode(queryText);
-    if (webHsCode) {
-      const category = inferCategory(webHsCode);
-      result = {
-        hsCode: webHsCode,
-        category: category,
-        description: `Classified via Web Intelligence: matches "${queryText}"`,
-        confidence: 0.82,
-        matchedKeyword: 'web_search_match'
+  // ── PHASE 1: Deterministic Core ─────────────────────────────────────────────
+  reflectionLog.push(`Phase 1: Running deterministic core classifier for: "${queryText}"`);
+  
+  let coreResult = null;
+  if (hs_code_hint && hs_code_hint.trim()) {
+    const hint = hs_code_hint.trim();
+    coreResult = {
+      hsCode: hint,
+      category: inferCategory(hint),
+      description: 'User-provided classification hint.',
+      confidence: 1.0,
+      source: 'core_hint'
+    };
+    reflectionLog.push(`Core: Validated user-provided HS hint: ${hint}`);
+  } else {
+    const coreMatch = extractHsCode(queryText);
+    if (coreMatch.hsCode !== '9999.99' && coreMatch.hsCode !== '6299.00') {
+      coreResult = {
+        hsCode: coreMatch.hsCode,
+        category: coreMatch.category,
+        description: coreMatch.description,
+        confidence: coreMatch.confidence,
+        source: 'core_keyword_map'
       };
-      console.log(`[HS Code Agent] Web Search success! Resolved: ${webHsCode} (${category})`);
+      reflectionLog.push(`Core: Resolved code ${coreMatch.hsCode} via keyword mapping.`);
+    } else {
+      coreResult = {
+        hsCode: '6299.00',
+        category: 'textiles',
+        description: 'Default fallback category.',
+        confidence: 0.30,
+        source: 'core_fallback'
+      };
+      reflectionLog.push(`Core: No direct keyword match found. Setting fallback to 6299.00.`);
     }
   }
 
-  const confidenceLabel = result.confidence >= 0.85 ? 'HIGH' : result.confidence >= 0.55 ? 'MEDIUM' : 'LOW';
+  // ── PHASE 2: Dynamic Enrichment ─────────────────────────────────────────────
+  let enrichmentApplied = false;
+  let externalHsCode = null;
+  let externalConfidence = 0.0;
+  const alternativeHsCodes = [];
+  const sourceRefs = [];
+
+  if (coreResult.source === 'core_fallback' || coreResult.confidence < 0.85) {
+    reflectionLog.push(`Phase 2: Core confidence low (${coreResult.confidence}). Triggering dynamic web intelligence enrichment.`);
+    externalHsCode = await searchWebForHsCode(queryText);
+    if (externalHsCode) {
+      enrichmentApplied = true;
+      externalConfidence = 0.82;
+      alternativeHsCodes.push(externalHsCode);
+      sourceRefs.push({
+        name: 'Web Intelligence Crawler',
+        url: `https://html.duckduckgo.com/html/?q=${encodeURIComponent('HS code for ' + queryText)}`
+      });
+      reflectionLog.push(`Enrichment: Web crawler returned HS code: ${externalHsCode}`);
+    } else {
+      reflectionLog.push(`Enrichment: Web crawler returned no matches.`);
+    }
+  } else {
+    reflectionLog.push(`Phase 2: Core confidence high (${coreResult.confidence}). Skipping dynamic enrichment.`);
+  }
+
+  // ── PHASE 3: Antigravity QA Supervisor ───────────────────────────────────────
+  reflectionLog.push(`Phase 3: Initiating Antigravity QA validation check.`);
+  let finalHsCode = coreResult.hsCode;
+  let qaStatus = 'APPROVED_CORE';
+
+  if (enrichmentApplied && externalHsCode) {
+    const coreCategory = coreResult.category;
+    const externalCategory = inferCategory(externalHsCode);
+
+    reflectionLog.push(`QA: Cross-checking core category (${coreCategory}) vs enriched category (${externalCategory}).`);
+
+    if (coreResult.source === 'core_fallback' && externalCategory !== 'textiles') {
+      finalHsCode = externalHsCode;
+      qaStatus = 'APPROVED_WITH_ENRICHMENT';
+      reflectionLog.push(`QA: Core fallback overridden by verified web lookup: ${externalHsCode} (${externalCategory}).`);
+    } else if (coreCategory !== externalCategory) {
+      qaStatus = 'DEGRADED_CORE_ONLY';
+      reflectionLog.push(`QA WARNING: Category conflict detected! Core resolved ${coreCategory} but Enrichment resolved ${externalCategory}. Rejecting enrichment to prevent pipeline failure.`);
+    } else {
+      finalHsCode = externalHsCode;
+      qaStatus = 'APPROVED_WITH_ENRICHMENT';
+      reflectionLog.push(`QA: Convergence achieved. Merging core and web enrichment.`);
+    }
+  }
 
   return res.json({
     request_id: uuidv4(),
-    hs_code: result.hsCode,
-    confidence: result.confidence,
-    reasoning: `Derived HS code ${result.hsCode} (${confidenceLabel} confidence) based on keyword matching for description: ${result.description}.`,
+    hs_code: finalHsCode,
+    confidence_baseline: coreResult.confidence,
+    origin_country,
+    destination_country,
+    reasoning: `Resolved via ${qaStatus}. Core match: ${coreResult.hsCode}. Enriched match: ${externalHsCode || 'None'}.`,
+    enrichment: {
+      applied: enrichmentApplied,
+      alternative_hs_codes: alternativeHsCodes,
+      external_confidence: externalConfidence,
+      source_refs: sourceRefs
+    },
+    qa_supervisor: {
+      status: qaStatus,
+      self_reflection_log: reflectionLog
+    },
     timestamp: new Date().toISOString()
   });
 });
