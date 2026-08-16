@@ -13,6 +13,7 @@ CT.app = (() => {
     pipeline:      { title:'Pipeline',     crumb:'CircleTrade AI → Pipeline',     render:() => CT.ui.pipeline.render()       },
     customers:     { title:'Customers',    crumb:'CircleTrade AI → Customers',    render:() => CT.ui.customers.render()      },
     opportunities: { title:'Opportunities',crumb:'CircleTrade AI → Opportunities',render:() => CT.ui.opportunities.render() },
+    dossiers:      { title:'Dossiers',     crumb:'CircleTrade AI → Comparative Dossiers', render:() => CT.ui.dossier.render() },
     compliance:    { title:'Compliance',   crumb:'CircleTrade AI → Compliance',   render:() => CT.ui.compliance.render()     },
     marketplace:   { title:'Marketplace',  crumb:'CircleTrade AI → Developer Marketplace', render:() => CT.ui.marketplace.render() },
     notifications: { title:'Alerts',       crumb:'CircleTrade AI → Alerts',       render:() => CT.ui.notifications.render()  },
