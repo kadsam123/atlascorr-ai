@@ -102,6 +102,26 @@ components:
         notes:
           type: string
           example: Standard industrial fasteners duty.
+        enrichment:
+          type: object
+          properties:
+            applied:
+              type: boolean
+            taric_rate:
+              type: [number, "null"]
+            taric_last_updated:
+              type: string
+            source_ref:
+              type: string
+        qa_supervisor:
+          type: object
+          properties:
+            status:
+              type: string
+            self_reflection_log:
+              type: array
+              items:
+                type: string
 
     ComplianceCheckResult:
       type: object

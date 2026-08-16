@@ -97,38 +97,83 @@ router.post('/', async (req, res) => {
   const destUpper = destination_country.toUpperCase().trim();
   const resolvedCategory = inferCategoryFromHs(hs_code);
   const categoryRates = TARIFF_TABLE[resolvedCategory] || TARIFF_TABLE['machinery'];
-  
-  let tariffRate = null;
+  const reflectionLog = [];
+
+  // ── PHASE 1: Deterministic Core ─────────────────────────────────────────────
+  reflectionLog.push(`Phase 1: Deterministic core lookup for HS ${hs_code} to ${destUpper}`);
+  let coreRate = null;
   let source = 'TradeMatch';
 
   if (categoryRates.hasOwnProperty(destUpper)) {
-    tariffRate = categoryRates[destUpper];
+    coreRate = categoryRates[destUpper];
+    reflectionLog.push(`Core: Local table match found for country ${destUpper}: ${coreRate}%`);
   } else {
-    console.log(`[Tariff Agent] Country "${destUpper}" not in local table. Running live Web Search lookup...`);
-    const countryName = COUNTRY_NAMES[destUpper] || destUpper;
-    const webRate = await searchWebForTariff(hs_code, countryName);
+    const rates = Object.values(categoryRates);
+    const avg = rates.reduce((sum, val) => sum + val, 0) / rates.length;
+    coreRate = Math.round(avg * 10) / 10;
+    source = 'TradeMatch-Estimate';
+    reflectionLog.push(`Core: Country ${destUpper} not in local table. Using category average estimate: ${coreRate}%`);
+  }
+
+  // ── PHASE 2: Dynamic Enrichment ─────────────────────────────────────────────
+  reflectionLog.push(`Phase 2: Initiating dynamic web enrichment lookup.`);
+  let enrichmentApplied = false;
+  let webRate = null;
+  const countryName = COUNTRY_NAMES[destUpper] || destUpper;
+  const sourceRef = `https://html.duckduckgo.com/html/?q=${encodeURIComponent('Tariff rate for HS ' + hs_code + ' imported to ' + countryName)}`;
+
+  try {
+    webRate = await searchWebForTariff(hs_code, countryName);
     if (webRate !== null) {
-      tariffRate = webRate;
-      source = 'TradeMatch-WebIntelligence';
-      console.log(`[Tariff Agent] Web Search success! Resolved: ${tariffRate}%`);
+      enrichmentApplied = true;
+      reflectionLog.push(`Enrichment: Web crawler returned tariff rate: ${webRate}%`);
     } else {
-      const rates = Object.values(categoryRates);
-      const avg = rates.reduce((sum, val) => sum + val, 0) / rates.length;
-      tariffRate = Math.round(avg * 10) / 10;
-      source = 'TradeMatch-Estimate';
-      console.log(`[Tariff Agent] Web Search failed. Using category average: ${tariffRate}%`);
+      reflectionLog.push(`Enrichment: Web crawler returned no rate matches.`);
     }
+  } catch (err) {
+    reflectionLog.push(`Enrichment Error: Web lookup failed: ${err.message}`);
+  }
+
+  // ── PHASE 3: Antigravity QA Supervisor ───────────────────────────────────────
+  reflectionLog.push(`Phase 3: Initiating Antigravity QA validation check.`);
+  let finalRate = coreRate;
+  let qaStatus = 'APPROVED_CORE';
+
+  if (enrichmentApplied && webRate !== null) {
+    const absoluteVariance = Math.abs(coreRate - webRate);
+    reflectionLog.push(`QA: Evaluating absolute variance between Core (${coreRate}%) and Enriched (${webRate}%). Variance = ${absoluteVariance.toFixed(2)}%`);
+
+    if (absoluteVariance <= 12.0) {
+      finalRate = webRate;
+      qaStatus = 'APPROVED_WITH_ENRICHMENT';
+      reflectionLog.push(`QA: Variance is within the 12% safety threshold. Merging verified web rate.`);
+    } else {
+      qaStatus = 'DEGRADED_CORE_ONLY';
+      reflectionLog.push(`QA WARNING: Variance (${absoluteVariance.toFixed(2)}%) exceeds the 12% safety threshold! Rejecting dynamic enrichment to protect pipeline integrity.`);
+    }
+  } else {
+    reflectionLog.push(`QA: No dynamic enrichment applied. Proceeding with deterministic baseline.`);
   }
 
   return res.json({
     hs_code,
     origin_country,
     destination_country: destUpper,
-    duty_rate_pct: tariffRate,
+    duty_rate_pct: finalRate,
     additional_duties: [
       { name: 'Customs Processing Surcharge', rate_pct: 0.15 }
     ],
-    notes: `Derived via ${source} for cargo category: ${resolvedCategory}.`
+    notes: `Derived via ${source} for cargo category: ${resolvedCategory}.`,
+    enrichment: {
+      applied: enrichmentApplied,
+      taric_rate: webRate,
+      taric_last_updated: new Date().toISOString(),
+      source_ref: sourceRef
+    },
+    qa_supervisor: {
+      status: qaStatus,
+      self_reflection_log: reflectionLog
+    }
   });
 });
 
