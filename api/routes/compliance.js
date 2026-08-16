@@ -53,6 +53,7 @@ const COMPLIANCE_RULES = {
 const HS_CATEGORY_MAP = {
   '51': 'textiles',  '52': 'textiles',  '61': 'textiles',  '62': 'textiles',
   '09': 'food',      '10': 'food',      '15': 'food',      '04': 'food',      '21': 'food',
+  '17': 'food',      '12': 'food',      '03': 'food',
   '73': 'machinery', '84': 'machinery', '85': 'electronics',
   '90': 'medical'
 };
@@ -69,7 +70,9 @@ function extractHsCode(desc) {
     wool: '5101.11', merino: '6117.10', cotton: '6205.20', shirt: '6205.20',
     scarf: '6117.10', solar: '8541.40', battery: '8507.60', oil: '1509.10',
     olive: '1509.10', cheese: '0406.20', ultrasound: '9018.12', medical: '9018.90',
-    surgical: '9018.90', turmeric: '0910.30', pepper: '0904.11', mounting: '7308.90'
+    surgical: '9018.90', turmeric: '0910.30', pepper: '0904.11', mounting: '7308.90',
+    maple: '1702.20', syrup: '1702.20', sirop: '1702.20', ginseng: '1211.20',
+    lobster: '0306.12'
   };
   for (const [kw, hs] of Object.entries(keywords)) {
     if (lower.includes(kw)) return hs;

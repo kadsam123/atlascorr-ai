@@ -22,7 +22,12 @@ const HS_KEYWORD_MAP = {
   surgical:    { hsCode: '9018.90', category: 'medical',     description: 'Other surgical instruments and appliances' },
   turmeric:    { hsCode: '0910.30', category: 'food',        description: 'Turmeric (curcuma)' },
   pepper:      { hsCode: '0904.11', category: 'food',        description: 'Pepper of the genus Piper — neither crushed nor ground' },
-  mounting:    { hsCode: '7308.90', category: 'machinery',   description: 'Structures of iron or steel — other' }
+  mounting:    { hsCode: '7308.90', category: 'machinery',   description: 'Structures of iron or steel — other' },
+  maple:       { hsCode: '1702.20', category: 'food',        description: 'Maple syrup and maple sugar' },
+  syrup:       { hsCode: '1702.20', category: 'food',        description: 'Maple syrup and maple sugar' },
+  sirop:       { hsCode: '1702.20', category: 'food',        description: 'Maple syrup and maple sugar' },
+  ginseng:     { hsCode: '1211.20', category: 'food',        description: 'Ginseng roots, fresh or dried' },
+  lobster:     { hsCode: '0306.12', category: 'food',        description: 'Lobster, live or frozen' }
 };
 
 const CATEGORY_FALLBACK = {
