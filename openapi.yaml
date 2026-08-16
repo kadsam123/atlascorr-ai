@@ -205,24 +205,65 @@ components:
     RouteScoreResult:
       type: object
       properties:
-        routes:
-          type: array
-          items:
-            type: object
-            properties:
-              corridor:
+        origin_country:
+          type: string
+          example: CA
+        destination_country:
+          type: string
+          example: DE
+        mode:
+          type: string
+          example: sea
+        port_origin:
+          type: string
+          example: Montreal
+        port_destination:
+          type: string
+          example: Hamburg
+        base_transit_time_days:
+          type: integer
+          example: 14
+        base_cost_estimate_usd:
+          type: number
+          example: 3200
+        route_score:
+          type: number
+          format: float
+          example: 0.78
+        notes:
+          type: string
+          example: Deterministic baseline route score for CA→DE sea freight.
+        enrichment:
+          type: object
+          properties:
+            applied:
+              type: boolean
+            live_delay_risk:
+              type: [number, "null"]
+            port_congestion_index:
+              type: [number, "null"]
+            live_cost_adjustment_usd:
+              type: [number, "null"]
+            logistics_updates:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  summary:
+                    type: string
+                  source_ref:
+                    type: string
+        qa_supervisor:
+          type: object
+          properties:
+            status:
+              type: string
+            self_reflection_log:
+              type: array
+              items:
                 type: string
-                example: "US → DE"
-              score:
-                type: number
-                format: float
-                example: 0.87
-              transit_time_days:
-                type: integer
-                example: 12
-              risk_level:
-                type: string
-                example: "medium"
 
     ExportPlan:
       type: object
