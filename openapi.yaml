@@ -268,23 +268,75 @@ components:
     ExportPlan:
       type: object
       properties:
-        summary:
+        hs_code:
           type: string
-          example: Export plan for Steel bolts from US to DE.
-        steps:
+          example: "2009.12"
+        origin_country:
+          type: string
+          example: CA
+        destination_country:
+          type: string
+          example: DE
+        mode:
+          type: string
+          example: sea
+        category:
+          type: string
+          example: food
+        core_steps:
           type: array
           items:
             type: object
             properties:
-              step:
+              order:
+                type: integer
+              title:
                 type: string
-                example: Step 1: Compliance Filing
-              description:
-                type: string
-                example: File the export manifest with local customs.
-        compliance_notes:
+              mandatory:
+                type: boolean
+        core_documents:
+          type: array
+          items:
+            type: string
+        timeline_estimate_days:
+          type: integer
+          example: 21
+        notes:
           type: string
-          example: Ensure ECCN classification is finalized.
+          example: Deterministic baseline export plan for food cargo CA→DE.
+        enrichment:
+          type: object
+          properties:
+            applied:
+              type: boolean
+            country_specific_tips:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  summary:
+                    type: string
+                  source_ref:
+                    type: string
+            llm_guidance:
+              type: array
+              items:
+                type: string
+            example_checklist:
+              type: array
+              items:
+                type: string
+        qa_supervisor:
+          type: object
+          properties:
+            status:
+              type: string
+            self_reflection_log:
+              type: array
+              items:
+                type: string
 
     OrchestrationLedger:
       type: object
