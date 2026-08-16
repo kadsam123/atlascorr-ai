@@ -149,6 +149,8 @@ router.post('/', async (req, res) => {
       reflectionLog.push(`QA: Variance is within the 12% safety threshold. Merging verified web rate.`);
     } else {
       qaStatus = 'DEGRADED_CORE_ONLY';
+      enrichmentApplied = false;
+      webRate = null;
       reflectionLog.push(`QA WARNING: Variance (${absoluteVariance.toFixed(2)}%) exceeds the 12% safety threshold! Rejecting dynamic enrichment to protect pipeline integrity.`);
     }
   } else {
@@ -167,7 +169,7 @@ router.post('/', async (req, res) => {
     enrichment: {
       applied: enrichmentApplied,
       taric_rate: webRate,
-      taric_last_updated: new Date().toISOString(),
+      taric_last_updated: enrichmentApplied ? new Date().toISOString() : null,
       source_ref: sourceRef
     },
     qa_supervisor: {
