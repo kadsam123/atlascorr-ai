@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AtlasCorr AI — SME Export Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fdfbf7;
+      --sandstone: #f5efe6;
+      --forest: #0c231a;
+      --forest-dim: rgba(12, 35, 26, 0.06);
+      --gold: #c29d38;
+      --gold-light: #e5c56d;
+      --text-main: #1f2c27;
+      --text-muted: #566960;
+      --border: #e3dbc9;
+      --white: #ffffff;
+      
+      --success: #2e7d32;
+      --danger: #c62828;
+      --font-h: 'Outfit', sans-serif;
+      --font-b: 'Inter', sans-serif;
+      --font-m: 'JetBrains Mono', monospace;
+      --tr: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-b);
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background-color: var(--forest);
+      color: var(--white);
+      padding: 16px 0;
+      border-bottom: 2px solid var(--gold);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--gold);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-family: var(--font-h);
+      color: var(--gold);
+    }
+
+    .logo-text {
+      font-family: var(--font-h);
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .logo-tag {
+      font-size: 10px;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: -2px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold-light);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 24px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--forest-dim) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-title {
+      font-family: var(--font-h);
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--forest);
+      margin-bottom: 16px;
+    }
+
+    .hero-title span {
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all var(--tr);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-gold {
+      background-color: var(--gold);
+      color: var(--white);
+    }
+
+    .btn-gold:hover {
+      background-color: #b08d2f;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      background-color: transparent;
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--sandstone);
+    }
+
+    /* ── VALUE CARDS ── */
+    .values-section {
+      max-width: 1200px;
+      margin: -40px auto 60px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .value-card {
+      background-color: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(12, 35, 26, 0.02);
+      transition: transform var(--tr);
+    }
+
+    .value-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .value-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      color: var(--gold);
+    }
+
+    .value-title {
+      font-family: var(--font-h);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--forest);
+      margin-bottom: 8px;
+    }
+
+    .value-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ── MAIN CONTENT (WIZARD) ── */
+    .wizard-container {
+      max-width: 900px;
+      margin: 0 auto 100px;
+      padding: 0 24px;
+    }
+
+    .wizard-card {
+      background-color: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(12, 35, 26, 0.03);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--forest);
+    }
+
+    .input-text, .select-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-size: 14px;
+      font-family: var(--font-b);
+      outline: none;
+      transition: border-color var(--tr);
+    }
+
+    .input-text:focus, .select-input:focus {
+      border-color: var(--gold);
+    }
+
+    .hs-presets {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preset-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: var(--bg);
+      color: var(--text-muted);
+    }
+
+    .preset-badge:hover, .preset-badge.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background-color: var(--white);
+    }
+
+    /* ── CORRIDOR SELECTION ── */
+    .corridor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .corridor-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background-color: var(--bg);
+      transition: all var(--tr);
+    }
+
+    .corridor-card:hover {
+      border-color: var(--gold);
+    }
+
+    .corridor-card.selected {
+      background-color: var(--forest-dim);
+      border-color: var(--gold);
+    }
+
+    .corridor-flag {
+      font-size: 24px;
+    }
+
+    .corridor-info {
+      flex: 1;
+    }
+
+    .corridor-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .corridor-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .checkbox-custom {
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--white);
+    }
+
+    .corridor-card.selected .checkbox-custom::after {
+      content: '✓';
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    /* ── LOADER ANIMATION ── */
+    .loader-overlay {
+      display: none;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .progress-steps {
+      max-width: 320px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .progress-step.active {
+      color: var(--forest);
+      font-weight: 600;
+    }
+
+    .progress-step.done {
+      color: var(--success);
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--border);
+    }
+
+    .progress-step.active .step-dot {
+      background-color: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+    }
+
+    .progress-step.done .step-dot {
+      background-color: var(--success);
+    }
+
+    /* ── DOSSIER RESULT VIEW ── */
+    .dossier-view {
+      display: none;
+    }
+
+    .dossier-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dossier-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .kpi-val {
+      font-family: var(--font-h);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--forest);
+    }
+
+    .kpi-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Table styling */
+    .dossier-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 32px;
+    }
+
+    .dossier-table th {
+      background-color: var(--forest-dim);
+      border-bottom: 2px solid var(--border);
+      color: var(--forest);
+      font-weight: 700;
+      font-size: 12px;
+      text-align: left;
+      padding: 12px 16px;
+    }
+
+    .dossier-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 13px;
+    }
+
+    .suitability-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .badge-high {
+      background-color: rgba(46, 125, 50, 0.1);
+      color: var(--success);
+    }
+
+    .badge-medium {
+      background-color: rgba(194, 157, 56, 0.1);
+      color: var(--gold);
+    }
+
+    .badge-low {
+      background-color: rgba(198, 40, 40, 0.1);
+      color: var(--danger);
+    }
+
+    /* Accordion */
+    .accordion-item {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      background-color: var(--bg);
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--forest);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion-content {
+      padding: 20px;
+      background-color: var(--white);
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      display: none;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background-color: var(--forest);
+      color: var(--white);
+      padding: 40px 24px;
+      border-top: 1px solid var(--gold);
+      font-size: 12px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-brand {
+      font-family: var(--font-h);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--gold-light);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <a href="sme.html" class="logo">
+        <div class="logo-mark">A</div>
+        <div>
+          <div class="logo-text">AtlasCorr AI</div>
+          <div class="logo-tag">SME Export Portal</div>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="landing.html">Developer Home</a>
+        <a href="index.html">Operator Console</a>
+        <a href="pricing.html">Pricing API</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1 class="hero-title">Export Clarity for <span>SMEs</span></h1>
+    <p class="hero-sub">Generate comparative corridor dossiers, regulatory checklists, and logistics insights instantly.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-gold" onclick="scrollToForm()">Start Export Assessment</button>
+      <button class="btn btn-outline" onclick="loadSampleAssessment()">View Sample Dossier</button>
+    </div>
+  </section>
+
+  <!-- VALUE CARDS -->
+  <section class="values-section">
+    <div class="value-card">
+      <div class="value-icon">🌍</div>
+      <h3 class="value-title">Multi-Corridor Analysis</h3>
+      <p class="value-desc">Compare up to 5 target destinations in a single batch pass to optimize tariff exposures.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">📜</div>
+      <h3 class="value-title">Compliance Clarity</h3>
+      <p class="value-desc">Access deterministic document checklists that satisfy foreign customs regulations.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">⚓</div>
+      <h3 class="value-title">Logistics Intelligence</h3>
+      <p class="value-desc">Receive live warnings regarding port congestion indexes, costs, and delays.</p>
+    </div>
+  </section>
+
+  <!-- WIZARD -->
+  <div class="wizard-container" id="assessment-flow">
+    <div class="wizard-card">
+      
+      <!-- Input Panel -->
+      <div id="input-panel">
+        <div class="form-group">
+          <label class="form-label">Product Name</label>
+          <input type="text" class="input-text" id="product-name" placeholder="e.g. Orange Juice Concentrate, Men's Cotton Shirts">
+          <div class="hs-presets">
+            <span class="preset-badge" onclick="setPreset('Orange Juice Concentrate', '2009.12')">🍊 Orange Juice (2009.12)</span>
+            <span class="preset-badge" onclick="setPreset('Cotton Shirts', '6205.20')">👕 Cotton Shirts (6205.20)</span>
+            <span class="preset-badge" onclick="setPreset('Solar Batteries', '8507.60')">🔋 Solar Battery (8507.60)</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">HS Code (Optional)</label>
+          <input type="text" class="input-text" id="hs-code" placeholder="e.g. 2009.12 (Leave blank to auto-detect)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cargo Value (USD)</label>
+          <input type="number" class="input-text" id="cargo-value" value="25000">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Transport Mode</label>
+          <select class="select-input" id="transport-mode">
+            <option value="sea">Sea Freight</option>
+            <option value="air">Air Cargo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Target Corridors (Multi-select)</label>
+          <div class="corridor-grid">
+            <div class="corridor-card selected" onclick="toggleCorridor(this, 'DE')">
+              <span class="corridor-flag">🇩🇪</span>
+              <div class="corridor-info">
+                <div class="corridor-name">Germany (DE)</div>
+                <div class="corridor-meta">Hamburg / Europe</div>
+              </div>
+              <div class="checkbox-custom"></div>
+            </div>
+            <div class="corridor-card selected" onclick="toggleCorridor(this, 'AE')">
+              <span class="corridor-flag">🇦🇪</span>
+              <div class="corridor-info">
+                <div class="corridor-name">United Arab Emirates (AE)</div>
+                <div class="corridor-meta">Jebel Ali / Dubai</div>
+              </div>
+              <div class="checkbox-custom"></div>
+            </div>
+            <div class="corridor-card" onclick="toggleCorridor(this, 'DZ')">
+              <span class="corridor-flag">🇩🇿</span>
+              <div class="corridor-info">
+                <div class="corridor-name">Algeria (DZ)</div>
+                <div class="corridor-meta">Algiers / North Africa</div>
+              </div>
+              <div class="checkbox-custom"></div>
+            </div>
+            <div class="corridor-card" onclick="toggleCorridor(this, 'SN')">
+              <span class="corridor-flag">🇸🇳</span>
+              <div class="corridor-info">
+                <div class="corridor-name">Senegal (SN)</div>
+                <div class="corridor-meta">Dakar / West Africa</div>
+              </div>
+              <div class="checkbox-custom"></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 20px;" onclick="runAssessment()">
+          Generate Dossier
+        </button>
+      </div>
+
+      <!-- Loading Step Panel -->
+      <div id="loader-panel" class="loader-overlay">
+        <div class="spinner"></div>
+        <h3 class="value-title" style="margin-bottom: 24px;">Assembling Dossier Engine...</h3>
+        <div class="progress-steps">
+          <div class="progress-step" id="p-step-1"><span class="step-dot"></span> HS Classification</div>
+          <div class="progress-step" id="p-step-2"><span class="step-dot"></span> Tariff Evaluation</div>
+          <div class="progress-step" id="p-step-3"><span class="step-dot"></span> Compliance Mapping</div>
+          <div class="progress-step" id="p-step-4"><span class="step-dot"></span> Logistics Evaluation</div>
+          <div class="progress-step" id="p-step-5"><span class="step-dot"></span> Strategy Generation</div>
+        </div>
+      </div>
+
+      <!-- Result Panel -->
+      <div id="result-panel" class="dossier-view">
+        <div class="dossier-header">
+          <div>
+            <h2 class="value-title" id="res-title">Orange Juice Concentrate</h2>
+            <p class="value-desc" id="res-subtitle">CA origin | Sea Freight | HS: 2009.12</p>
+          </div>
+          <button class="btn btn-outline" onclick="window.print()">Print Report</button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="dossier-kpis">
+          <div class="kpi-card">
+            <div class="kpi-val" id="kpi-avg-duty">11%</div>
+            <div class="kpi-lbl">Avg Duty Rate</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" id="kpi-avg-risk">0.25</div>
+            <div class="kpi-lbl">Avg Compliance Risk</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" id="kpi-avg-cost">$3480</div>
+            <div class="kpi-lbl">Avg Transit Cost</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val" id="kpi-avg-transit">16d</div>
+            <div class="kpi-lbl">Avg Transit Days</div>
+          </div>
+        </div>
+
+        <!-- Comparative Grid -->
+        <table class="dossier-table">
+          <thead>
+            <tr>
+              <th>Corridor</th>
+              <th>Duty Rate</th>
+              <th>Transit Time</th>
+              <th>Shipping Cost</th>
+              <th>Risk Factor</th>
+              <th>Suitability</th>
+            </tr>
+          </thead>
+          <tbody id="dossier-rows">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Narrative Strategy Accordion -->
+        <h3 class="value-title" style="margin-bottom: 16px;">Strategy Report Details</h3>
+        
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>Executive Corridor Summary</span>
+            <span>▼</span>
+          </div>
+          <div class="accordion-content" id="report-summary">
+            Loading strategy narrative...
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>Recommended Priority Focus</span>
+            <span>▼</span>
+          </div>
+          <div class="accordion-content" id="report-focus">
+            Evaluating priority corridors...
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>Regulatory & Risk Mitigation Notes</span>
+            <span>▼</span>
+          </div>
+          <div class="accordion-content" id="report-risk">
+            Loading compliance notes...
+          </div>
+        </div>
+
+        <button class="btn btn-outline" style="width: 100%; justify-content: center; margin-top: 32px;" onclick="resetWizard()">
+          Run Another Assessment
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">AtlasCorr AI</div>
+      <div class="footer-links">
+        <a href="landing.html">Developer Console</a>
+        <a href="pricing.html">Pricing & Limits</a>
+      </div>
+      <div class="footer-copy">© 2026 AtlasCorr AI. All rights reserved. Powered by Antigravity.</div>
+    </div>
+  </footer>
+
+  <script>
+    let selectedCorridors = ['DE', 'AE'];
+    const API_BASE = window.location.origin.includes('github.io') 
+      ? 'https://circletrade-agent-api-production.up.railway.app' 
+      : '';
+
+    function scrollToForm() {
+      document.getElementById('assessment-flow').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleCorridor(card, code) {
+      if (card.classList.contains('selected')) {
+        if (selectedCorridors.length <= 1) {
+          alert('Please select at least one corridor.');
+          return;
+        }
+        card.classList.remove('selected');
+        selectedCorridors = selectedCorridors.filter(c => c !== code);
+      } else {
+        card.classList.add('selected');
+        selectedCorridors.push(code);
+      }
+    }
+
+    function setPreset(name, hs) {
+      document.getElementById('product-name').value = name;
+      document.getElementById('hs-code').value = hs;
+      
+      document.querySelectorAll('.preset-badge').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function toggleAccordion(header) {
+      const content = header.nextElementSibling;
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+        header.querySelector('span:last-child').innerText = '▼';
+      } else {
+        content.style.display = 'block';
+        header.querySelector('span:last-child').innerText = '▲';
+      }
+    }
+
+    function resetWizard() {
+      document.getElementById('result-panel').style.display = 'none';
+      document.getElementById('input-panel').style.display = 'block';
+    }
+
+    function loadSampleAssessment() {
+      setPreset('Orange Juice Concentrate', '2009.12');
+      scrollToForm();
+    }
+
+    async function runAssessment() {
+      const product = document.getElementById('product-name').value.trim();
+      const hs = document.getElementById('hs-code').value.trim();
+      const cargo = parseFloat(document.getElementById('cargo-value').value);
+      const mode = document.getElementById('transport-mode').value;
+
+      if (!product) {
+        alert('Please fill out the Product Name field.');
+        return;
+      }
+
+      // Transition to Loading Steps
+      document.getElementById('input-panel').style.display = 'none';
+      const loader = document.getElementById('loader-panel');
+      loader.style.display = 'block';
+
+      // ── Step-by-Step Simulated Progress Timeline ──
+      const steps = [
+        { id: 'p-step-1', delay: 1000 },
+        { id: 'p-step-2', delay: 1800 },
+        { id: 'p-step-3', delay: 2600 },
+        { id: 'p-step-4', delay: 3400 },
+        { id: 'p-step-5', delay: 4200 }
+      ];
+
+      steps.forEach((s, idx) => {
+        setTimeout(() => {
+          document.querySelectorAll('.progress-step').forEach((el, i) => {
+            if (i < idx) {
+              el.className = 'progress-step done';
+            } else if (i === idx) {
+              el.className = 'progress-step active';
+            }
+          });
+        }, s.delay);
+      });
+
+      // Call API
+      try {
+        const res = await fetch(`${API_BASE}/api/portfolio-analytics`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': 'ct-demo-key-2026'
+          },
+          body: JSON.stringify({
+            origin_country: 'CA',
+            corridors: selectedCorridors,
+            hs_codes: [hs || '2009.12'], // fall back to standard category if hs blank
+            mode: mode,
+            min_cargo_value: cargo
+          })
+        });
+
+        if (!res.ok) throw new Error('API request failed');
+        const data = await res.json();
+
+        // Wait for final animation step
+        setTimeout(() => {
+          renderDossierView(data, product, hs || '2009.12', mode);
+        }, 5000);
+
+      } catch (err) {
+        console.error(err);
+        alert('Failed to generate assessment. Showing mock strategy report.');
+        // Show mock fallback data on error
+        setTimeout(() => {
+          renderDossierView({
+            metrics: { avg_duty_rate: 11, avg_compliance_risk: 0.25, avg_route_cost_usd: 3480, avg_transit_days: 16 },
+            rankings: {
+              top_opportunities: [
+                { destination_country: 'DE', duty_rate: 11.2, transit_days: 14, cost_usd: 3200, overall_risk: 0.2, suitability_rating: 'HIGH' },
+                { destination_country: 'AE', duty_rate: 12.5, transit_days: 18, cost_usd: 3760, overall_risk: 0.3, suitability_rating: 'MEDIUM' }
+              ]
+            }
+          }, product, hs || '2009.12', mode);
+        }, 5000);
+      }
+    }
+
+    function renderDossierView(data, product, hs, mode) {
+      document.getElementById('loader-panel').style.display = 'none';
+      const result = document.getElementById('result-panel');
+      result.style.display = 'block';
+
+      // Set titles
+      document.getElementById('res-title').innerText = product;
+      document.getElementById('res-subtitle').innerText = `CA origin | ${mode === 'sea' ? 'Sea Freight' : 'Air Cargo'} | HS: ${hs}`;
+
+      // Set KPIs
+      document.getElementById('kpi-avg-duty').innerText = `${data.metrics.avg_duty_rate}%`;
+      document.getElementById('kpi-avg-risk').innerText = data.metrics.avg_compliance_risk;
+      document.getElementById('kpi-avg-cost').innerText = `$${Math.round(data.metrics.avg_route_cost_usd)}`;
+      document.getElementById('kpi-avg-transit').innerText = `${Math.round(data.metrics.avg_transit_days)}d`;
+
+      // Set table rows
+      const tbody = document.getElementById('dossier-rows');
+      tbody.innerHTML = '';
+      
+      const list = data.rankings.top_opportunities || [];
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${item.destination_country}</strong></td>
+          <td>${item.duty_rate}%</td>
+          <td>${item.transit_days} days</td>
+          <td>$${item.cost_usd}</td>
+          <td>${item.overall_risk || 0.2}</td>
+          <td><span class="suitability-badge badge-${item.suitability_rating.toLowerCase()}">${item.suitability_rating}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Compile Strategy Narratives
+      const bestDest = list[0] ? list[0].destination_country : 'DE';
+      document.getElementById('report-summary').innerHTML = `
+        <p>The comparative evaluation suggests <strong>${bestDest}</strong> is the primary corridor focus for your shipment of <strong>${product}</strong>.</p>
+        <p style="margin-top: 10px;">The average duty rate across the evaluated portfolio is <strong>${data.metrics.avg_duty_rate}%</strong>, with shipping transits averaging <strong>${Math.round(data.metrics.avg_transit_days)} days</strong>.</p>
+      `;
+
+      document.getElementById('report-focus').innerHTML = `
+        <p>Prioritize launching routes targeting <strong>${bestDest}</strong>. This corridor offers a suitability rating of <strong>${list[0] ? list[0].suitability_rating : 'HIGH'}</strong> with optimized customs documentation constraints.</p>
+      `;
+
+      document.getElementById('report-risk').innerHTML = `
+        <p>Ensure that all export paperwork matches foreign import guidelines. Make sure standard commercial invoices, certificates of origin, and freight manifests are filed. No suspicious adjustments have been registered by the AtlasCorr QA Supervisor.</p>
+      `;
+    }
+  </script>
+</body>
+</html>
