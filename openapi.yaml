@@ -129,16 +129,78 @@ components:
         compliant:
           type: boolean
           example: true
-        issues:
-          type: array
-          items:
-            type: string
-          example: []
+        passed:
+          type: boolean
+          example: true
+        hs_code:
+          type: string
+          example: "2009.12"
+        origin_country:
+          type: string
+          example: CA
+        destination_country:
+          type: string
+          example: DE
+        category:
+          type: string
+          example: food
         required_documents:
           type: array
           items:
             type: string
           example: ["Commercial Invoice", "Certificate of Origin"]
+        licensing_flags:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: FOOD_SAFETY
+              required:
+                type: boolean
+                example: true
+        sanctions_flags:
+          type: array
+          items:
+            type: string
+          example: []
+        notes:
+          type: string
+          example: Deterministic DDTRS baseline for food.
+        enrichment:
+          type: object
+          properties:
+            applied:
+              type: boolean
+            regulatory_updates:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  effective_date:
+                    type: string
+                  summary:
+                    type: string
+                  source_ref:
+                    type: string
+            risk_score:
+              type: [number, "null"]
+            risk_notes:
+              type: array
+              items:
+                type: string
+        qa_supervisor:
+          type: object
+          properties:
+            status:
+              type: string
+            self_reflection_log:
+              type: array
+              items:
+                type: string
 
     RouteScoreResult:
       type: object
