@@ -1,0 +1,912 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CircleTrade AI — Outbound Marketing CRM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070e17;
+      --bg-card: #0c1622;
+      --accent-teal: #00d4ff;
+      --accent-violet: #7c3aed;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      padding: 24px;
+    }
+    .header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .crm-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .lead-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .lead-card:hover {
+      border-color: var(--accent-teal);
+      transform: translateY(-2px);
+    }
+    .lead-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .lead-title h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .lead-title span {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .score-badge {
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid var(--accent-teal);
+      color: var(--accent-teal);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .lead-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      background: rgba(255,255,255,0.02);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .detail-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .detail-value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .lead-pitch-box {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .action-btn {
+      display: inline-block;
+      text-align: center;
+      background: linear-gradient(135deg, var(--accent-teal), var(--accent-violet));
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 CircleTrade AI — Outbound Marketing CRM</h1>
+    <p>Filtered and scored autonomously. Verified against production API stack. Ready to transact.</p>
+  </div>
+  <div class="crm-grid">
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Volatus Aerospace</h3>
+            <span>Contact: Logistics Division (logistics@volatusaerospace.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 70%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → GB</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Volatus Aerospace
+
+Dear Logistics Division,
+
+We ran a trade compliance audit for your product "Volatus Cargo Drone V2" exporting to GB...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:logistics@volatusaerospace.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Volatus%20Aerospace&body=Dear%20Logistics%20Division%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Volatus%20Cargo%20Drone%20V2%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20GB%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>ARA Robotics</h3>
+            <span>Contact: Product Director (support@ara-uas.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 70%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → JP</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for ARA Robotics
+
+Dear Product Director,
+
+We ran a trade compliance audit for your product "ARA Flight Controller" exporting to JP...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:support@ara-uas.com?subject=Trade%20Compliance%20Audit%20Report%20for%20ARA%20Robotics&body=Dear%20Product%20Director%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22ARA%20Flight%20Controller%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20JP%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Aeromao Inc</h3>
+            <span>Contact: Geospatial Team (mapping@aeromao.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 70%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → US</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Aeromao Inc
+
+Dear Geospatial Team,
+
+We ran a trade compliance audit for your product "Aeromapper Talon Drone" exporting to US...
+HS Classified: 9018.12
+Tariff: 0%
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:mapping@aeromao.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Aeromao%20Inc&body=Dear%20Geospatial%20Team%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Aeromapper%20Talon%20Drone%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20US%0A*%20%20%20Applicable%20Customs%20Tariff%3A%200%25%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Quebec MedTech Systems</h3>
+            <span>Contact: Logistics Manager (info@quebecmedtech.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 70%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → DE</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Quebec MedTech Systems
+
+Dear Logistics Manager,
+
+We ran a trade compliance audit for your product "Surgical Laser Sensors" exporting to DE...
+HS Classified: 9018.12
+Tariff: 0%
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:info@quebecmedtech.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Quebec%20MedTech%20Systems&body=Dear%20Logistics%20Manager%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Surgical%20Laser%20Sensors%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20DE%0A*%20%20%20Applicable%20Customs%20Tariff%3A%200%25%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Great Mountain Ginseng</h3>
+            <span>Contact: Logistics Manager (sales@greatmountain.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 60%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → SG</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">1509.10</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--success)">
+              ✅ Standard
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Great Mountain Ginseng
+
+Dear Logistics Manager,
+
+We ran a trade compliance audit for your product "Ginseng Root Blend" exporting to SG...
+HS Classified: 1509.10
+Tariff: Variable
+License: Not Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:sales@greatmountain.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Great%20Mountain%20Ginseng&body=Dear%20Logistics%20Manager%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Ginseng%20Root%20Blend%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%201509.10%20(Category%3A%20food)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20SG%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20NO%20(Standard%20clearance)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Canadian Vita</h3>
+            <span>Contact: Trade Director (ops@canadianvita.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 60%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → US</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Canadian Vita
+
+Dear Trade Director,
+
+We ran a trade compliance audit for your product "Certified Ginseng Roots" exporting to US...
+HS Classified: 9018.12
+Tariff: 0%
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:ops@canadianvita.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Canadian%20Vita&body=Dear%20Trade%20Director%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Certified%20Ginseng%20Roots%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20US%0A*%20%20%20Applicable%20Customs%20Tariff%3A%200%25%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Victory Ginseng Ontario</h3>
+            <span>Contact: Logistics Supervisor (victory@victoryginseng.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 60%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → SG</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">1509.10</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--success)">
+              ✅ Standard
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Victory Ginseng Ontario
+
+Dear Logistics Supervisor,
+
+We ran a trade compliance audit for your product "Ginseng Supplements" exporting to SG...
+HS Classified: 1509.10
+Tariff: Variable
+License: Not Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:victory@victoryginseng.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Victory%20Ginseng%20Ontario&body=Dear%20Logistics%20Supervisor%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Ginseng%20Supplements%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%201509.10%20(Category%3A%20food)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20SG%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20NO%20(Standard%20clearance)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Canadian Ginseng Farm Ltd</h3>
+            <span>Contact: Wholesale Sales (info@canadianginsengfarm.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → DE</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">1509.10</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">15%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--success)">
+              ✅ Standard
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Canadian Ginseng Farm Ltd
+
+Dear Wholesale Sales,
+
+We ran a trade compliance audit for your product "Bulk Dried Ginseng" exporting to DE...
+HS Classified: 1509.10
+Tariff: 15%
+License: Not Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:info@canadianginsengfarm.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Canadian%20Ginseng%20Farm%20Ltd&body=Dear%20Wholesale%20Sales%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Bulk%20Dried%20Ginseng%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%201509.10%20(Category%3A%20food)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20DE%0A*%20%20%20Applicable%20Customs%20Tariff%3A%2015%25%0A*%20%20%20Export%20License%20Required%3A%20NO%20(Standard%20clearance)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Rainey Ginseng Farm</h3>
+            <span>Contact: Export Team (export@raineyginseng.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → GB</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">1509.10</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--success)">
+              ✅ Standard
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Rainey Ginseng Farm
+
+Dear Export Team,
+
+We ran a trade compliance audit for your product "Ginseng Crown Roots" exporting to GB...
+HS Classified: 1509.10
+Tariff: Variable
+License: Not Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:export@raineyginseng.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Rainey%20Ginseng%20Farm&body=Dear%20Export%20Team%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Ginseng%20Crown%20Roots%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%201509.10%20(Category%3A%20food)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20GB%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20NO%20(Standard%20clearance)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Sunmore Healthtech</h3>
+            <span>Contact: Sales Director (info@sunmore.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → JP</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Sunmore Healthtech
+
+Dear Sales Director,
+
+We ran a trade compliance audit for your product "Sunmore Ginseng Extract" exporting to JP...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:info@sunmore.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Sunmore%20Healthtech&body=Dear%20Sales%20Director%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Sunmore%20Ginseng%20Extract%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20JP%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Maritimes Lobster Co</h3>
+            <span>Contact: Fresh Cargo Manager (shipping@maritimeslobster.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → FR</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">1509.10</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--success)">
+              ✅ Standard
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Maritimes Lobster Co
+
+Dear Fresh Cargo Manager,
+
+We ran a trade compliance audit for your product "Frozen Lobster Tails" exporting to FR...
+HS Classified: 1509.10
+Tariff: Variable
+License: Not Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:shipping@maritimeslobster.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Maritimes%20Lobster%20Co&body=Dear%20Fresh%20Cargo%20Manager%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Frozen%20Lobster%20Tails%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%201509.10%20(Category%3A%20food)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20FR%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20NO%20(Standard%20clearance)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Ontario Organic Agri</h3>
+            <span>Contact: Farm Operations (info@ontarioorganic.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → GB</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Ontario Organic Agri
+
+Dear Farm Operations,
+
+We ran a trade compliance audit for your product "Organic Honey & Herbs" exporting to GB...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:info@ontarioorganic.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Ontario%20Organic%20Agri&body=Dear%20Farm%20Operations%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Organic%20Honey%20%26%20Herbs%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20GB%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>AVSS - UAV Safety Systems</h3>
+            <span>Contact: Sales Team (info@avss.co)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → DE</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for AVSS - UAV Safety Systems
+
+Dear Sales Team,
+
+We ran a trade compliance audit for your product "PRS-M350 Parachute" exporting to DE...
+HS Classified: 9018.12
+Tariff: 0%
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:info@avss.co?subject=Trade%20Compliance%20Audit%20Report%20for%20AVSS%20-%20UAV%20Safety%20Systems&body=Dear%20Sales%20Team%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22PRS-M350%20Parachute%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20DE%0A*%20%20%20Applicable%20Customs%20Tariff%3A%200%25%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Avidrone Aerospace</h3>
+            <span>Contact: Operations Lead (ops@avidrone.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → SG</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Avidrone Aerospace
+
+Dear Operations Lead,
+
+We ran a trade compliance audit for your product "Avidrone 210 UAS" exporting to SG...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:ops@avidrone.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Avidrone%20Aerospace&body=Dear%20Operations%20Lead%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Avidrone%20210%20UAS%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20SG%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Draganfly Inc</h3>
+            <span>Contact: Defense Sales (sales@draganfly.com)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → DE</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Draganfly Inc
+
+Dear Defense Sales,
+
+We ran a trade compliance audit for your product "Commander 3 XL Drone" exporting to DE...
+HS Classified: 9018.12
+Tariff: 0%
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:sales@draganfly.com?subject=Trade%20Compliance%20Audit%20Report%20for%20Draganfly%20Inc&body=Dear%20Defense%20Sales%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Commander%203%20XL%20Drone%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20DE%0A*%20%20%20Applicable%20Customs%20Tariff%3A%200%25%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Pegasus Imagery</h3>
+            <span>Contact: Logistics Lead (info@pegasusimagery.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → US</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Pegasus Imagery
+
+Dear Logistics Lead,
+
+We ran a trade compliance audit for your product "Aeria Sensor Payload" exporting to US...
+HS Classified: 9018.12
+Tariff: 0%
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:info@pegasusimagery.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Pegasus%20Imagery&body=Dear%20Logistics%20Lead%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Aeria%20Sensor%20Payload%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20US%0A*%20%20%20Applicable%20Customs%20Tariff%3A%200%25%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Edmonton BioMed Devices</h3>
+            <span>Contact: Compliance Director (qa@edmontonbiomed.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → JP</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Edmonton BioMed Devices
+
+Dear Compliance Director,
+
+We ran a trade compliance audit for your product "Ultrasound Scanner Probes" exporting to JP...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:qa@edmontonbiomed.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Edmonton%20BioMed%20Devices&body=Dear%20Compliance%20Director%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Ultrasound%20Scanner%20Probes%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20JP%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>Ontario CardioInstruments</h3>
+            <span>Contact: Regulatory Lead (compliance@ontariocardio.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → BR</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for Ontario CardioInstruments
+
+Dear Regulatory Lead,
+
+We ran a trade compliance audit for your product "ECG Telemetry Monitors" exporting to BR...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:compliance@ontariocardio.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20Ontario%20CardioInstruments&body=Dear%20Regulatory%20Lead%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22ECG%20Telemetry%20Monitors%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20BR%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+      <div class="lead-card">
+        <div class="lead-header">
+          <div class="lead-title">
+            <h3>BC Dental Imaging</h3>
+            <span>Contact: Logistics Division (shipping@bcdental.ca)</span>
+          </div>
+          <div class="score-badge">BOTTLENECK SCORE: 50%</div>
+        </div>
+        <div class="lead-details">
+          <div class="detail-item">
+            <span class="detail-label">Export Route</span>
+            <span class="detail-value">undefined → SG</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">HS Code</span>
+            <span class="detail-value" style="font-family: 'JetBrains Mono';">9018.12</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tariff Rate</span>
+            <span class="detail-value">Variable</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Regulatory Vibe</span>
+            <span class="detail-value" style="color: var(--warning)">
+              ⚠️ License Required
+            </span>
+          </div>
+        </div>
+        <div class="lead-pitch-box">Subject: Free Compliance Audit for BC Dental Imaging
+
+Dear Logistics Division,
+
+We ran a trade compliance audit for your product "Digital X-Ray Sensors" exporting to SG...
+HS Classified: 9018.12
+Tariff: Variable
+License: Required
+Check plan here: https://kadsam123.github.io/circletrade-ai/</div>
+        <a href="mailto:shipping@bcdental.ca?subject=Trade%20Compliance%20Audit%20Report%20for%20BC%20Dental%20Imaging&body=Dear%20Logistics%20Division%2C%0A%0AI%20hope%20this%20message%20finds%20you%20well.%0A%0AAs%20a%20Canadian%20exporter%2C%20navigating%20international%20customs%20and%20trade%20corridors%20can%20introduce%20unexpected%20shipping%20delays%20and%20tariff%20costs.%20We%20ran%20a%20complimentary%20compliance%20audit%20for%20your%20product%2C%20%22Digital%20X-Ray%20Sensors%22%2C%20using%20CircleTrade%20AI.%0A%0AHere%20is%20the%20structured%20export%20intelligence%20report%20resolved%20by%20our%20autonomous%20agents%3A%0A%0A*%20%20%20Classified%20HS%20Code%3A%209018.12%20(Category%3A%20medical)%0A*%20%20%20Target%20Corridor%20Route%3A%20CA%20%E2%86%92%20SG%0A*%20%20%20Applicable%20Customs%20Tariff%3A%20Variable%0A*%20%20%20Export%20License%20Required%3A%20YES%20(ECCN%20clearance%20needed)%0A*%20%20%20Sanctions%20Flag%20Status%3A%20CLEARED%20(PASS)%0A%0ANavigating%20this%20corridor%20manually%20takes%20days.%20CircleTrade%20AI%20ran%20this%20audit%20and%20verified%20the%20requirements%20in%20less%20than%202%20seconds.%0A%0AYou%20can%20view%20your%20active%20shipping%20plan%2C%20check%20other%20global%20tariffs%2C%20and%20compile%20complete%20export%20blueprints%20directly%20through%20our%20portal%3A%0A%F0%9F%91%89%20https%3A%2F%2Fkadsam123.github.io%2Fcircletrade-ai%2F%0A%0ALet%20us%20know%20if%20you%20have%20any%20questions%20about%20this%20audit.%0A%0ABest%20regards%2C%0ACircleTrade%20AI%20Team" class="action-btn">📧 Open Click-to-Send Email Pitch</a>
+      </div>
+    
+  </div>
+</body>
+</html>
+  

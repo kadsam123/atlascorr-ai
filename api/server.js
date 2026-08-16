@@ -30,7 +30,7 @@ app.use(metering);
 // ── Health check (no auth required) ───────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({
-    service: 'CircleTrade Agent Stack API',
+    service: 'AtlasCorr Agent Stack API',
     version: '1.0.0',
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -105,7 +105,7 @@ app.use((req, res) => {
 
 // ── Global error handler ───────────────────────────────────────────────────────
 app.use((err, req, res, _next) => {
-  console.error('[CircleTrade API Error]', err);
+  console.error('[AtlasCorr API Error]', err);
   res.status(err.status || 500).json({
     error: err.code || 'INTERNAL_SERVER_ERROR',
     message: err.message || 'An unexpected error occurred',
@@ -117,7 +117,7 @@ app.use((err, req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n╔════════════════════════════════════════╗`);
-  console.log(`║  CircleTrade Agent Stack API           ║`);
+  console.log(`║  AtlasCorr Agent Stack API           ║`);
   console.log(`║  http://localhost:${PORT}                 ║`);
   console.log(`║  Auth: X-API-Key: ct-demo-key-2026     ║`);
   console.log(`╚════════════════════════════════════════╝\n`);

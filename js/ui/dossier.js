@@ -121,7 +121,7 @@ CT.ui.dossier = {
 
     try {
       const config = CT.store.getApiConfig();
-      const baseUrl = config.mode === 'live' ? config.url : 'https://circletrade-agent-api-production.up.railway.app';
+      const baseUrl = config.mode === 'live' ? config.url : 'https://atlascorr-agent-api-production.up.railway.app';
       const apiKey = config.key || 'ct-demo-key-2026';
 
       const response = await fetch(`${baseUrl}/api/dossier-batch`, {

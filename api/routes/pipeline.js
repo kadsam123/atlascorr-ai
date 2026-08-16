@@ -143,7 +143,7 @@ router.post('/', (req, res) => {
     orchestration_ledger: gapAnalysis.orchestration_ledger,
     pipeline_steps: pipelineSteps,
     timestamp: new Date().toISOString(),
-    source: 'CircleTrade Pipeline v1'
+    source: 'AtlasCorr Pipeline v1'
   });
 });
 

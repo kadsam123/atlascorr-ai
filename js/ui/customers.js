@@ -10,7 +10,7 @@ CT.ui.customers = {
     return `
 <div class="view-enter">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-    <div style="font-size:13px;color:var(--text-muted)">${customers.length} active SME customers in CircleTrade AI</div>
+    <div style="font-size:13px;color:var(--text-muted)">${customers.length} active SME customers in AtlasCorr AI</div>
   </div>
   <div class="customers-grid">
     ${customers.map(c => this._card(c)).join('')}
