@@ -32,6 +32,7 @@ const COUNTRY_NAMES = {
 const HS_CATEGORY_MAP = {
   '51': 'textiles',  '52': 'textiles',  '61': 'textiles',  '62': 'textiles',
   '09': 'food',      '10': 'food',      '15': 'food',      '04': 'food',      '21': 'food',
+  '17': 'food',      '12': 'food',      '03': 'food',
   '73': 'machinery', '84': 'machinery', '85': 'electronics',
   '90': 'medical'
 };
