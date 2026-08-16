@@ -654,3 +654,76 @@ paths:
                 $ref: '#/components/schemas/Error'
         '500':
           description: Internal error during orchestration
+
+  /api/dossier-batch:
+    post:
+      summary: Multi-corridor batch export dossiers
+      description: Run comparative pipeline checks across multiple HS codes and corridors in parallel.
+      tags: [Dossier]
+      x-price: "10.00"
+      x-meter-id: "meter_dossier_batch"
+      x-billing-mode: "metered"
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [origin_country, corridors, hs_codes]
+              properties:
+                origin_country:
+                  type: string
+                  example: CA
+                corridors:
+                  type: array
+                  items:
+                    type: string
+                  example: ["DE", "AE", "SN"]
+                hs_codes:
+                  type: array
+                  items:
+                    type: string
+                  example: ["2009.12", "6203.42"]
+                mode:
+                  type: string
+                  example: sea
+                min_cargo_value:
+                  type: number
+                  example: 25000
+      responses:
+        '200':
+          description: Batch portfolio of shipment dossiers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  origin_country:
+                    type: string
+                  mode:
+                    type: string
+                  portfolio_summary:
+                    type: object
+                    properties:
+                      fully_enriched_count:
+                        type: integer
+                      degraded_count:
+                        type: integer
+                      high_risk_count:
+                        type: integer
+                      total_dossiers:
+                        type: integer
+                  dossiers:
+                    type: array
+                    items:
+                      type: object
+                  timestamp:
+                    type: string
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized

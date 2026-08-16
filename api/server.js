@@ -16,6 +16,7 @@ const complianceRouter = require('./routes/compliance');
 const opportunityRouter = require('./routes/opportunity');
 const pipelineRouter = require('./routes/pipeline');
 const exportPlanRouter = require('./routes/exportPlan');
+const dossierRouter = require('./routes/dossier');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -89,6 +90,7 @@ app.use('/api/compliance', complianceRouter);
 app.use('/api/opportunity', opportunityRouter);
 app.use('/api/pipeline', pipelineRouter);
 app.use('/api/export-plan', exportPlanRouter);
+app.use('/api/dossier-batch', dossierRouter);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((req, res) => {
