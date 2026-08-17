@@ -43,7 +43,7 @@ CT.store = (() => {
     pipelineRuns: [],
     opportunities: [],
     stats: {
-      totalCustomers: 5,
+      totalCustomers: 6,
       routesScored: 0,
       opportunitiesFound: 0,
       complianceChecks: 0,
