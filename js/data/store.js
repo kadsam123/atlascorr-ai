@@ -50,7 +50,7 @@ CT.store = (() => {
     },
     // ── API Configuration State (Default to live) ─────────────────────
     apiMode: localStorage.getItem('CT_apiMode') || 'live',
-    apiUrl:  localStorage.getItem('CT_apiUrl')  || 'https://circletrade-agent-api-production.up.railway.app',
+    apiUrl:  localStorage.getItem('CT_apiUrl')  || 'https://atlascorr-agent-api-production.up.railway.app',
     apiKey:  localStorage.getItem('CT_apiKey')  || 'ct-demo-key-2026',
   };
 
@@ -71,9 +71,9 @@ CT.store = (() => {
     });
   });
 
-  // Auto-correct local storage URL if it points to the deprecated atlascorr domain
-  if (state.apiUrl.includes('atlascorr-agent-api-production')) {
-    state.apiUrl = 'https://circletrade-agent-api-production.up.railway.app';
+  // Auto-correct local storage URL if it points to the deprecated circletrade domain
+  if (state.apiUrl.includes('circletrade-agent-api-production') || !state.apiUrl) {
+    state.apiUrl = 'https://atlascorr-agent-api-production.up.railway.app';
     localStorage.setItem('CT_apiUrl', state.apiUrl);
   }
 
