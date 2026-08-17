@@ -93,7 +93,8 @@ async function searchWebForTariff(hsCode, destinationCode) {
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { hs_code, origin_country, destination_country } = req.body || {};
+  const body = req.body || {};
+  const { hs_code, origin_country, destination_country } = body;
 
   if (!hs_code || !origin_country || !destination_country) {
     return res.status(400).json({

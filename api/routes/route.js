@@ -158,8 +158,9 @@ async function searchWebForLogistics(portDestination, testScenario) {
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { origin_country, destination_country, mode, port_origin, port_destination, weight_kg, cargo_value } = req.body || {};
-  const testScenario = req.headers['x-test-scenario'] || req.body.test_scenario;
+  const body = req.body || {};
+  const { origin_country, destination_country, mode, port_origin, port_destination, weight_kg, cargo_value } = body;
+  const testScenario = req.headers['x-test-scenario'] || body.test_scenario;
 
   if (!origin_country || !destination_country) {
     return res.status(400).json({
