@@ -8,32 +8,32 @@ CT.store = (() => {
   const state = {
     customers: [
       {
-        id: 'SME-000', name: 'EuroWeave Textiles GmbH', country: 'DE', flag: '🇩🇪',
+        id: 'SME-000', name: 'EuroWeave Textiles GmbH', country: 'DE', flag: '🇩🇪', sector: 'Textiles',
         products: [{ id: 'P000', name: 'Merino Wool Scarves', category: 'textiles', hsCode: '6117.10' }],
         targetMarkets: ['SGP', 'UAE', 'JPN'], budget: 50000, riskTolerance: 'medium'
       },
       {
-        id: 'SME-001', name: 'Hargreaves Textiles Ltd', country: 'GB', flag: '🇬🇧',
+        id: 'SME-001', name: 'Hargreaves Textiles Ltd', country: 'GB', flag: '🇬🇧', sector: 'Textiles & Apparel',
         products: [{ id: 'P001', name: 'Merino Wool Scarves', category: 'textiles', hsCode: '6117.10' }],
         targetMarkets: ['UAE', 'SGP', 'JPN'], budget: 35000, riskTolerance: 'medium'
       },
       {
-        id: 'SME-002', name: 'GreenTech Solutions GmbH', country: 'DE', flag: '🇩🇪',
+        id: 'SME-002', name: 'GreenTech Solutions GmbH', country: 'DE', flag: '🇩🇪', sector: 'Clean Energy Equipment',
         products: [{ id: 'P002', name: 'Battery Storage Units', category: 'electronics', hsCode: '8507.60' }],
         targetMarkets: ['IND', 'AUS', 'ZAF'], budget: 120000, riskTolerance: 'low'
       },
       {
-        id: 'SME-003', name: 'Artisan Foods Co.', country: 'IT', flag: '🇮🇹',
+        id: 'SME-003', name: 'Artisan Foods Co.', country: 'IT', flag: '🇮🇹', sector: 'Food & Beverage',
         products: [{ id: 'P003', name: 'Virgin Olive Oil', category: 'food', hsCode: '1509.10' }],
         targetMarkets: ['SGP', 'CAN', 'USA'], budget: 15000, riskTolerance: 'high'
       },
       {
-        id: 'SME-004', name: 'MedDevPro Inc.', country: 'US', flag: '🇺🇸',
+        id: 'SME-004', name: 'MedDevPro Inc.', country: 'US', flag: '🇺🇸', sector: 'Medical Devices',
         products: [{ id: 'P004', name: 'Ultrasound Equipment', category: 'medical', hsCode: '9018.12' }],
         targetMarkets: ['DEU', 'BRA', 'JPN'], budget: 250000, riskTolerance: 'low'
       },
       {
-        id: 'SME-005', name: 'Spice Route Trading', country: 'IN', flag: '🇮🇳',
+        id: 'SME-005', name: 'Spice Route Trading', country: 'IN', flag: '🇮🇳', sector: 'Agricultural Commodities',
         products: [{ id: 'P005', name: 'Organic Turmeric Powder', category: 'food', hsCode: '0910.30' }],
         targetMarkets: ['USA', 'GBR', 'UAE'], budget: 8000, riskTolerance: 'medium'
       }
