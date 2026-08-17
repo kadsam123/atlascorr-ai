@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
   // Verify USDC Payment hash on-chain (or simulated)
   let paymentVerified = false;
   if (payment_tx_hash) {
-    const proof = await queryAgent(`/api/payment/proof?tx=${payment_tx_hash}`, {}, apiKey, port, false);
+    const proof = await queryAgent(`/api/ledger/proof?tx=${payment_tx_hash}`, {}, apiKey, port, false);
     if (proof && proof.confirmed) {
       paymentVerified = true;
     }
