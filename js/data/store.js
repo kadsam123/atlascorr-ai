@@ -71,10 +71,17 @@ CT.store = (() => {
     });
   });
 
-  // Auto-correct local storage URL if it points to the deprecated circletrade domain
-  if (state.apiUrl.includes('circletrade-agent-api-production') || !state.apiUrl) {
-    state.apiUrl = 'https://atlascorr-agent-api-production.up.railway.app';
-    localStorage.setItem('CT_apiUrl', state.apiUrl);
+  // Auto-correct local storage URL if it points to the deprecated circletrade domain, localhost, or is empty when hosted on GitHub Pages
+  if (window.location.origin.includes('github.io')) {
+    if (state.apiUrl.includes('circletrade-agent-api-production') || state.apiUrl.includes('localhost') || !state.apiUrl) {
+      state.apiUrl = 'https://atlascorr-agent-api-production.up.railway.app';
+      localStorage.setItem('CT_apiUrl', state.apiUrl);
+    }
+  } else {
+    if (state.apiUrl.includes('circletrade-agent-api-production') || !state.apiUrl) {
+      state.apiUrl = 'https://atlascorr-agent-api-production.up.railway.app';
+      localStorage.setItem('CT_apiUrl', state.apiUrl);
+    }
   }
 
   return {
