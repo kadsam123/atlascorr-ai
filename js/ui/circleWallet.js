@@ -1,28 +1,44 @@
 /* ============================================================
    Circle Wallet Panel UI Component
-   Exposes programmable wallet states, balances, and Base Sepolia explorer links.
+   Exposes programmable wallet states, balances, Base Sepolia
+   explorer links, Mock/Live mode toggle, and QA reflection preview.
    ============================================================ */
 window.CT = window.CT || {};
 window.CT.ui = window.CT.ui || {};
 
 window.CT.ui.circleWallet = (() => {
+  const TREASURY_ADDRESS = '0xfb29a5bcbfbec7e5f55698addee52397003eb1d9';
+
   let _activeWallet = {
     address: '0xa98f487e4521bcbfbec7e5f55698addee5239700b5',
     wallet_id: 'wallet-demo-agent-01',
     balance_usdc: 100.00,
-    chain: 'BASE_SEPOLIA'
+    chain: 'BASE_SEPOLIA',
+    provider: 'Circle-Developer-Controlled'
   };
 
-  const _txHistory = [
-    {
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      tx_hash: '0x328abdf87c53d10ea4df5df2864811d73981bc592c3a5bcbfbec7e5f55698add34',
-      amount_usdc: 0.01,
-      recipient: '0xfb29a5bcbfbec7e5f55698addee52397003eb1d9',
-      status: 'CONFIRMED'
-    }
-  ];
+  let _operatingMode = 'SIMULATION'; // SIMULATION | LIVE_ONCHAIN
+  let _lastQAReflection = null;
 
+  const _txHistory = [];
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function safeBalance() {
+    const b = _activeWallet.balance_usdc;
+    return (typeof b === 'number' && !isNaN(b)) ? b.toFixed(2) : '0.00';
+  }
+
+  function shortAddr(addr) {
+    if (!addr || addr.length < 16) return addr || '—';
+    return `${addr.slice(0, 10)}…${addr.slice(-6)}`;
+  }
+
+  function shortHash(hash) {
+    if (!hash || hash.length < 20) return hash || '—';
+    return `${hash.slice(0, 10)}…${hash.slice(-8)}`;
+  }
+
+  // ── API Calls ───────────────────────────────────────────────────────────────
   async function fetchWalletState() {
     try {
       const config = CT.store.getApiConfig();
@@ -31,10 +47,10 @@ window.CT.ui.circleWallet = (() => {
       });
       if (res.ok) {
         const data = await res.json();
-        _activeWallet = data;
+        _activeWallet = { ..._activeWallet, ...data };
       }
     } catch (err) {
-      console.warn('Fallback to local state:', err.message);
+      console.warn('[CircleWallet] Fallback to local state:', err.message);
     }
   }
 
@@ -43,9 +59,9 @@ window.CT.ui.circleWallet = (() => {
       const config = CT.store.getApiConfig();
       const res = await fetch(`${config.url}/api/payment/create-wallet`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': config.key 
+          'X-API-Key': config.key
         }
       });
       if (res.ok) {
@@ -61,9 +77,18 @@ window.CT.ui.circleWallet = (() => {
 
   async function executeDemoPayment() {
     const btn = document.getElementById('btn-circle-pay');
-    if (btn) btn.disabled = true;
+    if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
 
-    CT.app.notify('info', 'Initiating USDC micropayment on Base Sepolia...');
+    _lastQAReflection = {
+      payment_intent: 'Antigravity logged agent intent to execute premium dossier enrichment. Cost: 0.01 USDC.',
+      payment_verified: 'pending',
+      enrichment_authorized: 'pending',
+      fallback_status: 'pending',
+      pipeline_continuity: 'pending',
+      mode: _operatingMode
+    };
+
+    CT.app.notify('info', `Initiating USDC micropayment (${_operatingMode})…`);
     try {
       const config = CT.store.getApiConfig();
       const res = await fetch(`${config.url}/api/payment/pay`, {
@@ -87,63 +112,125 @@ window.CT.ui.circleWallet = (() => {
       _activeWallet.balance_usdc = data.wallet_balance_usdc;
 
       _txHistory.unshift({
-        timestamp: data.timestamp,
+        timestamp: data.timestamp || new Date().toISOString(),
         tx_hash: data.transaction.tx_hash,
         amount_usdc: data.transaction.amount_usdc,
         recipient: data.transaction.recipient,
+        chain: data.transaction.chain || 'BASE_SEPOLIA',
+        explorer_url: data.transaction.explorer_url,
         status: 'CONFIRMED'
       });
+
+      _lastQAReflection.payment_verified = 'true';
+      _lastQAReflection.enrichment_authorized = 'true';
+      _lastQAReflection.fallback_status = 'inactive';
+      _lastQAReflection.pipeline_continuity = 'Verified ledger debit match. Dossier aggregates authorized.';
 
       CT.app.notify('success', 'USDC Micropayment Confirmed on Base Sepolia!');
       updateView();
     } catch (err) {
+      _lastQAReflection.payment_verified = 'false';
+      _lastQAReflection.enrichment_authorized = 'false';
+      _lastQAReflection.fallback_status = 'active (payment failed)';
+      _lastQAReflection.pipeline_continuity = 'Fallback to deterministic core. No corruption.';
       CT.app.notify('error', err.message);
+      updateView();
     } finally {
-      if (btn) btn.disabled = false;
+      if (btn) { btn.disabled = false; btn.textContent = 'Trigger Demo Payment (0.01 USDC)'; }
     }
+  }
+
+  function toggleMode() {
+    _operatingMode = _operatingMode === 'SIMULATION' ? 'LIVE_ONCHAIN' : 'SIMULATION';
+    CT.app.notify('info', `Operating mode switched to ${_operatingMode}`);
+    updateView();
   }
 
   function updateView() {
     const content = document.getElementById('content');
-    if (content && window.CT.app.getCurrentView() === 'circleWallet') {
+    if (content && window.CT.app.getCurrentView && window.CT.app.getCurrentView() === 'circleWallet') {
       content.innerHTML = render();
     }
   }
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   function render() {
-    const formattedRows = _txHistory.map(tx => {
-      const shortHash = `${tx.tx_hash.slice(0, 10)}...${tx.tx_hash.slice(-8)}`;
-      const shortRecipient = `${tx.recipient.slice(0, 10)}...${tx.recipient.slice(-6)}`;
-      const formattedDate = new Date(tx.timestamp).toLocaleString();
+    const modeColor = _operatingMode === 'LIVE_ONCHAIN' ? '#22c55e' : '#00d4ff';
+    const modeLabel = _operatingMode === 'LIVE_ONCHAIN' ? 'LIVE ON-CHAIN' : 'SIMULATION';
+    const modeBtnLabel = _operatingMode === 'LIVE_ONCHAIN' ? 'Switch to Simulation' : 'Switch to Live On-Chain';
+
+    // Transaction rows (newest first — already sorted via unshift)
+    const txRows = _txHistory.map(tx => {
+      const ts = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : '—';
+      const explorerUrl = tx.explorer_url || `https://sepolia.basescan.org/tx/${tx.tx_hash}`;
       return `
         <tr>
-          <td><span class="mono text-xs">${formattedDate}</span></td>
-          <td><a href="https://sepolia.basescan.org/tx/${tx.tx_hash}" target="_blank" class="text-teal hover:underline mono text-xs">${shortHash} 🔗</a></td>
-          <td><span class="text-success font-semibold">${tx.amount_usdc} USDC</span></td>
-          <td><span class="mono text-xs text-muted">${shortRecipient}</span></td>
-          <td><span class="badge badge-success">CONFIRMED</span></td>
+          <td><span class="mono text-xs">${ts}</span></td>
+          <td><a href="${explorerUrl}" target="_blank" rel="noopener" class="text-teal hover:underline mono text-xs">${shortHash(tx.tx_hash)} 🔗</a></td>
+          <td><span class="text-success font-semibold">${tx.amount_usdc || 0} USDC</span></td>
+          <td><span class="mono text-xs text-muted">${shortAddr(tx.recipient)}</span></td>
+          <td><span class="badge badge-success">${tx.status || 'CONFIRMED'}</span></td>
         </tr>
       `;
     }).join('');
 
+    const emptyRow = '<tr><td colspan="5" class="text-center text-muted py-4">No transactions registered yet. Click "Trigger Demo Payment" to begin.</td></tr>';
+
+    // QA Reflection preview
+    let qaBlock = '';
+    if (_lastQAReflection) {
+      qaBlock = `
+        <div class="card space-y-3">
+          <h3 class="card-title text-base">QA Reflection Preview</h3>
+          <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; font-family: var(--font-mono, monospace); font-size: 11px; line-height: 1.7; color: #c8d6e5;">
+            <div><span style="color:#aaa;">payment_intent:</span> ${_lastQAReflection.payment_intent}</div>
+            <div><span style="color:#aaa;">payment_verified:</span> <span style="color:${_lastQAReflection.payment_verified === 'true' ? '#22c55e' : '#ef4444'};">${_lastQAReflection.payment_verified}</span></div>
+            <div><span style="color:#aaa;">enrichment_authorized:</span> <span style="color:${_lastQAReflection.enrichment_authorized === 'true' ? '#22c55e' : '#ef4444'};">${_lastQAReflection.enrichment_authorized}</span></div>
+            <div><span style="color:#aaa;">fallback_status:</span> ${_lastQAReflection.fallback_status}</div>
+            <div><span style="color:#aaa;">pipeline_continuity:</span> ${_lastQAReflection.pipeline_continuity}</div>
+            <div><span style="color:#aaa;">operating_mode:</span> ${_lastQAReflection.mode}</div>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="space-y-6">
-        <!-- WALLET OVERVIEW CARD -->
+
+        <!-- MODE INDICATOR BAR -->
+        <div class="flex justify-between items-center" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 16px;">
+          <div class="flex items-center gap-3">
+            <span style="width:10px;height:10px;border-radius:50%;background:${modeColor};display:inline-block;box-shadow:0 0 8px ${modeColor};"></span>
+            <span class="text-xs font-semibold tracking-wider" style="color:${modeColor};">${modeLabel}</span>
+            <span class="text-xs text-muted">— Payment Agent operating mode</span>
+          </div>
+          <button class="btn btn-secondary text-xs px-3 py-1" onclick="CT.ui.circleWallet.toggleMode()">${modeBtnLabel}</button>
+        </div>
+
+        <!-- WALLET OVERVIEW + BALANCE -->
         <div class="grid grid-cols-3 gap-6">
           <div class="card col-span-2 space-y-4">
             <div class="flex justify-between items-center">
               <div>
                 <h3 class="card-title text-base">Circle Agent Wallet</h3>
-                <p class="text-xs text-muted">Circle Programmable Wallet ID: <span class="mono font-semibold">${_activeWallet.wallet_id}</span></p>
+                <p class="text-xs text-muted">Wallet ID: <span class="mono font-semibold">${_activeWallet.wallet_id || '—'}</span> · Provider: <span class="font-semibold">${_activeWallet.provider || 'Circle'}</span></p>
               </div>
-              <span class="badge badge-teal">${_activeWallet.chain}</span>
+              <span class="badge badge-teal">${_activeWallet.chain || 'BASE_SEPOLIA'}</span>
             </div>
-            
+
             <div class="space-y-2">
-              <div class="text-xs text-muted">PUBLIC ADDRESS</div>
+              <div class="text-xs text-muted font-semibold tracking-wider">AGENT WALLET ADDRESS</div>
               <div class="flex items-center gap-2">
-                <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${_activeWallet.address}</span>
-                <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${_activeWallet.address}'); CT.app.notify('info','Address copied to clipboard!')">Copy</button>
+                <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${_activeWallet.address || '—'}</span>
+                <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${_activeWallet.address}'); CT.app.notify('info','Address copied!')">Copy</button>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="text-xs text-muted font-semibold tracking-wider">TREASURY RECEIVER ADDRESS</div>
+              <div class="flex items-center gap-2">
+                <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${TREASURY_ADDRESS}</span>
+                <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${TREASURY_ADDRESS}'); CT.app.notify('info','Treasury address copied!')">Copy</button>
               </div>
             </div>
 
@@ -161,10 +248,10 @@ window.CT.ui.circleWallet = (() => {
                 <span class="text-teal font-extrabold text-xs">USDC</span>
               </div>
               <div style="font-size: 38px;" class="font-black font-h tracking-tight text-white mb-2">
-                ${_activeWallet.balance_usdc.toFixed(2)}
+                ${safeBalance()}
               </div>
             </div>
-            
+
             <div class="space-y-2">
               <div class="text-xs text-muted">A2A MICROPAYMENTS RATE</div>
               <div class="flex justify-between items-center bg-black/40 px-3 py-2 rounded border border-white/5 text-xs">
@@ -182,32 +269,35 @@ window.CT.ui.circleWallet = (() => {
         <div class="card space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="card-title text-base">Circle Agentic Ledger History</h3>
-            <span class="text-xs text-muted">Confirmed on Base Sepolia Testnet</span>
+            <span class="text-xs text-muted">${_txHistory.length} transaction${_txHistory.length !== 1 ? 's' : ''} · Base Sepolia Testnet</span>
           </div>
-          
+
           <table class="w-full table text-sm">
             <thead>
               <tr>
                 <th>Date & Time</th>
                 <th>Tx Hash</th>
                 <th>Amount</th>
-                <th>Recipient Address</th>
-                <th>Ledger Status</th>
+                <th>Recipient</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              ${formattedRows.length > 0 ? formattedRows : '<tr><td colspan="5" class="text-center text-muted">No transactions registered yet.</td></tr>'}
+              ${txRows.length > 0 ? txRows : emptyRow}
             </tbody>
           </table>
         </div>
 
-        <!-- QA CRITERION ALERT -->
+        <!-- QA REFLECTION PREVIEW -->
+        ${qaBlock}
+
+        <!-- GOVERNANCE ALERT -->
         <div class="alert alert-info">
           <div class="flex gap-3">
             <span class="text-lg">🛡️</span>
             <div>
-              <h4 class="font-bold text-xs">Antigravity payment governance is Active</h4>
-              <p class="text-xs text-muted mt-1">Premium enrichment services require validated proof of USDC transaction hash transfers. Any payment failure automatically locks execution layers to protect agent credentials.</p>
+              <h4 class="font-bold text-xs">Antigravity Payment Governance Active</h4>
+              <p class="text-xs text-muted mt-1">Premium enrichment requires validated USDC proof. Unpaid requests fall back to deterministic core. Mode: <strong>${modeLabel}</strong>.</p>
             </div>
           </div>
         </div>
@@ -219,6 +309,7 @@ window.CT.ui.circleWallet = (() => {
     render,
     createNewWallet,
     executeDemoPayment,
+    toggleMode,
     refreshState: async () => {
       await fetchWalletState();
       updateView();
