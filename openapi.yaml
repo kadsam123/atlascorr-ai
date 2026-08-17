@@ -403,6 +403,144 @@ components:
         orchestration_ledger:
           $ref: '#/components/schemas/OrchestrationLedger'
 
+    # ── Circle Payment Agent Schemas ─────────────────────────────────────────
+    AgentWallet:
+      type: object
+      required: [address, wallet_id, balance_usdc, chain, provider]
+      properties:
+        address:
+          type: string
+          description: On-chain public address of the agent wallet.
+          example: "0xa98f487e4521bcbfbec7e5f55698addee5239700b5"
+        wallet_id:
+          type: string
+          description: Circle-assigned wallet identifier.
+          example: "wallet-agent-3f8a7b2c"
+        balance_usdc:
+          type: number
+          format: double
+          description: Current USDC balance held by the agent wallet.
+          example: 99.94
+        chain:
+          type: string
+          enum: [BASE_SEPOLIA, BASE_MAINNET]
+          description: Blockchain network the wallet operates on.
+          example: BASE_SEPOLIA
+        provider:
+          type: string
+          enum: [Circle-Developer-Controlled, Circle-Agent-Wallet]
+          description: Circle wallet provisioning type.
+          example: Circle-Developer-Controlled
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of wallet creation.
+
+    PaymentRequest:
+      type: object
+      required: [sender_address]
+      properties:
+        sender_address:
+          type: string
+          description: Public address of the sending agent wallet.
+          example: "0xa98f487e4521bcbfbec7e5f55698addee5239700b5"
+        amount:
+          type: number
+          format: double
+          description: Amount of USDC to transfer. Defaults to 0.01 if omitted.
+          default: 0.01
+          example: 0.01
+
+    PaymentTransaction:
+      type: object
+      required: [tx_hash, sender, recipient, amount_usdc, chain, explorer_url]
+      properties:
+        tx_hash:
+          type: string
+          description: On-chain transaction hash.
+          example: "0x4d0943db27ee28dc0df0f22e136b5d6759eea9e7fb2c2429e6fbc4e24ac74f89"
+        sender:
+          type: string
+          description: Sender agent wallet address.
+          example: "0xa98f487e4521bcbfbec7e5f55698addee5239700b5"
+        recipient:
+          type: string
+          description: Treasury or service wallet address that received USDC.
+          example: "0xfb29a5bcbfbec7e5f55698addee52397003eb1d9"
+        amount_usdc:
+          type: number
+          format: double
+          description: Amount transferred in USDC.
+          example: 0.01
+        chain:
+          type: string
+          enum: [BASE_SEPOLIA, BASE_MAINNET]
+          example: BASE_SEPOLIA
+        explorer_url:
+          type: string
+          format: uri
+          description: Clickable block explorer URL for the transaction.
+          example: "https://sepolia.basescan.org/tx/0x4d0943db27ee28dc..."
+
+    PaymentProof:
+      type: object
+      required: [success, confirmed, confirmations, block_number, transaction]
+      properties:
+        success:
+          type: boolean
+          description: Whether the proof query succeeded.
+          example: true
+        confirmed:
+          type: boolean
+          description: Whether the transaction has been confirmed on-chain.
+          example: true
+        confirmations:
+          type: integer
+          description: Number of block confirmations.
+          example: 6
+        block_number:
+          type: integer
+          description: Block number where the transaction was included.
+          example: 14785921
+        transaction:
+          $ref: '#/components/schemas/PaymentTransaction'
+        timestamp:
+          type: string
+          format: date-time
+
+    OperatingMode:
+      type: object
+      description: Indicates whether the payment agent is running in live on-chain mode or sandbox simulation.
+      properties:
+        mode:
+          type: string
+          enum: [LIVE_ONCHAIN, SIMULATION]
+          description: Active operating mode. SIMULATION uses in-memory wallets; LIVE_ONCHAIN uses Circle Programmable Wallets SDK.
+          example: SIMULATION
+        live_mode_status:
+          type: string
+          enum: [STABLE, DEGRADED, OFFLINE]
+          example: STABLE
+        simulation_mode_status:
+          type: string
+          enum: [STABLE, DEGRADED, OFFLINE]
+          example: STABLE
+
+    PaymentError:
+      type: object
+      required: [error, message, timestamp]
+      properties:
+        error:
+          type: string
+          enum: [VALIDATION_ERROR, NOT_FOUND, INSUFFICIENT_FUNDS, INVALID_TRANSACTION]
+          description: Machine-readable error code.
+        message:
+          type: string
+          description: Human-readable error description.
+        timestamp:
+          type: string
+          format: date-time
+
 paths:
   /api/hs-code:
     post:
@@ -809,30 +947,83 @@ paths:
         '404':
           description: Saved report not found
 
+  # ── Circle Payment Agent Endpoints ───────────────────────────────────────────
   /api/payment/create-wallet:
     post:
       summary: Create Circle agent wallet
-      description: Instantiate a developer-controlled programmable wallet to make and receive USDC payments.
+      description: >
+        Instantiate a developer-controlled programmable wallet via the Circle Agent Stack.
+        The wallet is provisioned on Base Sepolia (testnet) or Base Mainnet depending on
+        the active operating mode. Each wallet receives an initial sandbox USDC allocation
+        for demo purposes. In LIVE_ONCHAIN mode, the wallet must be funded externally.
       tags: [Payment]
       security:
         - ApiKeyAuth: []
       responses:
         '201':
-          description: Created Circle agent wallet
+          description: Circle programmable agent wallet created successfully.
           content:
             application/json:
               schema:
                 type: object
+                required: [success, message, wallet]
                 properties:
                   success:
                     type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Circle programmable agent wallet created successfully."
                   wallet:
-                    type: object
+                    $ref: '#/components/schemas/AgentWallet'
+        '401':
+          description: Unauthorized — invalid or missing API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
+
+  /api/payment/wallet/{address}:
+    get:
+      summary: Retrieve agent wallet state
+      description: >
+        Query the current balance, chain, and metadata of a registered agent wallet
+        by its public address. Returns 404 if the address has not been provisioned.
+      tags: [Payment]
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: On-chain public address of the agent wallet.
+          schema:
+            type: string
+            example: "0xa98f487e4521bcbfbec7e5f55698addee5239700b5"
+      responses:
+        '200':
+          description: Agent wallet state retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentWallet'
+        '404':
+          description: No active agent wallet found for the specified address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
 
   /api/payment/pay:
     post:
-      summary: Execute USDC micro-payment
-      description: Transfer 0.01 USDC from agent wallet to AtlasCorr Treasury.
+      summary: Execute autonomous USDC micropayment
+      description: >
+        Transfer a specified amount of USDC (default 0.01) from a registered agent
+        wallet to the AtlasCorr Treasury wallet on Base Sepolia. This endpoint is
+        the core of the A2A (Agent-to-Agent) payment flow: an agent pays for a
+        premium enrichment service before the enrichment executes. The returned
+        transaction hash can be passed to /api/dossier-batch via the payment_tx_hash
+        field to unlock premium web enrichment across all sub-agents.
       tags: [Payment]
       security:
         - ApiKeyAuth: []
@@ -841,27 +1032,53 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [sender_address]
-              properties:
-                sender_address:
-                  type: string
-                  example: "0xa98f487e4521bcbfbec7e5f55698addee5239700b5"
-                amount:
-                  type: number
-                  example: 0.01
+              $ref: '#/components/schemas/PaymentRequest'
       responses:
         '200':
-          description: Settled payment transaction
+          description: Autonomous USDC micropayment settled on-chain via Circle Agent Stack.
           content:
             application/json:
               schema:
                 type: object
+                required: [success, message, transaction, wallet_balance_usdc, timestamp]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Autonomous USDC micropayment settled on-chain via Circle Agent Stack."
+                  transaction:
+                    $ref: '#/components/schemas/PaymentTransaction'
+                  wallet_balance_usdc:
+                    type: number
+                    format: double
+                    description: Updated wallet balance after the transfer.
+                    example: 99.93
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Validation error (missing sender_address) or insufficient USDC balance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
+        '404':
+          description: Sender agent wallet not found. Must be created first via /create-wallet.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
 
   /api/payment/proof:
     get:
-      summary: Verify payment transaction status
-      description: Check the confirmations of a Base Sepolia transaction hash.
+      summary: Verify on-chain transaction proof
+      description: >
+        Confirm that a USDC transfer transaction has been included and confirmed
+        on the Base Sepolia blockchain. Returns the block number, confirmation
+        count, and a clickable block explorer URL. This endpoint is called
+        internally by /api/dossier-batch to gate premium enrichment authorization.
       tags: [Payment]
       security:
         - ApiKeyAuth: []
@@ -869,13 +1086,22 @@ paths:
         - name: tx
           in: query
           required: true
+          description: The 0x-prefixed 64-character hex transaction hash to verify.
           schema:
             type: string
-            example: "0x228abdf87c53d10ea4df5df2864811d73981bc592c3a5bcbfbec7e5f55698add"
+            pattern: "^0x[a-fA-F0-9]{64}$"
+            example: "0x4d0943db27ee28dc0df0f22e136b5d6759eea9e7fb2c2429e6fbc4e24ac74f89"
       responses:
         '200':
-          description: Verified transaction proof
+          description: Transaction proof verified with block confirmations.
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/PaymentProof'
+        '400':
+          description: Invalid transaction hash format (must be 0x + 64 hex characters).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
+
