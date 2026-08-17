@@ -8,6 +8,11 @@ CT.store = (() => {
   const state = {
     customers: [
       {
+        id: 'SME-000', name: 'EuroWeave Textiles GmbH', country: 'DE', flag: '🇩🇪',
+        products: [{ id: 'P000', name: 'Merino Wool Scarves', category: 'textiles', hsCode: '6117.10' }],
+        targetMarkets: ['SGP', 'UAE', 'JPN'], budget: 50000, riskTolerance: 'medium'
+      },
+      {
         id: 'SME-001', name: 'Hargreaves Textiles Ltd', country: 'GB', flag: '🇬🇧',
         products: [{ id: 'P001', name: 'Merino Wool Scarves', category: 'textiles', hsCode: '6117.10' }],
         targetMarkets: ['UAE', 'SGP', 'JPN'], budget: 35000, riskTolerance: 'medium'
