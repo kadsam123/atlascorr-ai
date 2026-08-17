@@ -207,58 +207,44 @@ window.CT.ui.circleWallet = (() => {
           <button class="btn btn-secondary text-xs px-3 py-1" onclick="CT.ui.circleWallet.toggleMode()">${modeBtnLabel}</button>
         </div>
 
-        <!-- WALLET OVERVIEW + BALANCE -->
-        <div class="grid grid-cols-3 gap-6">
-          <div class="card col-span-2 space-y-4">
-            <div class="flex justify-between items-center">
-              <div>
-                <h3 class="card-title text-base">Circle Agent Wallet</h3>
-                <p class="text-xs text-muted">Wallet ID: <span class="mono font-semibold">${_activeWallet.wallet_id || '—'}</span> · Provider: <span class="font-semibold">${_activeWallet.provider || 'Circle'}</span></p>
-              </div>
-              <span class="badge badge-teal">${_activeWallet.chain || 'BASE_SEPOLIA'}</span>
+        <!-- WALLET OVERVIEW + BALANCE CARD -->
+        <div class="card space-y-4" style="padding: 20px; background: linear-gradient(135deg, rgba(255,255,255,0.01), rgba(0,212,255,0.02));">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="card-title text-base" style="font-size: 18px; font-weight: 700; color: var(--text-primary);">Circle Agent Wallet</h3>
+              <p class="text-xs text-muted" style="margin-top: 4px;">Wallet ID: <span class="mono font-semibold">${_activeWallet.wallet_id || '—'}</span> · Provider: <span class="font-semibold">${_activeWallet.provider || 'Circle'}</span></p>
             </div>
-
-            <div class="space-y-2">
-              <div class="text-xs text-muted font-semibold tracking-wider">AGENT WALLET ADDRESS</div>
-              <div class="flex items-center gap-2">
-                <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${_activeWallet.address || '—'}</span>
-                <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${_activeWallet.address}'); CT.app.notify('info','Address copied!')">Copy</button>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <div class="text-xs text-muted font-semibold tracking-wider">TREASURY RECEIVER ADDRESS</div>
-              <div class="flex items-center gap-2">
-                <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${TREASURY_ADDRESS}</span>
-                <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${TREASURY_ADDRESS}'); CT.app.notify('info','Treasury address copied!')">Copy</button>
-              </div>
-            </div>
-
-            <div class="flex gap-4 pt-2">
-              <button class="btn btn-primary" onclick="CT.ui.circleWallet.createNewWallet()">Create Secondary Wallet</button>
-              <button class="btn btn-secondary" onclick="CT.ui.circleWallet.refreshState()">Refresh Balance</button>
+            <div style="text-align: right;">
+              <div class="text-xs text-muted font-semibold tracking-wider" style="font-size: 10px; margin-bottom: 2px;">WALLET BALANCE</div>
+              <div style="font-size: 28px; font-weight: 900; color: var(--accent-teal);" class="font-h">${safeBalance()} <span style="font-size: 14px; font-weight: 700; color: var(--text-secondary);">USDC</span></div>
             </div>
           </div>
 
-          <!-- BALANCE CARD -->
-          <div class="card flex flex-col justify-between" style="background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06)); border-color: rgba(0,212,255,0.15);">
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-xs text-muted font-semibold tracking-wider">BALANCE</span>
-                <span class="text-teal font-extrabold text-xs">USDC</span>
-              </div>
-              <div style="font-size: 38px;" class="font-black font-h tracking-tight text-white mb-2">
-                ${safeBalance()}
-              </div>
+          <div class="space-y-2" style="margin-top: 16px;">
+            <div class="text-xs text-muted font-semibold tracking-wider">AGENT WALLET ADDRESS</div>
+            <div class="flex items-center gap-2">
+              <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${_activeWallet.address || '—'}</span>
+              <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${_activeWallet.address}'); CT.app.notify('info','Address copied!')">Copy</button>
             </div>
+          </div>
 
-            <div class="space-y-2">
-              <div class="text-xs text-muted">A2A MICROPAYMENTS RATE</div>
-              <div class="flex justify-between items-center bg-black/40 px-3 py-2 rounded border border-white/5 text-xs">
-                <span>Dossier Gas Rate:</span>
-                <span class="font-semibold text-teal">0.01 USDC</span>
-              </div>
-              <button id="btn-circle-pay" class="btn btn-primary w-full text-xs py-2 mt-2" onclick="CT.ui.circleWallet.executeDemoPayment()">
+          <div class="space-y-2">
+            <div class="text-xs text-muted font-semibold tracking-wider">TREASURY RECEIVER ADDRESS</div>
+            <div class="flex items-center gap-2">
+              <span class="mono bg-black/30 px-3 py-2 rounded text-xs select-all w-full border border-white/5">${TREASURY_ADDRESS}</span>
+              <button class="btn btn-secondary px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${TREASURY_ADDRESS}'); CT.app.notify('info','Treasury address copied!')">Copy</button>
+            </div>
+          </div>
+
+          <!-- ACTION BUTTONS ROW -->
+          <div class="flex gap-4 pt-4 border-t border-white/5" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
+            <div class="flex gap-2">
+              <button class="btn btn-secondary text-xs" onclick="CT.ui.circleWallet.createNewWallet()">Create Secondary Wallet</button>
+              <button class="btn btn-secondary text-xs" onclick="CT.ui.circleWallet.refreshState()">Refresh Balance</button>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-muted font-semibold bg-black/30 px-3 py-2 rounded border border-white/5">Gas Cost: <strong style="color:var(--accent-teal)">0.01 USDC</strong></span>
+              <button id="btn-circle-pay" class="btn btn-primary text-xs" style="background: var(--accent-gradient); padding: 10px 20px;" onclick="CT.ui.circleWallet.executeDemoPayment()">
                 Trigger Demo Payment (0.01 USDC)
               </button>
             </div>
