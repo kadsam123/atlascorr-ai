@@ -16,6 +16,7 @@ CT.app = (() => {
     dossiers:      { title:'Dossiers',     crumb:'AtlasCorr AI → Comparative Dossiers', render:() => CT.ui.dossier.render() },
     compliance:    { title:'Compliance',   crumb:'AtlasCorr AI → Compliance',   render:() => CT.ui.compliance.render()     },
     marketplace:   { title:'Marketplace',  crumb:'AtlasCorr AI → Developer Marketplace', render:() => CT.ui.marketplace.render() },
+    circleWallet:  { title:'Circle Wallet', crumb:'AtlasCorr AI → Circle Wallet Console', render:() => CT.ui.circleWallet.render() },
     notifications: { title:'Alerts',       crumb:'AtlasCorr AI → Alerts',       render:() => CT.ui.notifications.render()  },
     logs:          { title:'Logs',          crumb:'AtlasCorr AI → Logs',         render:() => CT.ui.logs.render()           },
   };

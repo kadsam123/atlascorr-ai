@@ -808,3 +808,74 @@ paths:
           description: Saved portfolio analytics record
         '404':
           description: Saved report not found
+
+  /api/payment/create-wallet:
+    post:
+      summary: Create Circle agent wallet
+      description: Instantiate a developer-controlled programmable wallet to make and receive USDC payments.
+      tags: [Payment]
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '201':
+          description: Created Circle agent wallet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  wallet:
+                    type: object
+
+  /api/payment/pay:
+    post:
+      summary: Execute USDC micro-payment
+      description: Transfer 0.01 USDC from agent wallet to AtlasCorr Treasury.
+      tags: [Payment]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sender_address]
+              properties:
+                sender_address:
+                  type: string
+                  example: "0xa98f487e4521bcbfbec7e5f55698addee5239700b5"
+                amount:
+                  type: number
+                  example: 0.01
+      responses:
+        '200':
+          description: Settled payment transaction
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/payment/proof:
+    get:
+      summary: Verify payment transaction status
+      description: Check the confirmations of a Base Sepolia transaction hash.
+      tags: [Payment]
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: tx
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "0x228abdf87c53d10ea4df5df2864811d73981bc592c3a5bcbfbec7e5f55698add"
+      responses:
+        '200':
+          description: Verified transaction proof
+          content:
+            application/json:
+              schema:
+                type: object
