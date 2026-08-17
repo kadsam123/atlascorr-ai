@@ -9,6 +9,21 @@ CT.data = {
   // ── SME Customer Profiles ──────────────────────────────────
   customers: [
     {
+      id: 'SME-000',
+      name: 'EuroWeave Textiles GmbH',
+      country: 'DE',
+      flag: '🇩🇪',
+      sector: 'Textiles',
+      products: [
+        { id: 'P000', name: 'Merino Wool Scarves',  hsCode: '6117.10', category: 'textiles' }
+      ],
+      budget: 50000,
+      riskTolerance: 'medium',
+      targetMarkets: ['Singapore', 'UAE', 'Japan'],
+      status: 'active',
+      lastRun: '2026-08-17T09:00:00Z',
+    },
+    {
       id: 'SME-001',
       name: 'Hargreaves Textiles Ltd',
       country: 'UK',
