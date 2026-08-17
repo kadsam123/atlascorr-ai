@@ -624,10 +624,21 @@
           <label class="form-label">Product Name</label>
           <input type="text" class="input-text" id="product-name" placeholder="e.g. Orange Juice Concentrate, Men's Cotton Shirts">
           <div class="hs-presets">
-            <span class="preset-badge" onclick="setPreset('Orange Juice Concentrate', '2009.12')">🍊 Orange Juice (2009.12)</span>
-            <span class="preset-badge" onclick="setPreset('Cotton Shirts', '6205.20')">👕 Cotton Shirts (6205.20)</span>
-            <span class="preset-badge" onclick="setPreset('Solar Batteries', '8507.60')">🔋 Solar Battery (8507.60)</span>
+            <span class="preset-badge" onclick="setPreset('Merino Wool Scarves', '6117.10', 'DE')">🧣 Merino Wool (6117.10 - DE Origin)</span>
+            <span class="preset-badge" onclick="setPreset('Orange Juice Concentrate', '2009.12', 'CA')">🍊 Orange Juice (2009.12)</span>
+            <span class="preset-badge" onclick="setPreset('Cotton Shirts', '6205.20', 'CA')">👕 Cotton Shirts (6205.20)</span>
+            <span class="preset-badge" onclick="setPreset('Solar Batteries', '8507.60', 'CA')">🔋 Solar Battery (8507.60)</span>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Origin Country</label>
+          <select class="select-input" id="origin-country">
+            <option value="DE">Germany (DE) — EU Origin</option>
+            <option value="CA">Canada (CA)</option>
+            <option value="US">United States (US)</option>
+            <option value="GB">United Kingdom (GB)</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -637,7 +648,7 @@
 
         <div class="form-group">
           <label class="form-label">Cargo Value (USD)</label>
-          <input type="number" class="input-text" id="cargo-value" value="25000">
+          <input type="number" class="input-text" id="cargo-value" value="50000">
         </div>
 
         <div class="form-group">
@@ -651,14 +662,6 @@
         <div class="form-group">
           <label class="form-label">Target Corridors (Multi-select)</label>
           <div class="corridor-grid">
-            <div class="corridor-card selected" onclick="toggleCorridor(this, 'DE')">
-              <span class="corridor-flag">🇩🇪</span>
-              <div class="corridor-info">
-                <div class="corridor-name">Germany (DE)</div>
-                <div class="corridor-meta">Hamburg / Europe</div>
-              </div>
-              <div class="checkbox-custom"></div>
-            </div>
             <div class="corridor-card selected" onclick="toggleCorridor(this, 'AE')">
               <span class="corridor-flag">🇦🇪</span>
               <div class="corridor-info">
@@ -667,19 +670,27 @@
               </div>
               <div class="checkbox-custom"></div>
             </div>
+            <div class="corridor-card selected" onclick="toggleCorridor(this, 'SGP')">
+              <span class="corridor-flag">🇸🇬</span>
+              <div class="corridor-info">
+                <div class="corridor-name">Singapore (SGP)</div>
+                <div class="corridor-meta">Port of Singapore / SEA</div>
+              </div>
+              <div class="checkbox-custom"></div>
+            </div>
+            <div class="corridor-card selected" onclick="toggleCorridor(this, 'JPN')">
+              <span class="corridor-flag">🇯🇵</span>
+              <div class="corridor-info">
+                <div class="corridor-name">Japan (JPN)</div>
+                <div class="corridor-meta">Tokyo / East Asia</div>
+              </div>
+              <div class="checkbox-custom"></div>
+            </div>
             <div class="corridor-card" onclick="toggleCorridor(this, 'DZ')">
               <span class="corridor-flag">🇩🇿</span>
               <div class="corridor-info">
                 <div class="corridor-name">Algeria (DZ)</div>
                 <div class="corridor-meta">Algiers / North Africa</div>
-              </div>
-              <div class="checkbox-custom"></div>
-            </div>
-            <div class="corridor-card" onclick="toggleCorridor(this, 'SN')">
-              <span class="corridor-flag">🇸🇳</span>
-              <div class="corridor-info">
-                <div class="corridor-name">Senegal (SN)</div>
-                <div class="corridor-meta">Dakar / West Africa</div>
               </div>
               <div class="checkbox-custom"></div>
             </div>
@@ -805,7 +816,7 @@
   </footer>
 
   <script>
-    let selectedCorridors = ['DE', 'AE'];
+    let selectedCorridors = ['AE', 'SGP', 'JPN'];
     const API_BASE = window.location.origin.includes('github.io') 
       ? 'https://circletrade-agent-api-production.up.railway.app' 
       : '';
@@ -828,12 +839,15 @@
       }
     }
 
-    function setPreset(name, hs) {
+    function setPreset(name, hs, origin = 'CA') {
       document.getElementById('product-name').value = name;
       document.getElementById('hs-code').value = hs;
+      document.getElementById('origin-country').value = origin;
       
       document.querySelectorAll('.preset-badge').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
     }
 
     function toggleAccordion(header) {
@@ -853,7 +867,7 @@
     }
 
     function loadSampleAssessment() {
-      setPreset('Orange Juice Concentrate', '2009.12');
+      setPreset('Merino Wool Scarves', '6117.10', 'DE');
       scrollToForm();
     }
 
@@ -862,6 +876,7 @@
       const hs = document.getElementById('hs-code').value.trim();
       const cargo = parseFloat(document.getElementById('cargo-value').value);
       const mode = document.getElementById('transport-mode').value;
+      const origin = document.getElementById('origin-country').value;
 
       if (!product) {
         alert('Please fill out the Product Name field.');
@@ -903,9 +918,9 @@
             'X-API-Key': 'ct-demo-key-2026'
           },
           body: JSON.stringify({
-            origin_country: 'CA',
+            origin_country: origin,
             corridors: selectedCorridors,
-            hs_codes: [hs || '2009.12'], // fall back to standard category if hs blank
+            hs_codes: [hs || '6117.10'], // fall back to standard category if hs blank
             mode: mode,
             min_cargo_value: cargo
           })
