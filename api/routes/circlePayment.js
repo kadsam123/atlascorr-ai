@@ -82,7 +82,7 @@ router.post('/create-wallet', (req, res) => {
 });
 
 // ── POST Pay Micro-transaction ───────────────────────────────────────────────
-router.post('/pay', (req, res) => {
+router.post('/transact', (req, res) => {
   const { sender_address, amount } = req.body || {};
 
   if (!sender_address) {

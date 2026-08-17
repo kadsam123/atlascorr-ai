@@ -162,14 +162,14 @@ async function testPaymentFlow() {
 
   // 6a. Create wallet
   console.log('  ── 6a. Create wallet');
-  const cw = await call('POST', '/api/payment/create-wallet', {});
+  const cw = await call('POST', '/api/ledger/create-wallet', {});
   assert('Create wallet: 201', cw.status === 201, `Got ${cw.status}`);
   assert('wallet.address present', cw.data?.wallet?.address, 'Missing address');
   assert('wallet.balance_usdc >= 0', cw.data?.wallet?.balance_usdc >= 0, `Got ${cw.data?.wallet?.balance_usdc}`);
 
   // 6b. Pay
   console.log('  ── 6b. Execute payment');
-  const pay = await call('POST', '/api/payment/pay', { sender_address: AGENT_WALLET, amount: 0.01 });
+  const pay = await call('POST', '/api/ledger/transact', { sender_address: AGENT_WALLET, amount: 0.01 });
   assert('Pay: 200', pay.status === 200, `Got ${pay.status}`);
   assert('transaction.tx_hash present', pay.data?.transaction?.tx_hash, 'Missing tx_hash');
   assert('transaction.explorer_url present', pay.data?.transaction?.explorer_url, 'Missing explorer_url');
@@ -182,7 +182,7 @@ async function testPaymentFlow() {
   // 6c. Proof
   console.log('  ── 6c. Verify proof');
   if (txHash) {
-    const proof = await call('GET', `/api/payment/proof?tx=${txHash}`);
+    const proof = await call('GET', `/api/ledger/proof?tx=${txHash}`);
     assert('Proof: 200', proof.status === 200, `Got ${proof.status}`);
     assert('confirmed === true', proof.data?.confirmed === true, `Got ${proof.data?.confirmed}`);
     assert('block_number > 0', proof.data?.block_number > 0, `Got ${proof.data?.block_number}`);

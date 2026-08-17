@@ -94,7 +94,7 @@ app.use('/api/pipeline', pipelineRouter);
 app.use('/api/export-plan', exportPlanRouter);
 app.use('/api/dossier-batch', dossierRouter);
 app.use('/api/portfolio-analytics', analyticsRouter);
-app.use('/api/payment', paymentRouter);
+app.use('/api/ledger', paymentRouter);
 
 // ── 404 handler ────────────────────────────────────────────────────────────────
 app.use((req, res) => {

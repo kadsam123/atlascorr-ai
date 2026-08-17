@@ -42,7 +42,7 @@ window.CT.ui.circleWallet = (() => {
   async function fetchWalletState() {
     try {
       const config = CT.store.getApiConfig();
-      const res = await fetch(`${config.url}/api/payment/wallet/${_activeWallet.address}`, {
+      const res = await fetch(`${config.url}/api/ledger/wallet/${_activeWallet.address}`, {
         headers: { 'X-API-Key': config.key }
       });
       if (res.ok) {
@@ -57,7 +57,7 @@ window.CT.ui.circleWallet = (() => {
   async function createNewWallet() {
     try {
       const config = CT.store.getApiConfig();
-      const res = await fetch(`${config.url}/api/payment/create-wallet`, {
+      const res = await fetch(`${config.url}/api/ledger/create-wallet`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ window.CT.ui.circleWallet = (() => {
     CT.app.notify('info', `Initiating USDC micropayment (${_operatingMode})…`);
     try {
       const config = CT.store.getApiConfig();
-      const res = await fetch(`${config.url}/api/payment/pay`, {
+      const res = await fetch(`${config.url}/api/ledger/transact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
