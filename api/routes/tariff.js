@@ -125,22 +125,32 @@ router.post('/', async (req, res) => {
   }
 
   // ── PHASE 2: Dynamic Enrichment ─────────────────────────────────────────────
-  reflectionLog.push(`Phase 2: Initiating dynamic web enrichment lookup.`);
+  const paymentVerified = req.headers['x-payment-verified'] === 'true' || body.payment_verified === true;
   let enrichmentApplied = false;
   let webRate = null;
   const countryName = COUNTRY_NAMES[destUpper] || destUpper;
   const sourceRef = `https://html.duckduckgo.com/html/?q=${encodeURIComponent('Tariff rate for HS ' + hs_code + ' imported to ' + countryName)}`;
 
-  try {
-    webRate = await searchWebForTariff(hs_code, countryName);
-    if (webRate !== null) {
-      enrichmentApplied = true;
-      reflectionLog.push(`Enrichment: Web crawler returned tariff rate: ${webRate}%`);
-    } else {
-      reflectionLog.push(`Enrichment: Web crawler returned no rate matches.`);
+  if (!paymentVerified) {
+    reflectionLog.push('QA: payment_verified: false');
+    reflectionLog.push('QA: enrichment_authorized: false');
+    reflectionLog.push('QA: fallback_status: active (unpaid run)');
+  } else {
+    reflectionLog.push('QA: payment_verified: true');
+    reflectionLog.push('QA: enrichment_authorized: true');
+    reflectionLog.push('QA: fallback_status: inactive');
+    reflectionLog.push(`Phase 2: Initiating dynamic web enrichment lookup.`);
+    try {
+      webRate = await searchWebForTariff(hs_code, countryName);
+      if (webRate !== null) {
+        enrichmentApplied = true;
+        reflectionLog.push(`Enrichment: Web crawler returned tariff rate: ${webRate}%`);
+      } else {
+        reflectionLog.push(`Enrichment: Web crawler returned no rate matches.`);
+      }
+    } catch (err) {
+      reflectionLog.push(`Enrichment Error: Web lookup failed: ${err.message}`);
     }
-  } catch (err) {
-    reflectionLog.push(`Enrichment Error: Web lookup failed: ${err.message}`);
   }
 
   // ── PHASE 3: Antigravity QA Supervisor ───────────────────────────────────────

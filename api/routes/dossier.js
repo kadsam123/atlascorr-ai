@@ -26,16 +26,18 @@ function inferCategoryFromHs(hsCode) {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper to query local loopback endpoints
-async function queryAgent(endpoint, payload, apiKey, port) {
+async function queryAgent(endpoint, payload, apiKey, port, paymentVerified = false) {
   try {
     const url = `http://localhost:${port}${endpoint}`;
+    const isGet = endpoint.includes('?');
     const res = await fetch(url, {
-      method: 'POST',
+      method: isGet ? 'GET' : 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': apiKey || 'ct-demo-key-2026'
+        'X-API-Key': apiKey || 'ct-demo-key-2026',
+        'X-Payment-Verified': paymentVerified ? 'true' : 'false'
       },
-      body: JSON.stringify(payload)
+      body: isGet ? undefined : JSON.stringify(payload)
     });
     if (!res.ok) {
       throw new Error(`Agent query returned ${res.status}`);
@@ -50,7 +52,7 @@ async function queryAgent(endpoint, payload, apiKey, port) {
 // ── Batch Dossier Route ───────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
   const body = req.body || {};
-  const { origin_country, corridors, hs_codes, mode, min_cargo_value } = body;
+  const { origin_country, corridors, hs_codes, mode, min_cargo_value, payment_tx_hash } = body;
 
   if (!origin_country || !corridors || !Array.isArray(corridors) || !hs_codes || !Array.isArray(hs_codes)) {
     return res.status(400).json({
@@ -64,6 +66,15 @@ router.post('/', async (req, res) => {
   const cargoValue = min_cargo_value || 25000;
   const apiKey = req.headers['x-api-key'] || 'ct-demo-key-2026';
   const port = process.env.PORT || 3000;
+
+  // Verify USDC Payment hash on-chain (or simulated)
+  let paymentVerified = false;
+  if (payment_tx_hash) {
+    const proof = await queryAgent(`/api/payment/proof?tx=${payment_tx_hash}`, {}, apiKey, port, false);
+    if (proof && proof.confirmed) {
+      paymentVerified = true;
+    }
+  }
 
   const dossiers = [];
   let fullyEnrichedCount = 0;
@@ -84,7 +95,7 @@ router.post('/', async (req, res) => {
         hs_code: hs,
         origin_country,
         destination_country: destination
-      }, apiKey, port);
+      }, apiKey, port, paymentVerified);
 
       // 2. Fetch Compliance Agent Details
       const complianceResponse = await queryAgent('/api/compliance', {
@@ -92,7 +103,7 @@ router.post('/', async (req, res) => {
         origin_country,
         destination_country: destination,
         cargo_value: cargoValue
-      }, apiKey, port);
+      }, apiKey, port, paymentVerified);
 
       // 3. Fetch Route Scoring Agent Details
       const routeResponse = await queryAgent('/api/route-score', {
@@ -100,7 +111,7 @@ router.post('/', async (req, res) => {
         destination_country: destination,
         mode: selectedMode,
         cargo_value: cargoValue
-      }, apiKey, port);
+      }, apiKey, port, paymentVerified);
 
       // 4. Fetch Export Plan Agent Details
       const exportResponse = await queryAgent('/api/export-plan', {
@@ -109,7 +120,7 @@ router.post('/', async (req, res) => {
         destination_country: destination,
         mode: selectedMode,
         cargo_value: cargoValue
-      }, apiKey, port);
+      }, apiKey, port, paymentVerified);
 
       // Check validation flags for supervisor states
       const tariffQA = tariffResponse ? tariffResponse.qa_supervisor.status : 'FAILED';

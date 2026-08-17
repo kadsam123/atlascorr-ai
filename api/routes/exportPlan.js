@@ -215,20 +215,30 @@ router.post('/', async (req, res) => {
   reflectionLog.push(`Core export plan generated mandatory steps and documents for ${category} ${origin}→${destUpper}.`);
 
   // ── PHASE 2: Dynamic Enrichment ─────────────────────────────────────────────
-  reflectionLog.push(`Phase 2: Running dynamic country-specific guidelines lookup.`);
+  const paymentVerified = req.headers['x-payment-verified'] === 'true' || body.payment_verified === true;
   let enrichmentApplied = false;
   let webUpdate = null;
 
-  try {
-    webUpdate = await searchWebForExportTips(hsCode, destUpper, testScenario);
-    if (webUpdate) {
-      enrichmentApplied = true;
-      reflectionLog.push(`Dynamic enrichment retrieved country-specific guidelines.`);
-    } else {
-      reflectionLog.push(`Dynamic enrichment returned no export plan updates.`);
+  if (!paymentVerified) {
+    reflectionLog.push('QA: payment_verified: false');
+    reflectionLog.push('QA: enrichment_authorized: false');
+    reflectionLog.push('QA: fallback_status: active (unpaid run)');
+  } else {
+    reflectionLog.push('QA: payment_verified: true');
+    reflectionLog.push('QA: enrichment_authorized: true');
+    reflectionLog.push('QA: fallback_status: inactive');
+    reflectionLog.push(`Phase 2: Running dynamic country-specific guidelines lookup.`);
+    try {
+      webUpdate = await searchWebForExportTips(hsCode, destUpper, testScenario);
+      if (webUpdate) {
+        enrichmentApplied = true;
+        reflectionLog.push(`Dynamic enrichment retrieved country-specific guidelines.`);
+      } else {
+        reflectionLog.push(`Dynamic enrichment returned no export plan updates.`);
+      }
+    } catch (err) {
+      reflectionLog.push(`Enrichment Error: Dynamic guidelines lookup failed: ${err.message}`);
     }
-  } catch (err) {
-    reflectionLog.push(`Enrichment Error: Dynamic guidelines lookup failed: ${err.message}`);
   }
 
   // ── PHASE 3: Antigravity QA Supervisor ───────────────────────────────────────

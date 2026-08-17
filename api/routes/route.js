@@ -196,20 +196,30 @@ router.post('/', async (req, res) => {
   reflectionLog.push(`Core route model computed base_transit_time_days=${baseTransit} and base_cost_estimate_usd=${baseCost}.`);
 
   // ── PHASE 2: Dynamic Enrichment ─────────────────────────────────────────────
-  reflectionLog.push(`Phase 2: Initiating dynamic logistics updates lookup.`);
+  const paymentVerified = req.headers['x-payment-verified'] === 'true' || body.payment_verified === true;
   let enrichmentApplied = false;
   let logUpdate = null;
 
-  try {
-    logUpdate = await searchWebForLogistics(portD, testScenario);
-    if (logUpdate) {
-      enrichmentApplied = true;
-      reflectionLog.push(`Dynamic enrichment retrieved logistics update: "${logUpdate.title}".`);
-    } else {
-      reflectionLog.push(`Dynamic enrichment returned no logistics updates.`);
+  if (!paymentVerified) {
+    reflectionLog.push('QA: payment_verified: false');
+    reflectionLog.push('QA: enrichment_authorized: false');
+    reflectionLog.push('QA: fallback_status: active (unpaid run)');
+  } else {
+    reflectionLog.push('QA: payment_verified: true');
+    reflectionLog.push('QA: enrichment_authorized: true');
+    reflectionLog.push('QA: fallback_status: inactive');
+    reflectionLog.push(`Phase 2: Initiating dynamic logistics updates lookup.`);
+    try {
+      logUpdate = await searchWebForLogistics(portD, testScenario);
+      if (logUpdate) {
+        enrichmentApplied = true;
+        reflectionLog.push(`Dynamic enrichment retrieved logistics update: "${logUpdate.title}".`);
+      } else {
+        reflectionLog.push(`Dynamic enrichment returned no logistics updates.`);
+      }
+    } catch (err) {
+      reflectionLog.push(`Enrichment Error: Dynamic lookup failed: ${err.message}`);
     }
-  } catch (err) {
-    reflectionLog.push(`Enrichment Error: Dynamic lookup failed: ${err.message}`);
   }
 
   // ── PHASE 3: Antigravity QA Supervisor ───────────────────────────────────────

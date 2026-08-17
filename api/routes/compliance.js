@@ -223,20 +223,30 @@ router.post('/', async (req, res) => {
   reflectionLog.push(`Core: Resolved category '${cat}' and mandatory required documents.`);
 
   // ── PHASE 2: Dynamic Enrichment ─────────────────────────────────────────────
-  reflectionLog.push(`Phase 2: Executing dynamic regulatory updates lookup.`);
+  const paymentVerified = req.headers['x-payment-verified'] === 'true' || body.payment_verified === true;
   let enrichmentApplied = false;
   let webUpdate = null;
 
-  try {
-    webUpdate = await searchWebForRegulations(hsCode, destUpper, testScenario);
-    if (webUpdate) {
-      enrichmentApplied = true;
-      reflectionLog.push(`Dynamic enrichment retrieved regulatory update: "${webUpdate.title}".`);
-    } else {
-      reflectionLog.push(`Dynamic enrichment returned no regulatory updates.`);
+  if (!paymentVerified) {
+    reflectionLog.push('QA: payment_verified: false');
+    reflectionLog.push('QA: enrichment_authorized: false');
+    reflectionLog.push('QA: fallback_status: active (unpaid run)');
+  } else {
+    reflectionLog.push('QA: payment_verified: true');
+    reflectionLog.push('QA: enrichment_authorized: true');
+    reflectionLog.push('QA: fallback_status: inactive');
+    reflectionLog.push(`Phase 2: Executing dynamic regulatory updates lookup.`);
+    try {
+      webUpdate = await searchWebForRegulations(hsCode, destUpper, testScenario);
+      if (webUpdate) {
+        enrichmentApplied = true;
+        reflectionLog.push(`Dynamic enrichment retrieved regulatory update: "${webUpdate.title}".`);
+      } else {
+        reflectionLog.push(`Dynamic enrichment returned no regulatory updates.`);
+      }
+    } catch (err) {
+      reflectionLog.push(`Enrichment Error: Regulatory lookup failed: ${err.message}`);
     }
-  } catch (err) {
-    reflectionLog.push(`Enrichment Error: Regulatory lookup failed: ${err.message}`);
   }
 
   // ── PHASE 3: Antigravity QA Supervisor ───────────────────────────────────────
