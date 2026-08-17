@@ -221,7 +221,68 @@ CT.app = (() => {
     console.log('%cMeridian Flow · TradeMatch · DDTRS · CircleBrain — all modules active', 'color:#7c3aed');
   }
 
-  return { navigate, quickRun, closePipelineModal, init, toggleApiMode, openApiSettings, closeApiSettings, saveApiSettings };
+  function notify(type, message) {
+    // 1. Add to store so it appears in Alerts history
+    CT.store.addNotification({
+      type: type === 'error' ? 'compliance' : (type === 'success' ? 'opportunity' : 'info'),
+      title: type.toUpperCase(),
+      message: message,
+      customer: 'Circle Agent Stack'
+    });
+
+    // 2. Render a sliding toast notification on screen
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      container.style.position = 'fixed';
+      container.style.top = '24px';
+      container.style.right = '28px';
+      container.style.zIndex = '9999';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.gap = '10px';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const bg = type === 'error' ? 'rgba(239, 68, 68, 0.9)' : (type === 'success' ? 'rgba(16, 185, 129, 0.9)' : 'rgba(59, 130, 246, 0.9)');
+    toast.style.background = bg;
+    toast.style.color = '#fff';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.backdropFilter = 'blur(8px)';
+    toast.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1)';
+    toast.style.fontSize = '13px';
+    toast.style.fontWeight = '500';
+    toast.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+    toast.style.transform = 'translateX(100px)';
+    toast.style.opacity = '0';
+    toast.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span>${type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️')}</span>
+        <span>${message}</span>
+      </div>
+    `;
+    container.appendChild(toast);
+
+    // Slide in
+    setTimeout(() => {
+      toast.style.transform = 'translateX(0)';
+      toast.style.opacity = '1';
+    }, 50);
+
+    // Slide out and remove
+    setTimeout(() => {
+      toast.style.transform = 'translateX(100px)';
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3500);
+  }
+
+  return { navigate, quickRun, closePipelineModal, init, toggleApiMode, openApiSettings, closeApiSettings, saveApiSettings, notify };
 })();
 
 // Boot on DOMContentLoaded
