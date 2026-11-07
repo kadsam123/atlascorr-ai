@@ -201,7 +201,36 @@
     </div>
   </div>
 
+<section id="product-analyzer">
+  <h2>Product Qualification</h2>
+  <form onsubmit="submitProductForm(event)">
+    <label>Product ID: <input id="product_id" required /></label><br/>
+    <label>Company ID: <input id="company_id" required /></label><br/>
+    <label>Name: <input id="product_name" required /></label><br/>
+    <label>Description: <textarea id="raw_description" required></textarea></label><br/>
+    <label>Target Unit Price (CAD): <input id="target_price" type="number" step="0.01" required /></label><br/>
+    <label>Export Objective: <input id="export_objective" required /></label><br/>
+    <label>Readiness Level:
+      <select id="export_readiness_level">
+        <option value="NOT_READY">Not Ready</option>
+        <option value="EXPLORING">Exploring</option>
+        <option value="EXPORTING_US_ONLY">Exporting US Only</option>
+        <option value="GLOBAL_EXPORTER">Global Exporter</option>
+      </select>
+    </label><br/>
+    <label>Export Volume:
+      <input id="export_volume_value" type="number" step="0.01" required />
+      <input id="export_volume_unit" placeholder="e.g. kg" required />
+    </label><br/>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h3>Response</h3>
+  <pre id="product_response" style="background:#f0f0f0;padding:1rem;"></pre>
+</section>
+
   <script src="js/data/mockData.js?v=3"></script>
+  <script src="js/atlas-client.js?v=1"></script>
   <script src="js/data/store.js?v=3"></script>
   <script src="js/modules/meridianFlow.js?v=3"></script>
   <script src="js/modules/tradeMatch.js?v=3"></script>
